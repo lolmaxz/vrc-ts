@@ -4,7 +4,8 @@
   "description": "This is a typescript boilerplate project to be used by anyone.",
   "main": "src/main.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "dev": "ts-node src/main.ts"
   },
   "keywords": [
     "boilerplate",
@@ -19,6 +20,7 @@
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "prettier": "^3.0.3",
+    "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }
 }
