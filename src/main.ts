@@ -1,15 +1,18 @@
-class Person {
-  name: string;
-  age: number;
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
-  sayHello() {
-    return `Hello, my name is ${this.name}, I'm ${this.age} years old`;
-  }
+import { VRCWrapper } from "./AuthentificationHandler";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+function main() {
+    const vrchat = new VRCWrapper(process.env.VRCHAT_USERNAME || '', process.env.VRCHAT_PASSWORD || '', true);
+    // console.log(vrchat);
+    
+    vrchat.authenticate().then(() => {
+        console.log("Authenticated!");
+    }).catch((error) => {
+        console.error("Authentification failed: ", error);
+    });
+    
 }
 
-const p1 = new Person('Jack', 32);
-
-console.log(p1.sayHello());
+main()
