@@ -4,83 +4,110 @@
 // import { AxiosResponse } from 'axios';
 // import { AxiosResponse } from 'axios';
 import { BaseVRChatWrapper } from './BaseVRChatWrapper';
-import { AuthenticationResponse } from './types/requestConfig';
 // import { AuthenticationResponse } from './types/requestConfig';
 
 
 // Function to handle authentification and 2FA verification
 export class VRCWrapper extends BaseVRChatWrapper {
-    baseURL: string = 'https://api.vrchat.cloud/api/1/';
+  baseURL: string = 'https://api.vrchat.cloud/api/1/';
 
-    constructor(username: string, password: string, loadCookies:boolean = true) {
-        super(username, password, loadCookies);
-        console.log(super.cookieJar);
-        
+  async authenticate() {
+    try {
+      console.log(this.cookieJar);
+
+      const auth = Buffer.from(`${encodeURIComponent(this.username)}:${encodeURIComponent(this.password)}`).toString('base64');
+
+      // const response = await super.axiosInstance.get('https://api.vrchat.cloud/api/1/auth/user', {
+      //   headers: {
+      //     Authorization: `Basic ${}`, // Replace with actual credentials
+      //   },
+      // });
+
+      const url: URL = new URL(this.baseURL + "auth/user");
+
+      const options: RequestInit = {
+        method: 'GET',
+        headers: {
+          Authorization: `Basic ${auth}`,
+        },
+
+      };
+
+
+
+
+      const response: API<AuthenticationResponse, { requiresTwoFactorAuth: ['totp', 'otp'] } |
+      { requiresTwoFactorAuth: ['emailOtp'] }> = await fetch(this.baseURL + "auth/user", {
+        method: 'GET',
+
+        headers: {
+          Authorization: `Basic ${auth}`,
+        },
+      });
+
+
+
+
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.log(data);
+        throw new Error();
+      }
+
+
+      const data = await response.json();
+
+      // Handle the response data here
+      if (data.displayName) {
+        console.log('\x1b[32m🟢 Successfully logged in as: \x1b[1m' + data.displayName + '\x1b[0m');
+        return;
+      }
+
+      if (data.requiresTwoFactorAuth) {
+        if (data.requiresTwoFactorAuth.includes('totp') || data.requiresTwoFactorAuth.includes('otp')) {
+          console.log('Handling TOTP or OTP two-factor authentication...');
+          // Handle the 'totp' or 'otp' two-factor authentication case
+        } else if (data.requiresTwoFactorAuth.includes('emailOtp')) {
+          console.log('Handling Email OTP two-factor authentication...');
+
+          // Handle the 'emailOtp' two-factor authentication case
+        }
+      }
+      // ... other logic to handle the response ...
+
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Axios error: ', error.message); // Log any axios or network errors
+      } else {
+        console.error('Unknown error: ', error);
+
+      }
     }
 
-    async authenticate() {
+
+    // If we are here, Cookies couldn't be used so we need to authenticate
+    // console.log(super.username);
+    // console.log(super.rl);
+    // console.log("This will now authenticate!");
+
+    // try to authenticate normally
+    // if it fails, check if it's because of 2FA
+    // if it's because of email 2FA, ask for code sent to email
+    // if it's because of TOTP, try to check if we have a TOTP secret
+    // if we don't, ask for code
+    // if it's because of TOTP and we have a TOTP secret, try to use it
+    // if it fails, ask for code
+    // if it succeeds, save cookies and exit
+
+    // code here
+    // getCurrent user fetch
+    // check result
 
 
-        try {
-            console.log(super.cookieJar);
-            
-            const response = await super.axiosInstance.get('https://api.vrchat.cloud/api/1/auth/user', {
-              headers: {
-                Authorization: `Basic ${Buffer.from(`${encodeURIComponent(super.username)}:${encodeURIComponent(super.password)}`).toString('base64')}`, // Replace with actual credentials
-              },
-            });
-      
-            const data = response.data as AuthenticationResponse;
-            // Handle the response data here
-            if (data.displayName) {
-                console.log('\x1b[32m🟢 Successfully logged in as: \x1b[1m' + data.displayName + '\x1b[0m');
-                return;
-            }
-
-            if (data.requiresTwoFactorAuth) {
-              if (data.requiresTwoFactorAuth.includes('totp') || data.requiresTwoFactorAuth.includes('otp')) {
-                console.log('Handling TOTP or OTP two-factor authentication...');
-                // Handle the 'totp' or 'otp' two-factor authentication case
-              } else if (data.requiresTwoFactorAuth.includes('emailOtp')) {
-                console.log('Handling Email OTP two-factor authentication...');
-                
-                // Handle the 'emailOtp' two-factor authentication case
-              }
-            }
-            // ... other logic to handle the response ...
-      
-          } catch (error) {
-            if (error instanceof Error) {
-            console.error('Axios error: ', error.message); // Log any axios or network errors
-            } else {
-            console.error('Unknown error: ', error);
-
-          }
-        }
 
 
-        // If we are here, Cookies couldn't be used so we need to authenticate
-        // console.log(super.username);
-        // console.log(super.rl);
-        // console.log("This will now authenticate!");
-        
-        // try to authenticate normally
-            // if it fails, check if it's because of 2FA
-            // if it's because of email 2FA, ask for code sent to email
-            // if it's because of TOTP, try to check if we have a TOTP secret
-                // if we don't, ask for code
-            // if it's because of TOTP and we have a TOTP secret, try to use it
-                // if it fails, ask for code
-                // if it succeeds, save cookies and exit
-        
-        // code here
-        // getCurrent user fetch
-         // check result
-        
-
-         
-
-        // Encode username and password and create Basic Auth string
+    // Encode username and password and create Basic Auth string
     //     const encodedUsername = encodeURIComponent(this.username);
     //     const encodedPassword = encodeURIComponent(this.password);
     //     const base64Credentials = Buffer.from(`${encodedUsername}:${encodedPassword}`).toString('base64');
@@ -103,7 +130,7 @@ export class VRCWrapper extends BaseVRChatWrapper {
     //     console.log("data: ",data); // Log the response data
 
     //     // Handle special cases
-        
+
     //   if (data.requiresTwoFactorAuth) {
     //     if (data.requiresTwoFactorAuth.includes('totp') || data.requiresTwoFactorAuth.includes('otp')) {
     //       // Handle the 'totp' and 'otp' case
@@ -123,7 +150,7 @@ export class VRCWrapper extends BaseVRChatWrapper {
     //     console.log('No two-factor authentication required.');
     //     // Add your handling code here
     //   }
-    
+
 
     //     } catch (error) {
     //         if (error instanceof Error) {
@@ -168,7 +195,7 @@ export class VRCWrapper extends BaseVRChatWrapper {
     //         this.handle2FA(true);
     //       }
     //     }
-    //   })
+    //   })¡
     //   .catch((error) => {
     //     if (error.response) {
     //       if (error.response.status === 401) {
