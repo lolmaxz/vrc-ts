@@ -4,9 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 function main() {
-    const vrchat = new VRCWrapper(process.env.VRCHAT_USERNAME || '', process.env.VRCHAT_PASSWORD || '', true);
-    // console.log(vrchat);
-    
+    const vrchat = new VRCWrapper(process.env.VRCHAT_USERNAME || '', process.env.VRCHAT_PASSWORD || '');  
+
     vrchat.authenticate().then(() => {
         console.log("Authenticated!");
     }).catch((error) => {

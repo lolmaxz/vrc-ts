@@ -1,11 +1,12 @@
 import * as readline from 'readline';
+import { Color as C } from './colors';
 
 // function handle2FA_TOTP(rl:readline.Interface) {
 
 // }
 
 function handle2FA(rl:readline.Interface) {
-    rl.question("\x1b[4mEnter 2FA code:\x1b[0m", (code) => {
+    rl.question(`${C.blue}Enter 2FA code:${C.r}`, (code) => {
         console.log(code);
         // code to make request here
 
