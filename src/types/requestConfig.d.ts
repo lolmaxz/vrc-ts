@@ -1,3 +1,5 @@
+
+
 interface requestConfig {
     username?: string;
     password?: string;
@@ -7,9 +9,22 @@ interface requestConfig {
 type AuthenticationResponse = {
     requiresTwoFactorAuth?: string[];
     verified?: boolean;
-    displayName?: string;
+    error?: {message: string, status_code: number};
+    cookies?: {
+        key: string;
+        value: string;
+        expires: Date;
+        domain: string;
+        path: string;
+        hostOnly: boolean;
+        creation: Date;
+        lastAccessed: Date;
+      }[]
 };
 
+type twoFactorAuthResponse = {
+    verified: boolean;
+};
 
 interface APIResponse<T> extends Omit<Response, 'ok' | 'json'> {
     ok: true;
@@ -22,3 +37,9 @@ interface APIErrorResponse<E> extends Omit<Response, 'ok' | 'json'> {
 }
 
 type API<T, E> = APIResponse<T> | APIErrorResponse<E>;
+
+type APIPaths = {
+    [section: string]: {
+      [subsection: string]: {path:string, method:string};
+    };
+  };

@@ -132,3 +132,5 @@ dist
 # custom
 ./cookies.json
 cookies.json
+./cookies_*.json
+cookies_*.json

@@ -43,7 +43,7 @@ export class VRCCookie implements CookieOpts {
    */
   toCookieString(): string {
     // return all keys with values in a concatenated string
-    let result:string = "";
+    let result: string = "";
     result = `key: ${this.key}; `;
     result += `value: ${this.value}; `;
     result += `expires: ${this.expires.toISOString()}; `;
@@ -137,8 +137,7 @@ export class cookiesHandler {
         // this cookie is expired so we throw a special error for this case
         throw new CookiesExpired("Cookies expired for user '" + this.usernameOwner + "'!");
       }
-    }
-    );
+    });
   }
 
   /**
@@ -147,55 +146,95 @@ export class cookiesHandler {
    */
   async saveCookies(): Promise<void> {
     // we save if the user had cookies before or not before saving
-    const cookiesExisted = await this.cookiesExist();
-
-    let allCookies: SavedCookieJar = {};
-
-    await fs.readFile(
-      this.cookieFilePath,
-      'utf8'
-    ).then(async cookieFileContent => {
-      allCookies = JSON.parse(cookieFileContent) as SavedCookieJar;
-
-      allCookies[this.usernameOwner] = this.cookies;
-
-      // We write updated (or new) cookies to the file here
-      await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8').then(() => {
-        // Cookies saved successfully here!
-      }).catch((error) => {
-        if (error instanceof Error) {
-          // Error writing the file
-          throw new CookiesWriteError("Error writing cookies: " + error.message);
-        }
-      });
-    }).catch((error) => {
-      if (error instanceof Error) {
-        // Error reading the file
-        throw new CookiesReadError("Error reading cookies: " + error.message);
+    if (process.env.USE_COOKIES === "true") {
+      let cookiesExisted = false;
+      try {
+        await this.cookiesExist();
+        cookiesExisted = true;
+      } catch (error) {
+        cookiesExisted = false;
       }
 
-    });
+      let allCookies: SavedCookieJar = {};
 
-    // Loggin the result in the console
-    if (!cookiesExisted) {
-      console.log(
-        `${C.blue + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.blue + C.b}' have been created successfully!${C.r}`,
-      );
-    } else {
-      console.log(
-        `${C.green + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.green + C.b}' have been updated successfully!${C.r}`,
-      );
+      if (cookiesExisted) {
+        await fs.readFile(
+          this.cookieFilePath,
+          'utf8'
+        ).then(async cookieFileContent => {
+          allCookies = JSON.parse(cookieFileContent) as SavedCookieJar;
+
+          allCookies[this.usernameOwner] = this.cookies;
+
+          // We updated the cookies to the file here
+          await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8').then(() => {
+            // Cookies saved successfully here!
+          }).catch((error) => {
+            if (error instanceof Error) {
+              // Error writing the file
+              throw new CookiesWriteError("Error writing cookies: " + error.message);
+            }
+          });
+        }).catch((error) => {
+          if (error instanceof Error) {
+            // Error reading the file
+            throw new CookiesReadError("Error reading cookies: " + error.message);
+          }
+
+        });
+      } else {
+
+        allCookies[this.usernameOwner] = this.cookies;
+        // We write updated (or new) cookies to the file here
+        await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8').then(() => {
+          // Cookies saved successfully here!
+        }).catch((error) => {
+          if (error instanceof Error) {
+            // Error writing the file
+            throw new CookiesWriteError("Error writing cookies: " + error.message);
+          }
+        });
+
+      }
+
+      // Loggin the result in the console
+      if (!cookiesExisted) {
+        console.log(
+          `${C.blue + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.blue + C.b}' have been created successfully!${C.r}`,
+        );
+      } else {
+        console.log(
+          `${C.green + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.green + C.b}' have been updated successfully!${C.r}`,
+        );
+      }
     }
+  }
+
+  // add cookies
+  addCookies(cookies: VRCCookie[]): void {
+    this.cookies = this.cookies.concat(cookies);
+  }
+
+  // add cookie
+  addCookie(cookie: VRCCookie): void {
+    this.cookies.push(cookie);
   }
 
   /**
    * let's you check if cookies exist in a file using process.env.COOKIES_PATH and if a key exist with the name of 'username'.
    * @returns `Promise<boolean>` A boolean if cookies exist for the user.
    */
-  async cookiesExist(): Promise<boolean> {
+  async cookiesExist(username: string = ""): Promise<boolean> {
     try {
       await fs.stat(this.cookieFilePath);
       const cookies: SavedCookieJar = JSON.parse(await fs.readFile(this.cookieFilePath, 'utf8')) as SavedCookieJar;
+      if (username !== "") {
+        if (cookies[username] !== undefined) {
+          return true;
+        } else {
+          throw new CookiesUser404("No Cookies was found for user '" + username + "'!");
+        }
+      }
       if (cookies[this.usernameOwner] !== undefined) {
         return true;
       } else {
@@ -210,8 +249,6 @@ export class cookiesHandler {
         throw new Error("Unknown error loading cookies!");
       }
     }
-
-
   }
 
   /**
@@ -239,10 +276,10 @@ export class cookiesHandler {
     });
     return result;
   }
-/**
- * Return all keys with values in a concatenated string from the cookies for this instance.
- * @returns `string` A string of all cookies in a format that can be used in a request.
- */
+  /**
+   * Return all keys with values in a concatenated string from the cookies for this instance.
+   * @returns `string` A string of all cookies in a format that can be used in a request.
+   */
   formatAll(): string {
     let cookieString: string = "";
     this.cookies.forEach((cookie) => {
@@ -250,9 +287,70 @@ export class cookiesHandler {
     });
     // trim the end
     cookieString = cookieString.trimEnd();
-    console.log("cookieString: ", cookieString);
-    
+    // console.log("cookieString: ", cookieString);
+
     return cookieString;
+  }
+
+  public async parseCookieString(cookieString: string, domain: string): Promise<void> {
+    const cookies: VRCCookie[] = [];
+    const cookieParts = cookieString.split(';');
+
+    cookieParts.forEach((part, index) => {
+      const [key, value] = part.split('=').map(s => s.trim());
+      if (index === 0) {
+        // This is the main cookie key-value pair
+        cookies.push(new VRCCookie({
+          key,
+          value,
+          expires: new Date(),
+          domain,
+          path: '/',
+          hostOnly: false,
+          creation: new Date(),
+          lastAccessed: new Date(),
+        } as CookieOpts));
+      } else {
+        // These are the cookie attributes
+        const currentCookie = cookies[cookies.length - 1];
+        switch (key.toLowerCase()) {
+          case 'expires':
+            currentCookie.expires = new Date(value);
+            break;
+          case 'path':
+            currentCookie.path = value;
+            break;
+          case 'httponly':
+            currentCookie.hostOnly = true;
+            break;
+        }
+      }
+    });
+
+    this.cookies = cookies;
+    return Promise.resolve();
+  }
+
+  // check if the cookies has a field key named 'auth' and if it's value is not empty and return it formated in a single line string
+  getAuthCookie(): string {
+    let result: string = "";
+    this.cookies.forEach((cookie) => {
+      if (cookie.key === 'auth') {
+        result = `${cookie.key}=${cookie.value};`;
+      }
+    });
+    return result;
+  }
+
+  // check if the cookies has a field key named 'twoFactorAuth' and if it's value is not empty and return it formated in a single line string
+  getTwoFactorAuthCookie(): string {
+    let result: string = "";
+    this.cookies.forEach((cookie) => {
+      if (cookie.key === 'twoFactorAuth') {
+        result = `${cookie.key}=${cookie.value};`;
+      }
+    });
+    return result;
   }
 
 }

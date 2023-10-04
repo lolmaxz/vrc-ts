@@ -1,7 +1,7 @@
 
-import * as readline from 'readline';
-import * as dotenv from 'dotenv';
+import readline from 'readline';
 import cookiesHandler from './VRCCookie';
+import dotenv from 'dotenv';
 dotenv.config();
 
 export class BaseVRChatWrapper {
@@ -11,6 +11,7 @@ export class BaseVRChatWrapper {
   public instanceCookie: cookiesHandler;
   rl: readline.Interface;
   isAuthentificated: boolean;
+  static baseDomain: string = 'api.vrchat.cloud';
 
   /**
    * 
