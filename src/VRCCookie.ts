@@ -104,7 +104,7 @@ export class cookiesHandler {
         // Error reading the file
         if (typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
           // File not found, handle accordingly
-          throw new CookiesReadError("File not found: " + this.cookieFilePath);
+          throw new CookiesNotFound("File not found: " + this.cookieFilePath);
         } else {
           // Other errors during reading the file
           throw new CookiesReadError("Error reading cookies: " + error.message);
@@ -146,66 +146,36 @@ export class cookiesHandler {
    */
   async saveCookies(): Promise<void> {
     // we save if the user had cookies before or not before saving
-    if (process.env.USE_COOKIES === "true") {
-      let cookiesExisted = false;
-      try {
-        await this.cookiesExist();
-        cookiesExisted = true;
-      } catch (error) {
-        cookiesExisted = false;
+    if (process.env.USE_COOKIES && process.env.USE_COOKIES !== "true") {
+      return;
+    }
+
+    let allCookies: SavedCookieJar = {};
+
+    try {
+      // if cookies file doesn't exist we create it first
+      const fileExist = await this.cookieFileExist();
+
+      if (fileExist) {
+        const cookieFileContent = await fs.readFile(this.cookieFilePath, 'utf8');
+        allCookies = JSON.parse(cookieFileContent) as SavedCookieJar;
       }
 
-      let allCookies: SavedCookieJar = {};
-
-      if (cookiesExisted) {
-        await fs.readFile(
-          this.cookieFilePath,
-          'utf8'
-        ).then(async cookieFileContent => {
-          allCookies = JSON.parse(cookieFileContent) as SavedCookieJar;
-
-          allCookies[this.usernameOwner] = this.cookies;
-
-          // We updated the cookies to the file here
-          await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8').then(() => {
-            // Cookies saved successfully here!
-          }).catch((error) => {
-            if (error instanceof Error) {
-              // Error writing the file
-              throw new CookiesWriteError("Error writing cookies: " + error.message);
-            }
-          });
-        }).catch((error) => {
-          if (error instanceof Error) {
-            // Error reading the file
-            throw new CookiesReadError("Error reading cookies: " + error.message);
-          }
-
-        });
-      } else {
-
-        allCookies[this.usernameOwner] = this.cookies;
-        // We write updated (or new) cookies to the file here
-        await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8').then(() => {
-          // Cookies saved successfully here!
-        }).catch((error) => {
-          if (error instanceof Error) {
-            // Error writing the file
-            throw new CookiesWriteError("Error writing cookies: " + error.message);
-          }
-        });
-
-      }
+      allCookies[this.usernameOwner] = this.cookies;
+      await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8')
 
       // Loggin the result in the console
-      if (!cookiesExisted) {
-        console.log(
-          `${C.blue + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.blue + C.b}' have been created successfully!${C.r}`,
-        );
+        console.log(`${C.blue + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.blue + C.b}' have been ${fileExist?"updated":"created"} successfully!${C.r}`);
+
+    } catch (error) {
+      if (error instanceof CookiesUser404) {
+        throw new CookiesUser404(error.message);
+      } else if (error instanceof CookiesExpired) {
+        throw new CookiesExpired(error.message);
+      } else if (error instanceof CookiesWriteError) {
+        throw new CookiesWriteError(error.message);
       } else {
-        console.log(
-          `${C.green + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.green + C.b}' have been updated successfully!${C.r}`,
-        );
+        throw new Error("Unknown error saving cookies!");
       }
     }
   }
@@ -224,27 +194,28 @@ export class cookiesHandler {
    * let's you check if cookies exist in a file using process.env.COOKIES_PATH and if a key exist with the name of 'username'.
    * @returns `Promise<boolean>` A boolean if cookies exist for the user.
    */
-  async cookiesExist(username: string = ""): Promise<boolean> {
+  async cookiesExist(username?: string): Promise<void> {
     try {
       await fs.stat(this.cookieFilePath);
       const cookies: SavedCookieJar = JSON.parse(await fs.readFile(this.cookieFilePath, 'utf8')) as SavedCookieJar;
-      if (username !== "") {
-        if (cookies[username] !== undefined) {
-          return true;
+      if (username && !cookies[username]) throw new CookiesUser404("No Cookies was found for user '" + username + "'!");  
+      if (!cookies[this.usernameOwner]) throw new CookiesUser404("No Cookies was found for user '" + this.usernameOwner + "'!");  
+      
+    } catch (error) {
+
+      if (error instanceof Error) {
+        // Error reading the file
+        if (typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+          // File not found, handle accordingly
+          throw new CookiesNotFound("File not found: " + this.cookieFilePath);
         } else {
-          throw new CookiesUser404("No Cookies was found for user '" + username + "'!");
+          // Other errors during reading the file
+          throw new CookiesReadError("Error reading cookies: " + error.message);
         }
       }
-      if (cookies[this.usernameOwner] !== undefined) {
-        return true;
-      } else {
-        throw new CookiesUser404("No Cookies was found for user '" + this.usernameOwner + "'!");
-      }
-    } catch (error) {
-      if (error instanceof CookiesUser404) {
+
+      if (error instanceof CookiesUser404 || error instanceof CookiesNotFound) {
         throw new CookiesUser404(error.message);
-      } else if (error instanceof CookiesNotFound) {
-        throw new CookiesNotFound("No Cookies was found!");
       } else {
         throw new Error("Unknown error loading cookies!");
       }
@@ -352,7 +323,6 @@ export class cookiesHandler {
     });
     return result;
   }
-
 }
 
 export default cookiesHandler;

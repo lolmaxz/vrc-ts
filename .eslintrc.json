@@ -1,21 +1,24 @@
 {
     "env": {
-        "es2021": true,
-        "node": true
+      "es2021": true,
+      "node": true
     },
     "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/strict-type-checked",
-        "prettier"
+      "eslint:recommended",
+      "plugin:@typescript-eslint/strict-type-checked",
+      "prettier",
+      "plugin:promise/recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": "latest",
-        "sourceType": "module",
-        "project": "./tsconfig.json"
+      "ecmaVersion": "latest",
+      "sourceType": "module",
+      "project": "./tsconfig.json"
     },
-    "plugins": [
-        "@typescript-eslint"
-    ],
-    "rules": {}
-}
+    "plugins": ["@typescript-eslint", "promise"],
+    "rules": {
+      "promise/prefer-await-to-callbacks": "error",
+      "promise/prefer-await-to-then": "error"
+    }
+  }
+  

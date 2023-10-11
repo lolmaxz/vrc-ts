@@ -83,16 +83,46 @@ export class CookiesNotFound extends Error {
     export class CurrentUserObjectParseError extends Error {
         errorList: string[];
         constructor(errorList: string[]) {
-        super(); // Pass the message to the Error constructor
+        super(`${C.brightRed}[ PARSING ERROR ] [CURRENTUSER]${C.reset} - The following properties couldn't be parsed: ${errorList.join(', ')}`); // Pass the message to the Error constructor
         this.name = 'CurrentUserObjectParseError'; // Set the name of the error
         this.errorList = errorList;
         Object.setPrototypeOf(this, CurrentUserObjectParseError.prototype); // Set the prototype explicitly for correct instanceof checks
         }
     
-        logError(): void {
-            // joined list of error to display
-            const joinedList = this.errorList.join(', ');
-            console.error(`${C.brightRed}[ PARSING ERROR ] [CURRENTUSER]${C.reset} - The following properties couldn't be parsed: ${joinedList}`);
+        
+    }
+
+    // error parsing LimitedUserObject
+    export class LimitedUserObjectParseError extends Error {
+        errorList: string[];
+        constructor(errorList: string[]) {
+        super(`${C.brightRed}[ PARSING ERROR ] [LIMITEDUSER]${C.reset} - The following properties couldn't be parsed: ${errorList.join(', ')}`); // Pass the message to the Error constructor
+        this.name = 'LimitedUserObjectParseError'; // Set the name of the error
+        this.errorList = errorList;
+        Object.setPrototypeOf(this, LimitedUserObjectParseError.prototype); // Set the prototype explicitly for correct instanceof checks
+        }
+    
+    }
+
+    // error parsing UserObject
+    export class UserObjectParseError extends Error {
+        errorList: string[];
+        constructor(errorList: string[]) {
+        super(`${C.brightRed}[ PARSING ERROR ] [USER]${C.reset} - The following properties couldn't be parsed: ${errorList.join(', ')}`); // Pass the message to the Error constructor
+        this.name = 'UserObjectParseError'; // Set the name of the error
+        this.errorList = errorList;
+        Object.setPrototypeOf(this, UserObjectParseError.prototype); // Set the prototype explicitly for correct instanceof checks
+        }
+    }
+
+    // error parsing GroupObject
+    export class GroupObjectParseError extends Error {
+        errorList: string[];
+        constructor(errorList: string[]) {
+        super(`${C.brightRed}[ PARSING ERROR ] [GROUP]${C.reset} - The following properties couldn't be parsed: ${errorList.join(', ')}`); // Pass the message to the Error constructor
+        this.name = 'GroupObjectParseError'; // Set the name of the error
+        this.errorList = errorList;
+        Object.setPrototypeOf(this, GroupObjectParseError.prototype); // Set the prototype explicitly for correct instanceof checks
         }
     }
 
@@ -121,5 +151,17 @@ export class CookiesNotFound extends Error {
     
         logError(): void {
             console.error(`${C.brightRed}[ ERROR ]${C.reset} - ${this.message} - Status Code: ${this.statusCode}`);
+        }
+    }
+
+    // error user not authenticated yet
+    export class UserNotAuthenticated extends Error {
+        constructor(message?: string) {
+            if (!message) {
+                message = `${C.yellow}[ WARNING ]${C.reset} - User is not authenticated yet!`;
+            }
+        super(message); // Pass the message to the Error constructor
+        this.name = 'UserNotAuthenticated'; // Set the name of the error
+        Object.setPrototypeOf(this, UserNotAuthenticated.prototype); // Set the prototype explicitly for correct instanceof checks
         }
     }

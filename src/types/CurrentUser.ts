@@ -1,8 +1,14 @@
+import { safeAccess, safeEnumConversion } from "../CheckingTools";
 import { CurrentUserObjectParseError } from "../errors";
+import { AccountDeletionLog, isAccountDeletionLog } from "./AccountDeletionLog";
 import { DeveloperType } from "./DeveloperType";
+import { PastDisplayName, isPastDisplayName } from "./PastDisplayNames";
 import { UserState } from "./UserState";
 import { UserStatus } from "./UserStatus";
 
+/**
+ * The CurrentUserPresence object containing detailed information about the currently logged in user's presence.
+ */
 type CurrentUserPresence = {
     avatarThumbnail?: string | null;
     displayName?: string;
@@ -19,11 +25,14 @@ type CurrentUserPresence = {
     world?: string;
 };
 
+/**
+ *  The CurrentUser object containing detailed information about the currently logged in user.
+ */
 export type CurrentUser = {
     acceptedTOSVersion: number;
     acceptedPrivacyVersion?: number;
     accountDeletionDate?: string | null;
-    accountDeletionLog?: Array<AccountDeletionLog> | null; // ensure it can be null or an array
+    accountDeletionLog?: Array<AccountDeletionLog>; // ensure it can be null or an array
     activeFriends?: string[];
     allowAvatarCopying: boolean;
     bio: string;
@@ -65,7 +74,7 @@ export type CurrentUser = {
     statusHistory: string[];
     steamDetails: Record<string, unknown>;
     steamId: string;
-    tags: string[];
+    tags: AllTags[];
     twoFactorAuthEnabled: boolean;
     twoFactorAuthEnabledDate?: string | null;
     unsubscribe: boolean;
@@ -74,106 +83,48 @@ export type CurrentUser = {
     username?: string | null;
 };
 
-function isAccountDeletionLog(obj: unknown): obj is AccountDeletionLog {
-    return typeof obj === 'object' && obj !== null &&
-        'message' in obj && typeof obj.message === 'string' &&
-        'deletionScheduled' in obj && (typeof obj.deletionScheduled === 'string' || obj.deletionScheduled === null) &&
-        'dateTime' in obj && typeof obj.dateTime === 'string';
-}
-
-function isPastDisplayName(obj: unknown): obj is PastDisplayName {
-    return typeof obj === 'object' && obj !== null &&
-        'displayName' in obj && typeof obj.displayName === 'string' &&
-        'updated_at' in obj && typeof obj.updated_at === 'string';
-}
-
+/**
+ * Checks if `obj` is a valid CurrentUserPresence.
+ * @param obj The object to check for user presence.
+ * @returns  `true` if `obj` is a valid CurrentUserPresence, `false` otherwise.
+ */
 function isCurrentUserPresence(obj: unknown): obj is CurrentUserPresence {
     if (typeof obj !== 'object' || obj === null) return false;
 
     const presenceObj = obj as Record<string, unknown>;
+    const errorList: string[] = [];
 
-    // TODO to refactor with throw new Error
-    if (process.env.TYPE_DEBUG === 'true') {
+    try {
+        if (('displayName' in presenceObj) && (presenceObj.displayName !== undefined && typeof presenceObj.displayName !== 'string')) errorList.push('displayName');
+        if (('avatarThumbnail' in presenceObj) && (presenceObj.avatarThumbnail !== undefined && typeof presenceObj.avatarThumbnail !== 'string')) errorList.push('avatarThumbnail');
+        if (('groups' in presenceObj) && (presenceObj.groups !== undefined && (!Array.isArray(presenceObj.groups) || !presenceObj.groups.every(group => typeof group === 'string')))) errorList.push('groups');
+        if (('id' in presenceObj) && (presenceObj.id !== undefined && typeof presenceObj.id !== 'string')) errorList.push('id');
+        if (('instance' in presenceObj) && (presenceObj.instance !== undefined && typeof presenceObj.instance !== 'string')) errorList.push('instance');
+        if (('instanceType' in presenceObj) && (presenceObj.instanceType !== undefined && typeof presenceObj.instanceType !== 'string')) errorList.push('instanceType');
+        if (('isRejoining' in presenceObj) && (presenceObj.isRejoining !== undefined && typeof presenceObj.isRejoining !== 'string')) errorList.push('isRejoining');
+        if (('platform' in presenceObj) && (presenceObj.platform !== undefined && typeof presenceObj.platform !== 'string')) errorList.push('platform');
+        if (('profilePicOverride' in presenceObj) && (presenceObj.profilePicOverride !== undefined && typeof presenceObj.profilePicOverride !== 'string')) errorList.push('profilePicOverride');
+        if (('status' in presenceObj) && (presenceObj.status !== undefined && typeof presenceObj.status !== 'string')) errorList.push('status');
+        if (('travelingToInstance' in presenceObj) && (presenceObj.travelingToInstance !== undefined && typeof presenceObj.travelingToInstance !== 'string')) errorList.push('travelingToInstance');
+        if (!('travelingToWorld' in presenceObj && typeof presenceObj.travelingToWorld === 'string')) errorList.push('travelingToWorld');
+        if (!('world' in presenceObj && typeof presenceObj.world === 'string')) errorList.push('world');
 
-        if (!('displayName' in obj) || (obj.displayName !== undefined && typeof obj.displayName !== 'string')) {
-            console.log('Failed at displayName');
-            return false;
+        if (errorList.length > 0) {
+            throw new CurrentUserObjectParseError(errorList);
         }
 
+        return true;
 
-        if (!('groups' in obj) || (obj.groups !== undefined && (!Array.isArray(obj.groups) || !obj.groups.every(group => typeof group === 'string')))) {
-            console.log('Failed at groups');
-            return false;
-        }
-
-        if (!('id' in obj) || (obj.id !== undefined && typeof obj.id !== 'string')) {
-            console.log('Failed at id');
-            return false;
-        }
-
-        if (!('instance' in obj) || (obj.instance !== undefined && typeof obj.instance !== 'string' && obj.instance !== null)) {
-            console.log('Failed at instance');
-            return false;
-        }
-
-        if (!('instanceType' in obj) || (obj.instanceType !== undefined && typeof obj.instanceType !== 'string' && obj.instanceType !== null)) {
-            console.log('Failed at instanceType');
-            return false;
-        }
-
-        if ('isRejoining' in obj && typeof obj.isRejoining !== 'string' && obj.isRejoining !== null) {
-            console.log('Failed at isRejoining');
-            return false;
-        }
-
-        if (!('platform' in obj) || (obj.platform !== undefined && typeof obj.platform !== 'string' && obj.platform !== null)) {
-            console.log('Failed at platform');
-            return false;
-        }
-
-        if (!('profilePicOverride' in obj) || (obj.profilePicOverride !== undefined && typeof obj.profilePicOverride !== 'string' && obj.profilePicOverride !== null)) {
-            console.log('Failed at profilePicOverride');
-            return false;
-        }
-
-        if (!('status' in obj) || (obj.status !== undefined && typeof obj.status !== 'string' && obj.status !== null)) {
-            console.log('Failed at status');
-            return false;
-        }
-
-        if (!('travelingToInstance' in obj) || (obj.travelingToInstance !== undefined && typeof obj.travelingToInstance !== 'string' && obj.travelingToInstance !== null)) {
-            console.log('Failed at travelingToInstance');
-            return false;
-        }
-
-        if (!('travelingToWorld' in obj) || (obj.travelingToWorld !== undefined && typeof obj.travelingToWorld !== 'string')) {
-            console.log('Failed at travelingToWorld');
-            return false;
-        }
-
-        if (!('world' in obj) || (obj.world !== undefined && typeof obj.world !== 'string')) {
-            console.log('Failed at world');
-            return false;
-        }
+    } catch (error) {
+        return false;
     }
-
-
-    return (!('avatarThumbnail' in presenceObj) || typeof presenceObj.avatarThumbnail === 'string' || presenceObj.avatarThumbnail === null) &&
-        (!('displayName' in presenceObj) || typeof presenceObj.displayName === 'string') &&
-        (!('groups' in presenceObj) || Array.isArray(presenceObj.groups) && presenceObj.groups.every(group => typeof group === 'string')) &&
-        (!('id' in presenceObj) || typeof presenceObj.id === 'string') &&
-        (!('instance' in presenceObj) || typeof presenceObj.instance === 'string' || presenceObj.instance === null) &&
-        (!('instanceType' in presenceObj) || typeof presenceObj.instanceType === 'string' || presenceObj.instanceType === null) &&
-        (!('isRejoining' in presenceObj) || typeof presenceObj.isRejoining === 'string' || presenceObj.isRejoining === null) &&
-        (!('platform' in presenceObj) || typeof presenceObj.platform === 'string' || presenceObj.platform === null) &&
-        (!('profilePicOverride' in presenceObj) || typeof presenceObj.profilePicOverride === 'string' || presenceObj.profilePicOverride === null) &&
-        (!('status' in presenceObj) || typeof presenceObj.status === 'string' || presenceObj.status === null) &&
-        (!('travelingToInstance' in presenceObj) || typeof presenceObj.travelingToInstance === 'string' || presenceObj.travelingToInstance === null) &&
-        ('travelingToWorld' in presenceObj && typeof presenceObj.travelingToWorld === 'string') &&
-        ('world' in presenceObj && typeof presenceObj.world === 'string');
-
 }
 
+/**
+ * Checks if `json` is a valid CurrentUser object.
+ * @param json The JSON object to check for validity.
+ * @returns `true` if `json` is a valid CurrentUser object, `false` otherwise.
+ */
 export function isCurrentUserJSON(json: unknown): asserts json is Record<string, unknown> {
     if (typeof json !== 'object' || json === null) {
         throw new Error('Expected JSON object');
@@ -234,7 +185,7 @@ export function isCurrentUserJSON(json: unknown): asserts json is Record<string,
         if (!('unsubscribe' in obj && typeof obj.unsubscribe === 'boolean')) errorList.push('unsubscribe');
         if (('updated_at' in obj) && (obj.updated_at !== undefined && typeof obj.updated_at !== 'string')) errorList.push('updated_at');
         if (!('userIcon' in obj && typeof obj.userIcon === 'string')) errorList.push('userIcon');
-        if (!('username' in obj && typeof obj.username === 'string'))  errorList.push('username');
+        if (!('username' in obj && typeof obj.username === 'string')) errorList.push('username');
 
         if (errorList.length > 0) {
             throw new CurrentUserObjectParseError(errorList);
@@ -250,36 +201,34 @@ export function isCurrentUserJSON(json: unknown): asserts json is Record<string,
             throw new Error(`Invalid JSON provided to CurrentUserFromJSONTyped.`);
         }
     }
-
 }
 
-
-
-// Helper function to safely access properties
-function safeAccess(json: unknown, key: string): unknown {
-    if (typeof json === 'object' && json !== null && key in json) {
-        return (json as Record<string, unknown>)[key];
-    }
-    return undefined;
-}
-
-// Safely handle enum conversion
-function safeEnumConversion<T extends Record<string, string | number>>(value: unknown, enumObj: T): T[keyof T] | undefined {
-    return Object.values(enumObj).includes(value as T[keyof T]) ? value as T[keyof T] : undefined;
-}
-
+/**
+ * 
+ * @param json The JSON object to convert to a CurrentUser object.
+ * @returns `CurrentUser`. The converted CurrentUser object.
+ */
 export function CurrentUserFromJSON(json: unknown): CurrentUser {
     return CurrentUserFromJSONTyped(json as Record<string, unknown>);
 }
 
-function safeAccountDeletionLogConversion(value: unknown): AccountDeletionLog[] | null | undefined {
+/**
+ * Checks if `value` is a valid array of AccountDeletionLog objects.
+ * @param value The value to check for validity.
+ * @returns returns an array of AccountDeletionLog objects if `value` is valid, `undefined` otherwise.
+ */
+function safeAccountDeletionLogConversion(value: unknown): AccountDeletionLog[] | undefined {
     if (Array.isArray(value)) {
         return value.every(isAccountDeletionLog) ? value : undefined;
     }
-    return value === null ? null : undefined;
+    return undefined;
 }
 
-
+/**
+ * Converts JSON to a CurrentUser object and returns it if it's valid.
+ * @param json The JSON object to convert to a CurrentUser object.
+ * @returns `CurrentUser`. The converted CurrentUser object.
+ */
 function CurrentUserFromJSONTyped(json: Record<string, unknown>): CurrentUser {
 
     try {
@@ -339,7 +288,7 @@ function CurrentUserFromJSONTyped(json: Record<string, unknown>): CurrentUser {
         'statusHistory': safeAccess(json, 'statusHistory') as string[],
         'steamDetails': safeAccess(json, 'steamDetails') as Record<string, unknown>,
         'steamId': safeAccess(json, 'steamId') as string,
-        'tags': safeAccess(json, 'tags') as string[],
+        'tags': safeAccess(json, 'tags') as AllTags[],
         'twoFactorAuthEnabled': safeAccess(json, 'twoFactorAuthEnabled') as boolean,
         'twoFactorAuthEnabledDate': safeAccess(json, 'twoFactorAuthEnabledDate') as string | null | undefined,
         'unsubscribe': safeAccess(json, 'unsubscribe') as boolean,

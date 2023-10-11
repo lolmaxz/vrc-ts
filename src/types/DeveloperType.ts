@@ -1,16 +1,12 @@
 /**
- * "none" User is a normal user
- * "trusted" Unknown
- * "internal" Is a VRChat Developer
- * "moderator" Is a VRChat Moderator
- * 
- * Staff can hide their developerType at will.
- * @export
+ * * None : "none" - User is a normal user
+ * * Trusted : "trusted" - Unknown
+ * * Internal : "internal" - Is a VRChat Developer
+ * * Moderator : "moderator" - Is a VRChat Moderator
  */
-export const DeveloperType = {
-    None: 'none',
-    Trusted: 'trusted',
-    Internal: 'internal',
-    Moderator: 'moderator'
-} as const;
-export type DeveloperType = typeof DeveloperType[keyof typeof DeveloperType];
+export enum DeveloperType {
+    None = 'none',
+    Trusted = 'trusted',
+    Internal = 'internal',
+    Moderator = 'moderator'
+};
