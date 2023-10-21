@@ -154,10 +154,10 @@ export class TOTPRequired extends Error {
 
 // request error with status code and message
 export class RequestError extends Error {
+    statusCode: number;
   constructor(statusCode: number, message: string) {
-    super(
-      `${C.brightRed}[ ERROR ]${C.reset} - ${message} - Status Code: ${statusCode}`,
-    ); // Pass the message to the Error constructor
+      super(`${C.brightRed}[ ERROR ]${C.reset} - ${message} - Status Code: ${statusCode}`); // Pass the message to the Error constructor
+          this.statusCode = statusCode;
   }
 }
 

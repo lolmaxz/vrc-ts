@@ -1,12 +1,24 @@
 declare namespace VRCAPI {
   namespace Generics {
+
+    namespace Requests {
+
+    }
     interface requestConfig {
       username?: string;
       password?: string;
       baseOptions?: unknown;
     }
 
+    type executeRequestType = {
+      currentRequest: VRCAPI.Generics.subSectionType,
+      pathFormated: string,
+      queryOptions?: URLSearchParams,
+      body?: VRCAPI.Generics.dataSetKeys
+    }
+
     type AuthenticationResponse = {
+      ok?: boolean;
       requiresTwoFactorAuth?: ['totp', 'otp'] | ['emailOtp'];
       verified?: boolean;
       error?: { message: string; status_code: number };
@@ -127,7 +139,7 @@ declare namespace VRCAPI {
       [section: string]: subSectionPath;
     };
 
-    type dataSetKeys =
+    export type dataSetKeys =
       | dataKeysCreateUpdateAvatar
       | dataKeys2Fa
       | dataKeysFavoriteTypes
@@ -138,11 +150,13 @@ declare namespace VRCAPI {
       | dataKeysUpdateGroup
       | dataKeysCreateGroupAnnouncement
       | dataKeysGroupBanMember
-      | dataKeysGroupCreateOrUpdateGallery
+      | dataKeysGroupCreateGallery
+      | dataKeysGroupUpdateGallery
       | dataKeysAddGroupGalleryImage
       | dataKeysCreateGroupInvite
       | dataKeysCreateGroupInviteUser
       | dataKeysUpdateGroupMember
+      | dataKeysRespondGroupJoinRequest
       | dataKeysCreateGroupRole
       | dataKeysUpdateGroupRole
       | dataKeysSendInvite
@@ -315,6 +329,8 @@ declare namespace VRCAPI {
       | 'language_ron'
       | 'language_vie';
 
+    type languageTagsShort = "eng" | "kor" | "rus" | "spa" | "por" | "zho" | "deu" | "jpn" | "fra" | "swe" | "nld" | "pol" | "dan" | "nor" | "ita" | "tha" | "fin" | "hun" | "ces" | "tur" | "ara" | "ron" | "vie";
+
     type GroupTags = 'admin_hide_member_count';
 
     type UselessTags =
@@ -356,62 +372,53 @@ declare namespace VRCAPI {
       maxParts: '0';
     };
 
-    enum GroupJoinState {
-      Closed = 'closed',
-      Invite = 'invite',
-      Request = 'request',
-      Open = 'open',
-    }
-
-    enum GroupPrivacy {
-      Default = 'default',
-      Private = 'private',
-    }
-
-    enum GroupRoleTemplate {
-      Default = 'default',
-      ManagedFree = 'managedFree',
-      ManagedInvite = 'managedInvite',
-      ManagedRequest = 'managedRequest',
-    }
-
     type dataKeysCreateGroupRequest = {
       name: string; // Must be 3 to 64 characters long
       shortCode: string; // Must be 3 to 6 characters long
       description?: string; // Must be 0 to 250 characters long, optional
-      joinState?: GroupJoinState; // Optional, default is GroupJoinState.Open
+      joinState?: VRCAPI.Groups.Models.GroupJoinState; // Optional, default is GroupJoinState.Open
       iconId?: string; // Optional
       bannerId?: string; // Optional
-      privacy?: GroupPrivacy; // Optional, default is GroupPrivacy.Default
-      roleTemplate: GroupRoleTemplate; // Required, default is GroupRoleTemplate.Default
+      privacy?: VRCAPI.Groups.Models.GroupPrivacy; // Optional, default is GroupPrivacy.Default
+      roleTemplate: VRCAPI.Groups.Models.GroupRoleTemplate; // Required, default is GroupRoleTemplate.Default
     };
 
     type dataKeysUpdateGroup = {
-      name: string; // Must be 3 to 64 characters long
-      shortCode: string; // Must be 3 to 6 characters long
-      description: string; // Must be 0 to 250 characters long
-      joinState: GroupJoinState; // Using the previously defined GroupJoinState enum
-      iconId: string;
-      bannerId: string;
-      languages: string[]; // Array of 3-letter language codes, max 3 items
-      links: string[]; // Array of strings, max 3 items
-      rules: string;
-      tags: AllTags[]; // Array of strings, each string must be at least 1 character long
+      name?: string; // Must be 3 to 64 characters long
+      shortCode?: string; // Must be 3 to 6 characters long
+      description?: string; // Must be 0 to 250 characters long
+      joinState?: VRCAPI.Groups.Models.GroupJoinState; // Using the previously defined GroupJoinState enum
+      iconId?: string;
+      bannerId?: string;
+      languages?: VRCAPI.Generics.languageTagsShort[]; // Array of 3-letter language codes, max 3 items
+      links?: string[]; // Array of strings, max 3 items
+      rules?: string; // max 2048 characters
+      tags?: AllTags[]; // Array of strings, each string must be at least 1 character long
     };
 
     type dataKeysCreateGroupAnnouncement = {
       title: string; // Announcement title, must be at least 1 character long
       text: string; // Announcement text, must be at least 1 character long
-      imageId: string; // Must match the pattern: file_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
-      sendNotification?: boolean; // Optional, default is false
+      imageId?: string; // Must match the pattern: file_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+      sendNotification?: boolean; // Optional, default is true
     };
 
     type dataKeysGroupBanMember = {
       userId: string; // A users unique ID, usually in the form of usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469. Legacy players can have old IDs in the form of 8JoV9XEdpo. The ID can never be changed.
     };
 
-    type dataKeysGroupCreateOrUpdateGallery = {
+    type dataKeysGroupCreateGallery = {
       name: string;
+      description?: string;
+      membersOnly?: boolean;
+      roleIdsToView?: string[];
+      roleIdsToSubmit?: string[];
+      roleIdsToAutoApprove?: string[];
+      roleIdsToManage?: string[];
+    };
+
+    type dataKeysGroupUpdateGallery = {
+      name?: string;
       description?: string;
       membersOnly?: boolean;
       roleIdsToView?: string[];
@@ -427,33 +434,28 @@ declare namespace VRCAPI {
     type dataKeysCreateGroupInvite = {
       userId: string;
       confirmOverrideBlock?: boolean;
-      Default?: true;
     };
 
     type dataKeysCreateGroupInviteUser = {
       userId: string;
       confirmOverrideBlock?: boolean;
-      Default?: true;
     };
 
-    enum GroupUserVisibility {
-      Visible = 'visible',
-      Hidden = 'hidden',
-      Friends = 'friends',
-    }
-
     type dataKeysUpdateGroupMember = {
-      visibility?: GroupUserVisibility;
+      visibility?: VRCAPI.Groups.Models.GroupUserVisibility;
       isSubscribedToAnnouncements?: boolean;
       managerNotes?: string;
     };
 
+    type dataKeysRespondGroupJoinRequest = {
+      action: "Accept" | "Deny";
+    }
+
     type dataKeysCreateGroupRole = {
-      id?: string;
+      id?: "new";
       name?: string;
       description?: string;
       isSelfAssignable?: boolean;
-      Default?: false;
       permissions?: string[];
     };
 
@@ -461,7 +463,6 @@ declare namespace VRCAPI {
       name?: string;
       description?: string;
       isSelfAssignable?: boolean;
-      Default?: false;
       permissions?: string[];
       order?: number;
     };

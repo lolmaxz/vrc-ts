@@ -258,8 +258,7 @@ export class cookiesHandler {
     });
     // trim the end
     cookieString = cookieString.trimEnd();
-    // console.log("cookieString: ", cookieString);
-
+  
     return cookieString;
   }
 
