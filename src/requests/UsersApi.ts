@@ -13,7 +13,6 @@ export class UsersApi extends BaseApi {
 
     async searchAllUsers({
         search,
-        // developerType,
         offset,
         quantity,
     }: VRCAPI.Users.Requests.SearchAllUsersOptions): Promise<
@@ -45,16 +44,11 @@ export class UsersApi extends BaseApi {
 
         parameters.append('search', search);
 
-        // parameters.append('developerType', developerType ?? 'none');
-
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.users.searchAllUsers,
             pathFormated: ApiPaths.users.searchAllUsers.path,
             queryOptions: parameters,
         };
-
-        // console.log(paramRequest);
-        
 
         try {
             this.checkValidData(paramRequest);
@@ -73,9 +67,7 @@ export class UsersApi extends BaseApi {
      * @returns the information about the user. If the user is not found then it will return undefined.
      */
     async getUserById({ userId }: VRCAPI.Users.Requests.getUserByIdOptions): Promise<VRCAPI.Users.Models.User> {
-        if (typeof userId !== 'string') {
-            throw new Error('No user id was provided!');
-        }
+        
         if (userId.length < 1) {
             throw new Error('Empty User id or no User id were provided!');
         }
@@ -100,9 +92,6 @@ export class UsersApi extends BaseApi {
 
         const parameters: URLSearchParams = new URLSearchParams();
 
-        if (typeof userId !== 'string') {
-            throw new Error('No user id was provided!');
-        }
         if (userId.length < 1) {
             throw new Error('Empty User id or no User id were provided!');
         }

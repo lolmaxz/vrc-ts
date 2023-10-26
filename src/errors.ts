@@ -170,3 +170,13 @@ export class UserNotAuthenticated extends Error {
     );
   }
 }
+
+// error of a bad request parameter
+export class BadRequestParameter extends Error {
+  constructor(message?: string) {
+    super(
+      message &&
+        `${C.yellow}[ WARNING ]${C.reset} - Bad request parameter: ${message}`,
+    );
+  }
+}

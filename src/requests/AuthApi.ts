@@ -48,32 +48,18 @@ export class AuthApi extends BaseApi {
      * 
      * Although they can be combined - in addition with `excludeUserId` (generally to exclude yourself) - to further fine-tune the search.
      */
-    async userExist({ email,
-        displayName,
-        userId,
-        excludeUserId }: VRCAPI.Auth.Requests.checkUserExistOptions): Promise<VRCAPI.Auth.responseTypes.checkUserExistResponse> {
+    async userExist(params: VRCAPI.Auth.Requests.checkUserExistOptions): Promise<VRCAPI.Auth.responseTypes.checkUserExistResponse> {
 
         const parameters: URLSearchParams = new URLSearchParams();
 
-        if (!email && !displayName && !userId) {
+        for (const [key, value] of Object.entries(params)) {
+            if (value) {
+                parameters.append(key, value);
+            }
+        }
+
+        if (!parameters.toString()) {
             throw new Error("No search term was provided! Please provide at least one of the following: `email`, `displayName` or `userId`.");
-        }
-        console.log(excludeUserId);
-
-        if (email) {
-            parameters.append('email', email);
-        }
-
-        if (displayName) {
-            parameters.append('displayName', displayName);
-        }
-
-        if (userId) {
-            parameters.append('userId', userId);
-        }
-
-        if (excludeUserId) {
-            parameters.append('excludeUserId', excludeUserId);
         }
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {

@@ -24,15 +24,20 @@ export class BaseApi {
         queryOptions,
         body
     }: VRCAPI.Generics.executeRequestType): Promise<E> {
-    
+
         // if all query parameters are present in the query params variable then we can replace them with our parameter from the template
         const currentPath = this.baseClass.basePath + pathFormated;
+        const url: URL = new URL(currentPath);
 
-        const url: URL = new URL(`${currentPath}${queryOptions ? "?" + queryOptions.toString() : ""}`);
+        if (queryOptions && queryOptions.toString()) {
+            url.search = queryOptions.toString();
+        }
+
 
         // check headers
         const headers: VRCAPI.Generics.headerOptions = {
             'User-Agent': this.baseClass.headerAgent, // we set the User_Agent header
+            "Content-Type": "application/json"
         };
 
         if (!currentRequest.cookiesNeeded.includes('none')) {
@@ -70,19 +75,30 @@ export class BaseApi {
             options.body = JSON.stringify(body);
         }
 
-        // console.log("url: ", url);
-        // console.log("options: ", options);
 
-        
 
-        const response: VRCAPI.Generics.API<E, RequestError> = await fetch(url, options);
+
+        const response: VRCAPI.Generics.API<E, VRCAPI.Generics.RequestError> = await fetch(url, options);
+
+        if (process.env.DEBUG === 'true') {
+            console.log("response: ", response);
+            console.log("options: ", options);
+            console.log("url: ", url);
+        }
 
         if (!response.ok) {
-            // console.log("response: ", response);
-            throw new RequestError(response.status, response.statusText);
+            let extraMessage = "";
+            const reponseTry = await response.json();
+            // console.log(reponseTry);
+
+            if (reponseTry.error.message) {
+                extraMessage = reponseTry.error.message;
+            }
+
+            throw new RequestError(response.status, response.statusText + " | Extra message: " + extraMessage);
         }
-        
-        if (pathFormated.includes('/auth/twofactorauth/')) {   
+
+        if (pathFormated.includes('/auth/twofactorauth/')) {
             if ('verified' in response && typeof response.verified === 'boolean') {
                 if (response.verified) {
                     if (process.env.USE_COOKIES === "true") {
@@ -103,7 +119,12 @@ export class BaseApi {
             }
         }
 
-        return response.json();
+        const result = await response.json();
+        if (process.env.DEBUG === 'true') {
+            console.log("RESULTS: ", result);
+        }
+
+        return result
     }
 
     checkValidData({

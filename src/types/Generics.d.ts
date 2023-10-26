@@ -390,8 +390,8 @@ declare namespace VRCAPI {
       joinState?: VRCAPI.Groups.Models.GroupJoinState; // Using the previously defined GroupJoinState enum
       iconId?: string;
       bannerId?: string;
-      languages?: VRCAPI.Generics.languageTagsShort[]; // Array of 3-letter language codes, max 3 items
-      links?: string[]; // Array of strings, max 3 items
+      languages?: [VRCAPI.Generics.languageTagsShort?,VRCAPI.Generics.languageTagsShort?,VRCAPI.Generics.languageTagsShort?]; // Array of 3-letter language codes, max 3 items
+      links?: [string?,string?,string?]; // Array of strings, max 3 items
       rules?: string; // max 2048 characters
       tags?: AllTags[]; // Array of strings, each string must be at least 1 character long
     };
@@ -448,7 +448,7 @@ declare namespace VRCAPI {
     };
 
     type dataKeysRespondGroupJoinRequest = {
-      action: "Accept" | "Deny";
+      action: VRCAPI.Groups.Models.GroupInviteResponse;
     }
 
     type dataKeysCreateGroupRole = {

@@ -113,6 +113,7 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         getInstanceShortName: { path: "/instances/{worldId}:{instanceId}/shortName", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
         sendSelfInvite: { path: "/instances/{worldId}:{instanceId}/invite", method: "POST", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
         getInstanceByShortName: { path: "/instances/s/{shortName}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["shortName"] },
+        createInstance: { path: "/instances", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
     },
 
     notifications: {
