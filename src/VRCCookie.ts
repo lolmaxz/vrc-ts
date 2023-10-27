@@ -9,7 +9,6 @@ export type CookieOpts = {
   key: string;
   value: string;
   expires: Date;
-  domain: string;
   path: string;
   hostOnly: boolean;
   creation: Date;
@@ -20,7 +19,6 @@ export class VRCCookie implements CookieOpts {
   key: string;
   value: string;
   expires: Date;
-  domain: string;
   path: string;
   hostOnly: boolean;
   creation: Date;
@@ -30,7 +28,6 @@ export class VRCCookie implements CookieOpts {
     this.key = cookie.key;
     this.value = cookie.value;
     this.expires = cookie.expires;
-    this.domain = cookie.domain;
     this.path = cookie.path;
     this.hostOnly = cookie.hostOnly;
     this.creation = cookie.creation;
@@ -47,7 +44,6 @@ export class VRCCookie implements CookieOpts {
     result = `key: ${this.key}; `;
     result += `value: ${this.value}; `;
     result += `expires: ${this.expires.toISOString()}; `;
-    result += `domain: ${this.domain}; `;
     result += `path: ${this.path}; `;
     result += `hostOnly: ${this.hostOnly}; `;
     result += `creation: ${this.creation.toISOString()}; `;
@@ -67,6 +63,7 @@ export type SavedCookieJar = {
  * @param cookies An array of cookies to set for the user [Optional].
  */
 export class cookiesHandler {
+
   private usernameOwner: string;
   private cookies: VRCCookie[];
   private cookieFilePath: string = process.env.COOKIES_PATH || './cookies.json';
@@ -89,7 +86,11 @@ export class cookiesHandler {
     return this.cookies;
   }
 
-
+  // saves back cookies for the user with empty array
+  public async deleteCookies(): Promise<void> {
+    this.cookies = [];
+    await this.saveCookies();
+}
 
   /**
    * This method will load cookies from the file specified in process.env.COOKIES_PATH and based on the username provided in the constructor.
@@ -104,7 +105,7 @@ export class cookiesHandler {
         // Error reading the file
         if (typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
           // File not found, handle accordingly
-          throw new CookiesReadError("File not found: " + this.cookieFilePath);
+          throw new CookiesNotFound("File not found: " + this.cookieFilePath);
         } else {
           // Other errors during reading the file
           throw new CookiesReadError("Error reading cookies: " + error.message);
@@ -127,7 +128,6 @@ export class cookiesHandler {
           key: cookie.key,
           value: cookie.value,
           expires: expirationDate,
-          domain: cookie.domain,
           path: cookie.path,
           hostOnly: cookie.hostOnly,
           creation: cookie.creation,
@@ -146,105 +146,78 @@ export class cookiesHandler {
    */
   async saveCookies(): Promise<void> {
     // we save if the user had cookies before or not before saving
-    if (process.env.USE_COOKIES === "true") {
-      let cookiesExisted = false;
-      try {
-        await this.cookiesExist();
-        cookiesExisted = true;
-      } catch (error) {
-        cookiesExisted = false;
+    if (process.env.USE_COOKIES && process.env.USE_COOKIES !== "true") {
+      return;
+    }
+
+    let allCookies: SavedCookieJar = {};
+
+    try {
+      // if cookies file doesn't exist we create it first
+      const fileExist = await this.cookieFileExist();
+
+      if (fileExist) {
+        const cookieFileContent = await fs.readFile(this.cookieFilePath, 'utf8');
+        allCookies = JSON.parse(cookieFileContent) as SavedCookieJar;
       }
 
-      let allCookies: SavedCookieJar = {};
-
-      if (cookiesExisted) {
-        await fs.readFile(
-          this.cookieFilePath,
-          'utf8'
-        ).then(async cookieFileContent => {
-          allCookies = JSON.parse(cookieFileContent) as SavedCookieJar;
-
-          allCookies[this.usernameOwner] = this.cookies;
-
-          // We updated the cookies to the file here
-          await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8').then(() => {
-            // Cookies saved successfully here!
-          }).catch((error) => {
-            if (error instanceof Error) {
-              // Error writing the file
-              throw new CookiesWriteError("Error writing cookies: " + error.message);
-            }
-          });
-        }).catch((error) => {
-          if (error instanceof Error) {
-            // Error reading the file
-            throw new CookiesReadError("Error reading cookies: " + error.message);
-          }
-
-        });
-      } else {
-
-        allCookies[this.usernameOwner] = this.cookies;
-        // We write updated (or new) cookies to the file here
-        await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8').then(() => {
-          // Cookies saved successfully here!
-        }).catch((error) => {
-          if (error instanceof Error) {
-            // Error writing the file
-            throw new CookiesWriteError("Error writing cookies: " + error.message);
-          }
-        });
-
-      }
+      allCookies[this.usernameOwner] = this.cookies;
+      await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8')
 
       // Loggin the result in the console
-      if (!cookiesExisted) {
-        console.log(
-          `${C.blue + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.blue + C.b}' have been created successfully!${C.r}`,
-        );
+      console.log(`${C.blue + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.blue + C.b}' have been ${fileExist ? "updated" : "created"} successfully!${C.r}`);
+
+    } catch (error) {
+      if (error instanceof CookiesUser404) {
+        throw new CookiesUser404(error.message);
+      } else if (error instanceof CookiesExpired) {
+        throw new CookiesExpired(error.message);
+      } else if (error instanceof CookiesWriteError) {
+        throw new CookiesWriteError(error.message);
       } else {
-        console.log(
-          `${C.green + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.green + C.b}' have been updated successfully!${C.r}`,
-        );
+        throw new Error("Unknown error saving cookies!");
       }
     }
   }
 
   // add cookies
-  addCookies(cookies: VRCCookie[]): void {
+  async addCookies(cookies: VRCCookie[]): Promise<void> {
     this.cookies = this.cookies.concat(cookies);
+    await this.saveCookies();
   }
 
   // add cookie
-  addCookie(cookie: VRCCookie): void {
+  async addCookie(cookie: VRCCookie): Promise<void> {
     this.cookies.push(cookie);
+    await this.saveCookies();
   }
 
   /**
    * let's you check if cookies exist in a file using process.env.COOKIES_PATH and if a key exist with the name of 'username'.
    * @returns `Promise<boolean>` A boolean if cookies exist for the user.
    */
-  async cookiesExist(username: string = ""): Promise<boolean> {
+  async cookiesExist(username?: string): Promise<void> {
     try {
       await fs.stat(this.cookieFilePath);
       const cookies: SavedCookieJar = JSON.parse(await fs.readFile(this.cookieFilePath, 'utf8')) as SavedCookieJar;
-      if (username !== "") {
-        if (cookies[username] !== undefined) {
-          return true;
+      if (username && !cookies[username]) throw new CookiesUser404("No Cookies was found for user '" + username + "'!");
+      if (!cookies[this.usernameOwner]) throw new CookiesUser404("No Cookies was found for user '" + this.usernameOwner + "'!");
+
+    } catch (error) {
+
+      if (error instanceof Error) {
+        // Error reading the file
+        if (typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+          // File not found, handle accordingly
+          throw new CookiesNotFound("File not found: " + this.cookieFilePath);
         } else {
-          throw new CookiesUser404("No Cookies was found for user '" + username + "'!");
+          // Other errors during reading the file
+          throw new CookiesReadError("Error reading cookies: " + error.message);
         }
       }
-      if (cookies[this.usernameOwner] !== undefined) {
-        return true;
-      } else {
-        throw new CookiesUser404("No Cookies was found for user '" + this.usernameOwner + "'!");
-      }
-    } catch (error) {
-      if (error instanceof CookiesUser404) {
+
+      if (error instanceof CookiesUser404 || error instanceof CookiesNotFound) {
         throw new CookiesUser404(error.message);
-      } else if (error instanceof CookiesNotFound) {
-        throw new CookiesNotFound("No Cookies was found!");
       } else {
         throw new Error("Unknown error loading cookies!");
       }
@@ -287,12 +260,65 @@ export class cookiesHandler {
     });
     // trim the end
     cookieString = cookieString.trimEnd();
-    // console.log("cookieString: ", cookieString);
 
     return cookieString;
   }
 
-  public async parseCookieString(cookieString: string, domain: string): Promise<void> {
+  /**
+   * Add cookies from a string array to the cookies for this instance and then saves them. This method will also update cookies that already exist with the same key.
+   * @param cookiesStrings An array of strings of cookies to add to the cookies for this instance.
+   * @returns `Promise<void>` A promise that will resolve when the new/updated cookies are saved.
+   */
+  public async addCookiesFromStrings(cookiesStrings: string[]): Promise<void> {
+    const cookies: VRCCookie[] = [];
+    cookiesStrings.forEach((cookieString) => {
+      const cookieParts = cookieString.split(';');
+
+      cookieParts.forEach((part, index) => {
+        const [key, value] = part.split('=').map(s => s.trim());
+        if (index === 0) {
+          // This is the main cookie key-value pair
+          cookies.push(new VRCCookie({
+            key,
+            value,
+            expires: new Date(),
+            path: '/',
+            hostOnly: false,
+            creation: new Date(),
+            lastAccessed: new Date(),
+          } as CookieOpts));
+        } else {
+          // These are the cookie attributes
+          const currentCookie = cookies[cookies.length - 1];
+          switch (key.toLowerCase()) {
+            case 'expires':
+              currentCookie.expires = new Date(value);
+              break;
+            case 'path':
+              currentCookie.path = value;
+              break;
+            case 'httponly':
+              currentCookie.hostOnly = true;
+              break;
+          }
+        }
+      });
+    });
+
+    // we make sure to add or update cookies that were already existing with the same key
+    cookies.forEach((cookie) => {
+      const index = this.cookies.findIndex((c) => c.key === cookie.key);
+      if (index !== -1) {
+        this.cookies[index] = cookie;
+      } else {
+        this.cookies.push(cookie);
+      }
+    });
+
+    await this.saveCookies();
+  }
+
+  public async parseCookieString(cookieString: string): Promise<void> {
     const cookies: VRCCookie[] = [];
     const cookieParts = cookieString.split(';');
 
@@ -304,7 +330,6 @@ export class cookiesHandler {
           key,
           value,
           expires: new Date(),
-          domain,
           path: '/',
           hostOnly: false,
           creation: new Date(),
@@ -352,7 +377,6 @@ export class cookiesHandler {
     });
     return result;
   }
-
 }
 
 export default cookiesHandler;

@@ -1,125 +1,106 @@
 import { Color as C } from './colors';
+
+/**
+ * Error thrown when the cookies couldn't be found.
+ * @throws {CookiesNotFound}
+ */
 export class CookiesNotFound extends Error {
     constructor(message: string) {
-      super(message); // Pass the message to the Error constructor
-      this.name = 'CookiesNotFound'; // Set the name of the error
-      Object.setPrototypeOf(this, CookiesNotFound.prototype); // Set the prototype explicitly for correct instanceof checks
+        super(`${C.brightRed}[ ERROR ]${C.reset} - Cookies couldn't be found. - ${message}`); // Pass the message to the Error constructor
     }
+}
 
-    logError(): void {
-        console.error(`${C.brightRed}[ ERROR ]${C.reset} - ${this.message}`);
-      }
-  }
-
-  export class CookiesUser404 extends Error {
+/**
+ * Error thrown when the user is not found in the cookies.
+ * @throws {CookiesUser404}
+ */
+export class CookiesUser404 extends Error {
     constructor(message: string) {
-      super(message); // Pass the message to the Error constructor
-      this.name = 'CookiesUser404'; // Set the name of the error
-      Object.setPrototypeOf(this, CookiesUser404.prototype); // Set the prototype explicitly for correct instanceof checks
+        super(`${C.yellow}[ WARNING ]${C.reset} - Couldn't find user Cookies. - ${message}`); // Pass the message to the Error constructor
     }
+}
 
-    logError(): void {
-        console.error(`${C.yellow}[ WARNING ]${C.reset} - ${this.message}`);
-      }
-  }
+/**
+ * Error thrown when the cookies couldn't be read.
+ * @throws {CookiesReadError}
+ */
+export class CookiesReadError extends Error {
+    constructor(message: string) {
+        super(`${C.brightRed}[ ERROR ]${C.reset} - Cookies couldn't be read! - ${message}`); // Pass the message to the Error constructor
+    }
+}
 
-  // error reading the cookies
-    export class CookiesReadError extends Error {
-        constructor(message: string) {
-        super(message); // Pass the message to the Error constructor
-        this.name = 'CookiesReadError'; // Set the name of the error
-        Object.setPrototypeOf(this, CookiesReadError.prototype); // Set the prototype explicitly for correct instanceof checks
-        }
-    
-        logError(): void {
-            console.error(`${C.brightRed}[ ERROR ]${C.reset} - ${this.message}`);
-        }
+/**
+ * Error thrown when the cookies couldn't be written.
+ * @throws {CookiesWriteError}
+ */
+export class CookiesWriteError extends Error {
+    constructor(message: string) {
+        super(`${C.brightRed}[ ERROR ]${C.reset} - Couldn't write cookies! - ${message}`); // Pass the message to the Error constructor
     }
-    
-    // error writing the cookies
-    export class CookiesWriteError extends Error {
-        constructor(message: string) {
-        super(message); // Pass the message to the Error constructor
-        this.name = 'CookiesWriteError'; // Set the name of the error
-        Object.setPrototypeOf(this, CookiesWriteError.prototype); // Set the prototype explicitly for correct instanceof checks
-        }
-    
-        logError(): void {
-            console.error(`${C.brightRed}[ ERROR ]${C.reset} - ${this.message}`);
-        }
-    }
-  
-    // error warning cookies expired
-    export class CookiesExpired extends Error {
-        constructor(message: string) {
-        super(message); // Pass the message to the Error constructor
-        this.name = 'CookiesExpired'; // Set the name of the error
-        Object.setPrototypeOf(this, CookiesExpired.prototype); // Set the prototype explicitly for correct instanceof checks
-        }
-    
-        logError(): void {
-            console.error(`${C.yellow}[ WARNING ]${C.reset} - ${this.message}`);
-        }
-    }
+}
 
-    // error loading cookies
-    export class CookiesLoadError extends Error {
-        constructor(message: string) {
-        super(message); // Pass the message to the Error constructor
-        this.name = 'CookiesLoadError'; // Set the name of the error
-        Object.setPrototypeOf(this, CookiesLoadError.prototype); // Set the prototype explicitly for correct instanceof checks
-        }
-    
-        logError(): void {
-            console.error(`${C.brightRed}[ ERROR ]${C.reset} - ${this.message}`);
-        }
+/**
+ * Error thrown when the cookies are expired.
+ * @throws {CookiesExpired}
+ */
+export class CookiesExpired extends Error {
+    constructor(message: string) {
+        super(`${C.yellow}[ WARNING ]${C.reset} - Cookies are expired, ${message}`); // Pass the message to the Error constructor
     }
+}
 
-    /**
-     * @class CurrentUserObjectParseError
-     * @description Error thrown when parsing the CurrentUserObject
-     * @param errorList - list of properties that couldn't be parsed correctly `string[]`
-     */
-    export class CurrentUserObjectParseError extends Error {
-        errorList: string[];
-        constructor(errorList: string[]) {
-        super(); // Pass the message to the Error constructor
-        this.name = 'CurrentUserObjectParseError'; // Set the name of the error
-        this.errorList = errorList;
-        Object.setPrototypeOf(this, CurrentUserObjectParseError.prototype); // Set the prototype explicitly for correct instanceof checks
-        }
-    
-        logError(): void {
-            // joined list of error to display
-            const joinedList = this.errorList.join(', ');
-            console.error(`${C.brightRed}[ PARSING ERROR ] [CURRENTUSER]${C.reset} - The following properties couldn't be parsed: ${joinedList}`);
-        }
+/**
+ * Error thrown when the cookies couldn't be loaded.
+ * @throws {CookiesLoadError}
+ */
+export class CookiesLoadError extends Error {
+    constructor(message: string) {
+        super(`${C.brightRed}[ ERROR ]${C.reset} - Cookies couldn't be loaded, ${message}`); // Pass the message to the Error constructor
     }
+}
 
-    // error 2fa TOTP required
-    export class TOTPRequired extends Error {
-        constructor(message: string) {
-        super(message); // Pass the message to the Error constructor
-        this.name = 'TOTPRequired'; // Set the name of the error
-        Object.setPrototypeOf(this, TOTPRequired.prototype); // Set the prototype explicitly for correct instanceof checks
-        }
-    
-        logError(): void {
-            console.error(`${C.yellow}[ WARNING ]${C.reset} - ${this.message}`);
-        }
+/**
+ * Error thrown when the TOTP is required.
+ * @throws {TOTPRequired}
+ */
+export class TOTPRequired extends Error {
+    constructor(message: string) {
+        super(`${C.yellow}[ WARNING ]${C.reset} - TOTP is Required! - ${message}`); // Pass the message to the Error constructor
     }
+}
 
-    // request error with status code and message
-    export class RequestError extends Error {
-        statusCode: number;
-        constructor(statusCode: number, message: string) {
-        super(message); // Pass the message to the Error constructor
-        this.name = 'RequestError'; // Set the name of the error
+/**
+ * Error thrown when the request failed. Includes the status code and the message.
+ * @throws {RequestError}
+ */
+export class RequestError extends Error {
+    statusCode: number;
+    constructor(statusCode: number, message: string) {
+        super(`${C.brightRed}[ ERROR ]${C.reset} - ${message} - Status Code: ${statusCode}`); // Pass the message to the Error constructor
         this.statusCode = statusCode;
-        Object.setPrototypeOf(this, RequestError.prototype); // Set the prototype explicitly for correct instanceof checks
-        }
-    
-        logError(): void {
-            console.error(`${C.brightRed}[ ERROR ]${C.reset} - ${this.message} - Status Code: ${this.statusCode}`);
-        }
     }
+}
+
+/**
+ * Error when the user is not authenticated.
+ * @throws {UserNotAuthenticated}
+ */
+export class UserNotAuthenticated extends Error {
+    constructor(message?: string) {
+        super(
+            message &&
+            `${C.yellow}[ WARNING ]${C.reset} - User is not authenticated yet!`,
+        );
+    }
+}
+
+/**
+ * Error when the request is missing a parameter or the parameter is invalid.
+ * @throws {BadRequestParameter}
+ */
+export class BadRequestParameter extends Error {
+    constructor(message?: string) {
+        super(message && `${C.yellow}[ WARNING ]${C.reset} - Bad request parameter: ${message}`,);
+    }
+}
