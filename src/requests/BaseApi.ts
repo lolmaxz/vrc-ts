@@ -1,4 +1,3 @@
-import cookiesHandler, { CookieOpts, VRCCookie } from '../VRCCookie';
 import { VRCWrapper } from '../VRCWrapper';
 import { RequestError, UserNotAuthenticated } from '../errors';
 
@@ -19,11 +18,20 @@ export class BaseApi {
      * @returns A promise that resolves to the data received from the server. If there is an error then it will throw an error. If there is no data then it will return an empty object.
      * @throws {UserNotAuthenticated} If the user is not authenticated.
      */
-    protected async executeRequest<E>({ currentRequest,
+    protected async executeRequest<E>({
+        currentRequest,
         pathFormated,
         queryOptions,
         body
     }: VRCAPI.Generics.executeRequestType): Promise<E> {
+
+        // we make sure everything is valid first
+        this.checkValidData({
+            currentRequest,
+            pathFormated,
+            queryOptions,
+            body
+        });
 
         // if all query parameters are present in the query params variable then we can replace them with our parameter from the template
         const currentPath = this.baseClass.basePath + pathFormated;
@@ -97,26 +105,12 @@ export class BaseApi {
 
             throw new RequestError(response.status, response.statusText + " | Extra message: " + extraMessage);
         }
-
-        if (pathFormated.includes('/auth/twofactorauth/')) {
-            if ('verified' in response && typeof response.verified === 'boolean') {
-                if (response.verified) {
-                    if (process.env.USE_COOKIES === "true") {
-                        if (response.headers.has('set-cookie')) {
-                            const cookies = response.headers.get('set-cookie');
-                            // Parse the cookie string into a list of cookies
-                            if (cookies === null) throw new Error('No cookies were set.');
-                            const cookiesHandling: cookiesHandler = new cookiesHandler(process.env.VRCHAT_USERNAME || '');
-                            await cookiesHandling.parseCookieString(cookies, VRCWrapper.baseDomain);
-                            const cookiesFinal = cookiesHandling.getCookies() as CookieOpts[];
-                            if (cookiesFinal.length !== 0) {
-                                this.baseClass.instanceCookie.setCookies(this.baseClass.instanceCookie.getCookies().concat(cookiesFinal as VRCCookie[]));
-                                await this.baseClass.instanceCookie.saveCookies();
-                            }
-                        }
-                    }
-                }
-            }
+        
+        // we get the set-cookies if there is any (way more optimized solution)
+        const cookies = response.headers.getSetCookie();
+        if (response.headers.getSetCookie().length > 0) {
+            // making sure there is at least one cookie and then adding it to our Cookies Instance and it will be saved in the cookies file.
+            await this.baseClass.instanceCookie.addCookiesFromStrings(cookies);
         }
 
         const result = await response.json();
@@ -133,7 +127,7 @@ export class BaseApi {
         queryOptions,
         body
     }: VRCAPI.Generics.executeRequestType) {
-
+        
         // if the base class is not authenticated then we need to throw an error unless it's a 2FA authentication process!
         if (!this.baseClass.isAuthentificated) {
             if (!pathFormated.includes("/auth/twofactorauth")) {

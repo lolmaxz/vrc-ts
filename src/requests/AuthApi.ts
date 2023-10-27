@@ -24,14 +24,13 @@ export class AuthApi extends BaseApi {
  * Cookies needs to be valid for this to work. If the user isn't authenticated, then this will throw an error.
  * @returns {Promise<VRCAPI.Auth.responseTypes.loginResponse>} - Returns a Promise with the response from the API.
  */
-    async getCurrentUser(): Promise<VRCAPI.Users.Models.CurrentUser> {
+    public async getCurrentUser(): Promise<VRCAPI.Users.Models.CurrentUser> {
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.auth.getCurrentUserInfo,
             pathFormated: ApiPaths.auth.getCurrentUserInfo.path,
         };
 
-        this.checkValidData(paramRequest);
         const queryResult = await this.executeRequest<VRCAPI.Users.Models.CurrentUser>(paramRequest);
 
         return queryResult;
@@ -48,7 +47,7 @@ export class AuthApi extends BaseApi {
      * 
      * Although they can be combined - in addition with `excludeUserId` (generally to exclude yourself) - to further fine-tune the search.
      */
-    async userExist(params: VRCAPI.Auth.Requests.checkUserExistOptions): Promise<VRCAPI.Auth.responseTypes.checkUserExistResponse> {
+    public async userExist(params: VRCAPI.Auth.Requests.checkUserExistOptions): Promise<VRCAPI.Auth.ResponseTypes.checkUserExistResponse> {
 
         const parameters: URLSearchParams = new URLSearchParams();
 
@@ -68,8 +67,7 @@ export class AuthApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Auth.responseTypes.checkUserExistResponse>(paramRequest);
+        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.checkUserExistResponse>(paramRequest);
 
         return queryResult;
     }
@@ -85,7 +83,7 @@ export class AuthApi extends BaseApi {
      * 
      * `code` : The 2FA code to verify. If no code is provided then the code from the .env file will be used.
      */
-    async verify2FACodeTOTP({ generateCode = true, code }: VRCAPI.Auth.Requests.verify2FACodeOptions): Promise<VRCAPI.Auth.responseTypes.verify2FATOTPResponse> {
+    public async verify2FACodeTOTP({ generateCode = true, code }: VRCAPI.Auth.Requests.verify2FACodeOptions): Promise<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse> {
 
         let finalCode = "";
 
@@ -131,9 +129,7 @@ export class AuthApi extends BaseApi {
 
         console.log(paramRequest);
         
-
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Auth.responseTypes.verify2FATOTPResponse>(paramRequest);
+        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse>(paramRequest);
 
         console.log(queryResult);
         
@@ -151,7 +147,7 @@ export class AuthApi extends BaseApi {
      * 
      * `code` : The 2FA code to verify. If no code is provided then the code from the .env file will be used. From `EMAIL_2FA_CODE`.
      */
-    async verify2FAEmailCode({ code }: VRCAPI.Auth.Requests.verify2FAEmailOptions): Promise<VRCAPI.Auth.responseTypes.verify2FAEmailResponse> {
+    public async verify2FAEmailCode({ code }: VRCAPI.Auth.Requests.verify2FAEmailOptions): Promise<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse> {
 
         let finalCode = "";
         if (code) {
@@ -185,8 +181,7 @@ export class AuthApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Auth.responseTypes.verify2FAEmailResponse>(paramRequest);
+        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse>(paramRequest);
 
         return queryResult;
 
@@ -195,14 +190,30 @@ export class AuthApi extends BaseApi {
     /**
      * Verify whether the currently provided Auth Token is valid.
      */
-    verifyAuthToken() {
+    public async verifyAuthToken(): Promise<VRCAPI.Auth.ResponseTypes.verifyAuthTokenResponse> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.auth.verifyAuthToken,
+            pathFormated: ApiPaths.auth.verifyAuthToken.path,
+        };
+
+        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.verifyAuthTokenResponse>(paramRequest);
     }
 
     /**
      * Invalidates the login session.
      */
-    logout() {
+    public async logout(): Promise<VRCAPI.Generics.RequestSuccess> {
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.auth.logout,
+            pathFormated: ApiPaths.auth.logout.path,
+        };
+
+        const result = await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
+
+        await this.baseClass.instanceCookie.deleteCookies();
+        
+        return result;
 
     }
 

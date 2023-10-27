@@ -109,10 +109,7 @@ export class GroupsApi extends BaseApi {
             body: body,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.Group>(paramRequest);
-
-        return queryResult;
+        return await this.executeRequest<VRCAPI.Groups.Models.Group>(paramRequest);
     }
 
     /**
@@ -135,10 +132,7 @@ export class GroupsApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.Group>(paramRequest);
-
-        return queryResult;
+        return await this.executeRequest<VRCAPI.Groups.Models.Group>(paramRequest);
     }
 
     /**
@@ -222,11 +216,7 @@ export class GroupsApi extends BaseApi {
             body: body,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.Group>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.Group>(paramRequest);
     }
 
     /**
@@ -241,11 +231,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.deleteGroup.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
     }
 
     /**
@@ -263,11 +249,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.getGroupAnnouncement.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupAnnouncement>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupAnnouncement>(paramRequest);
     }
 
     /**
@@ -302,11 +284,7 @@ export class GroupsApi extends BaseApi {
             body: body,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupAnnouncement>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupAnnouncement>(paramRequest);
     }
 
     /**
@@ -321,11 +299,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.deleteGroupAnnouncement.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
     }
 
     /**
@@ -364,11 +338,7 @@ export class GroupsApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupAudit>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupAudit>(paramRequest);
     }
 
     /**
@@ -399,11 +369,7 @@ export class GroupsApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
     }
 
     /**
@@ -429,11 +395,7 @@ export class GroupsApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMember>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMember>(paramRequest);
     }
 
     /**
@@ -454,11 +416,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.unbanGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMember>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMember>(paramRequest);
     }
 
     /**
@@ -515,11 +473,7 @@ export class GroupsApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupGallery>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupGallery>(paramRequest);
     }
 
     /**
@@ -556,11 +510,7 @@ export class GroupsApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupGalleryImage[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupGalleryImage[]>(paramRequest);
     }
 
     /**
@@ -619,11 +569,7 @@ export class GroupsApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupGallery>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupGallery>(paramRequest);
     }
 
     /**
@@ -641,11 +587,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.deleteGroupGallery.path.replace('{groupId}', groupId).replace('{groupGalleryId}', groupGalleryId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
     }
 
     // Adds an image to a Group gallery.
@@ -665,11 +607,7 @@ export class GroupsApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupGalleryImage>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupGalleryImage>(paramRequest);
     }
 
     /**
@@ -688,11 +626,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.deleteGroupGalleryImage.path.replace('{groupId}', groupId).replace('{groupGalleryId}', groupGalleryId).replace('{groupGalleryImageId}', groupGalleryImageId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
     }
 
     /**
@@ -707,11 +641,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.getGroupInvitesSent.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
     }
 
     /**
@@ -739,10 +669,7 @@ export class GroupsApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<boolean>(paramRequest);
-
-        return queryResult;
+        return await this.executeRequest<boolean>(paramRequest);
 
 
     }
@@ -762,10 +689,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.deleteUserInvite.path.replace('{userId}', userId).replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<boolean>(paramRequest);
-
-        return queryResult;
+        return await this.executeRequest<boolean>(paramRequest);
 
 
     }
@@ -782,11 +706,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.joinGroup.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
     }
 
     /**
@@ -801,11 +721,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.leaveGroup.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<boolean>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<boolean>(paramRequest);
     }
 
     /**
@@ -839,11 +755,7 @@ export class GroupsApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
     }
 
     /**
@@ -861,11 +773,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.getGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMemberLimitedUser>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMemberLimitedUser>(paramRequest);
     }
 
     /**
@@ -908,11 +816,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.updateGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMemberLimitedUser>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMemberLimitedUser>(paramRequest);
     }
 
     /**
@@ -930,11 +834,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.kickGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<boolean>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<boolean>(paramRequest);
     }
 
     /**
@@ -953,11 +853,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.addRoleToGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId).replace('{groupRoleId}', groupRoleId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<string[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<string[]>(paramRequest);
     }
 
     /**
@@ -976,11 +872,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.removeRoleFromGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId).replace('{groupRoleId}', groupRoleId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<string[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<string[]>(paramRequest);
     }
 
     /**
@@ -995,11 +887,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.listGroupPermissions.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupPermission[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupPermission[]>(paramRequest);
     }
 
     /**
@@ -1014,11 +902,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.getGroupJoinRequests.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupMember[]>(paramRequest);
     }
 
     /**
@@ -1033,11 +917,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.cancelGroupJoinRequest.path.replace('{groupId}', groupId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<boolean>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<boolean>(paramRequest);
     }
 
     /**
@@ -1060,11 +940,7 @@ export class GroupsApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<boolean>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<boolean>(paramRequest);
     }
 
     /**
@@ -1079,11 +955,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.getGroupRoles.path.replace('{groupId}', groupId)
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupRole[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupRole[]>(paramRequest);
     }
 
     /**
@@ -1130,11 +1002,7 @@ export class GroupsApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupRole>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupRole>(paramRequest);
     }
 
     /**
@@ -1184,11 +1052,7 @@ export class GroupsApi extends BaseApi {
             body: body
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupRole[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupRole[]>(paramRequest);
     }
 
     /**
@@ -1206,11 +1070,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.deleteGroupRole.path.replace('{groupId}', groupId).replace('{groupRoleId}', groupRoleId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.GroupRole[]>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Groups.Models.GroupRole[]>(paramRequest);
     }
 
 

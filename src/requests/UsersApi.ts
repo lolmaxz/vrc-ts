@@ -50,15 +50,7 @@ export class UsersApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        try {
-            this.checkValidData(paramRequest);
-            const queryResult = await this.executeRequest<VRCAPI.Users.Models.LimitedUser[]>(paramRequest);
-
-            return queryResult;
-        } catch (error) {
-            console.log(error);
-            throw error;
-        }
+        return await this.executeRequest<VRCAPI.Users.Models.LimitedUser[]>(paramRequest);
     }
 
     /**
@@ -67,7 +59,7 @@ export class UsersApi extends BaseApi {
      * @returns the information about the user. If the user is not found then it will return undefined.
      */
     async getUserById({ userId }: VRCAPI.Users.Requests.getUserByIdOptions): Promise<VRCAPI.Users.Models.User> {
-        
+
         if (userId.length < 1) {
             throw new Error('Empty User id or no User id were provided!');
         }
@@ -77,10 +69,75 @@ export class UsersApi extends BaseApi {
             pathFormated: ApiPaths.users.getUserbyID.path.replace('{userId}', userId),
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Users.Models.User>(paramRequest);
+        return await this.executeRequest<VRCAPI.Users.Models.User>(paramRequest);
+    }
 
-        return queryResult;
+    /**
+     * Update a users information such as the email and birthday.
+     */
+    public async updateUserInfo({
+        userId,
+        email,
+        birthday,
+        acceptedTOSVersion,
+        tags,
+        status,
+        statusDescription,
+        bio,
+        bioLinks,
+        userIcon
+    }:VRCAPI.Users.Requests.updateUserByIdOptions): Promise<VRCAPI.Users.Models.CurrentUser> {
+
+        if (userId.length < 1) {
+            throw new Error('Empty User id or no User id were provided!');
+        }
+
+       const body: VRCAPI.Generics.dataKeysUpdateUser = {};
+
+        if (email) {
+            body.email = email;
+        }
+
+        if (birthday) {
+            body.birthday = birthday;
+        }
+       
+        if (acceptedTOSVersion) {
+            body.acceptedTOSVersion = acceptedTOSVersion;
+        }
+
+        if (tags) {
+            body.tags = tags;
+        }
+
+        if (status) {
+            body.status = status;
+        }
+
+        if (statusDescription) {
+            body.statusDescription = statusDescription;
+        }
+
+        if (bio) {
+            body.bio = bio;
+        }
+
+        if (bioLinks) {
+            body.bioLinks = bioLinks;
+        }
+
+        if (userIcon        ) {
+            body.userIcon = userIcon;
+        }
+
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.users.updateUserById,
+            pathFormated: ApiPaths.users.updateUserById.path.replace('{userId}', userId),
+            body: body
+        };
+
+        return await this.executeRequest<VRCAPI.Users.Models.CurrentUser>(paramRequest);
+
     }
 
     /**
@@ -104,78 +161,71 @@ export class UsersApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        this.checkValidData(paramRequest);
-        const queryResult = await this.executeRequest<VRCAPI.Groups.Models.Group[]>(paramRequest);
+        return await this.executeRequest<VRCAPI.Groups.Models.Group[]>(paramRequest);
+    }
 
-        return queryResult;
+    /**
+     * Returns a list of Groups the user has requested to be invited into.
+     */
+    public async getUserGroupRequests({userId}:VRCAPI.Users.Requests.getUserGroupRequestsOptions): Promise<VRCAPI.Groups.Models.Group[]> {
+
+        if (userId.length < 1) {
+            throw new Error('Empty User id or no User id were provided!');
+        }
+
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.users.getUserGroupRequests,
+            pathFormated: ApiPaths.users.getUserGroupRequests.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<VRCAPI.Groups.Models.Group[]>(paramRequest);
+
+
     }
 
 }
 
-    /**
-     * This function is used to get the rank tag of a user. Returns the highest rank tag of the user. Else returns undefined.
-     * @param user The User or CurrentUser object to get the rank tag from.
-     * @returns The rank tag of the user. If the user has no rank tag, returns undefined.
-     */
-    export function getVRCRankTag(user: VRCAPI.Users.Models.User | VRCAPI.Users.Models.CurrentUser): VRCAPI.Users.Models.VRCRanks | undefined {
-        // the highest vrcrank we can find in the user's tag is the rank of the user we should return
-        const tags: VRCAPI.Generics.AllTags[] = user.tags;
-        if (user.tags.includes(VRCRanks.Veteran)) {
-            return VRCRanks.Veteran;
-        } else if (tags.includes(VRCRanks.Trusted)) {
-            return VRCRanks.Trusted;
-        } else if (tags.includes(VRCRanks.Known)) {
-            return VRCRanks.Known;
-        } else if (tags.includes(VRCRanks.User)) {
-            return VRCRanks.User;
-        } else if (tags.includes(VRCRanks.New)) {
-            return VRCRanks.New;
-        } else if (!tags.includes(VRCRanks.Veteran) &&
-            !tags.includes(VRCRanks.Trusted) &&
-            !tags.includes(VRCRanks.Known) &&
-            !tags.includes(VRCRanks.User) &&
-            !tags.includes(VRCRanks.New) &&
-            !tags.includes(VRCRanks.Nuisance)) {
+export type VRCRankResult = {
+    isTroll: boolean;
+    rank: VRCRanks;
+    rankName: string;
+}
 
-            return VRCRanks.Visitor;
-        } else if (tags.includes(VRCRanks.Nuisance)) {
-            return VRCRanks.Nuisance;
-        } else {
-            return undefined;
+/**
+ * This function is used to get the rank tag and tag name of a User/current User. Returns the highest rank tag of the user found.
+ * @param user The User or CurrentUser object to get the rank tag from.
+ * @returns {VRCRankResult} An object with the rank tag, the rank name and if the user is a troll. If the user has no rank tag, the rank will be set to Visitor.
+ * 
+ * *Complete rewrite of this part, now way more optimized.*
+ */
+export function getVRCRankTags(user: VRCAPI.Users.Models.User | VRCAPI.Users.Models.CurrentUser): VRCRankResult {
+    // the highest vrcrank we can find in the user's tag is the rank of the user we should return
+    // Determine if the user is a troll
+    const isTroll = user.tags.includes(VRCRanks.Nuisance) || user.tags.includes("system_probable_troll");
+
+    // Determine the user's rank
+    let rank = VRCRanks.Visitor; // Default to Visitor if no other rank is found
+    for (const key in VRCRanks) {
+        if (user.tags.includes(VRCRanks[key as keyof typeof VRCRanks] as VRCAPI.Generics.AllTags)) {
+            rank = VRCRanks[key as keyof typeof VRCRanks];
+            break;
         }
-
     }
 
+    return {
+        isTroll,
+        rank,
+        rankName: VRCRanksName[rank],
+    };
+}
 
-    /**
-     * Get the rank of the user as a string.
-     * @param user The User or Current User object to get the rank name from.
-     * @returns The rank name of the user. If the user has no rank tag, returns "Rank not found."
-     */
-    export function getVRCRankName(user: VRCAPI.Users.Models.User | VRCAPI.Users.Models.CurrentUser): string {
-        const rank = getVRCRankTag(user);
-        if (!rank) {
-            return "Rank not found.";
-        }
-        return VRCRanksName[rank];
-    }
+/**
+ * Get if User is a VRC+ subscriber.
+ * @param user The User object to check if it is a VRChat User with a current VRC+ subscription.
+ * @returns `true` if the user is a VRChat User with a current VRC+ subscription, `false` otherwise.
+ */
+export function isVRCPlusSubcriber(user: VRCAPI.Users.Models.User): boolean {
+    return user.tags.includes("system_supporter");
 
-    /**
-     * Get if User is a VRC+ subscriber.
-     * @param user The User object to check if it is a VRChat User with a current VRC+ subscription.
-     * @returns `true` if the user is a VRChat User with a current VRC+ subscription, `false` otherwise.
-     */
-    export function isVRCPlusSubcriber(user: VRCAPI.Users.Models.User): boolean {
-        return user.tags.includes("system_supporter");
-
-    }
-
-    /**
-     * Get if User has a troll tag.
-     * @param user The User object to check if it is a VRChat User with a troll tag.
-     * @returns `true` if the user is a VRChat User with a troll tag, `false` otherwise.
-     */
-    export function isUserTroll(user: VRCAPI.Users.Models.User): boolean {
-        return user.tags.includes(VRCRanks.Nuisance) || user.tags.includes("system_probable_troll");
-    }
+}
 

@@ -4,7 +4,7 @@ declare namespace VRCAPI {
     */
     namespace Auth {
 
-        namespace responseTypes {
+        namespace ResponseTypes {
             /**
              * UserExists: Status object representing if a queried user by username or userId exists or not. 
              * 

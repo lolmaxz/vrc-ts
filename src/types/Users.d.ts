@@ -1,12 +1,8 @@
 declare namespace VRCAPI {
-  /**
-  * All the types for the `User` endpoints are stocked here.
-  */
+  /** All the types for the `User` endpoints are stocked here. */
   namespace Users {
     namespace Models {
-      /**
-       * The CurrentUserPresence object containing detailed information about the currently logged in user's presence.
-       */
+      /** The CurrentUserPresence object containing detailed information about the currently logged in user's presence. */
       type CurrentUserPresence = {
         avatarThumbnail?: string | null;
         displayName?: string;
@@ -23,10 +19,7 @@ declare namespace VRCAPI {
         world?: string;
       };
 
-      /**
-       *  The CurrentUser object containing detailed information about the currently logged in user.
-       */
-
+      /** The CurrentUser object containing detailed information about the currently logged in user. */
       type CurrentUser = {
         acceptedTOSVersion: number;
         acceptedPrivacyVersion?: number;
@@ -82,32 +75,25 @@ declare namespace VRCAPI {
         username?: string | null;
       };
 
-      /**
-       * Represents a past display name of a user.
-       */
+      /** Represents a past display name of a user. */
       export type PastDisplayName = {
         displayName: string;
         updated_at: string;
       };
 
-      /**
+      /** Typically "Deletion requested" or "Deletion canceled". Other messages like "Deletion completed" may exist, but are these are not possible to see as a regular user.
        *
-       * Typically "Deletion requested" or "Deletion canceled". Other messages like "Deletion completed" may exist, but are these are not possible to see as a regular user.
-       *
-       *`Default: Deletion requested`
-       */
+       *`Default: Deletion requested` */
       export type AccountDeletionLog = {
         message: string;
         deletionScheduled: string | null;
         dateTime: string;
       };
 
-      /**
-      * * None : "none" - User is a normal user
+      /** * None : "none" - User is a normal user
       * * Trusted : "trusted" - Unknown
       * * Internal : "internal" - Is a VRChat Developer
-      * * Moderator : "moderator" - Is a VRChat Moderator
-      */
+      * * Moderator : "moderator" - Is a VRChat Moderator */
       enum DeveloperType {
         None = 'none',
         Trusted = 'trusted',
@@ -115,29 +101,25 @@ declare namespace VRCAPI {
         Moderator = 'moderator',
       }
 
-      /**
-      * * Offline : "offline" - User is offline
+      /** * Offline : "offline" - User is offline
       * * Active : "active" - User is online, but not in VRChat
       * * Online : "online" - User is online in VRChat
       * 
-      * Always offline when returned through `getCurrentUser` (/auth/user).
-      */
+      * Always offline when returned through `getCurrentUser` (/auth/user). */
       enum UserState {
         Offline = 'offline',
         Active = 'active',
         Online = 'online',
       }
 
-      /**
-      * Defines the User's current status, for example "ask me", "join me" or "offline. This status is a combined indicator of their online activity and privacy preference.
+      /** Defines the User's current status, for example "ask me", "join me" or "offline. This status is a combined indicator of their online activity and privacy preference.
       * * Active : "active" - The user is not in the game but is active on the website. (Will appear yellow on the website like "ask me")
       * * JoinMe : "join me" - The user is in the game and is accepting invites. (Is on blue)
       * * AskMe : "ask me" - The user is in the game but will request to receive invites in order to be invited. (Is on yellow)
       * * Busy : "busy" - The user is in the game but is not accepting invites. (Is on red)
       * * Offline : "offline" - The user is not in the game and is not active on the website. (is on Grey)
       * 
-      * Note: By default the user's status is "offline".
-      */
+      * Note: By default the user's status is "offline". */
       enum UserStatus {
         Active = 'active',
         JoinMe = 'join me',
@@ -146,9 +128,7 @@ declare namespace VRCAPI {
         Offline = 'offline',
       }
 
-      /**
-      * LimitedUser is a subset of the User object, containing only the fields that are returned by the /users/ endpoint.
-      */
+      /** LimitedUser is a subset of the User object, containing only the fields that are returned by the /users/ endpoint. */
       type LimitedUser = {
         bio?: string;
         currentAvatarImageUrl: string;
@@ -168,9 +148,7 @@ declare namespace VRCAPI {
         friendKey?: string;
       };
 
-      /**
-      * This Type represents a user in VRChat.
-      */
+      /** This Type represents a user in VRChat. */
       type User = {
         allowAvatarCopying: boolean;
         bio: string;
@@ -203,9 +181,7 @@ declare namespace VRCAPI {
         worldId?: string;
       };
 
-      /**
-       * This enum represents all the possible ranks for a user in VRChat.
-       * * Veteran : "system_trust_legend" - The user is a Veteran if he has this tag.
+      /** This enum represents all the possible ranks for a user in VRChat.
        * * Trusted : "system_trust_veteran" - The user is Trusted if he has this tag.
        * * Known : "system_trust_trusted" - The user is Known if he has this tag.
        * * User : "system_trust_known" - The user is a User if he has this tag.
@@ -215,10 +191,8 @@ declare namespace VRCAPI {
        * 
        * Note: Veteran has been removed from VRChat since 2018 and removed from the database since 2022-05-05.
        * 
-       * If a user has no rank tag, he is a Visitor.
-       */
+       * If a user has no rank tag, he is a Visitor. */
       export enum VRCRanks {
-        Veteran = "system_trust_legend",
         Trusted = "system_trust_veteran",
         Known = "system_trust_trusted",
         User = "system_trust_known",
@@ -227,18 +201,14 @@ declare namespace VRCAPI {
         Nuisance = "system_troll",
       }
 
-      /**
-      * This enum represents all the possible ranks' names for a user in VRChat.
-      * * system_trust_legend : "Veteran User" - The user is a Veteran if he has this tag.
+      /** This enum represents all the possible ranks' names for a user in VRChat.
       * * system_trust_veteran : "Trusted User" - The user is Trusted if he has this tag.
       * * system_trust_trusted : "Known User" - The user is Known if he has this tag.
       * * system_trust_known : "User" - The user is a User if he has this tag.
       * * system_trust_basic : "New User" - The user is a New User if he has this tag.
       * * Visitor : "Visitor" - The User is a Visitor when he has no rank tag from the above.
-      * * system_troll : "Nuisance User" - The user is a Nuisance if he has this tag.
-      */
+      * * system_troll : "Nuisance User" - The user is a Nuisance if he has this tag. */
       export enum VRCRanksName {
-        system_trust_legend = "Veteran User",
         system_trust_veteran = "Trusted User",
         system_trust_trusted = "Known User",
         system_trust_known = "User",
@@ -249,16 +219,42 @@ declare namespace VRCAPI {
     }
 
     namespace Requests {
+      /** Search All Users Options */
       type SearchAllUsersOptions = {
         search: string;
         developerType?: 'none' | 'internal';
         quantity?: number;
         offset?: number;
       };
+      /** Get User by ID Options */
       type getUserByIdOptions = {
         userId: string;
       };
+      /** Update User Info Options */
+      type updateUserByIdOptions = {
+        userId: string;
+        email?: string;
+        /** format YYYY-MM-DD */
+        birthday?: string;
+        acceptedTOSVersion?: number;
+        tags?: VRCAPI.Generics.AllTags[];
+        /** UserStatus: Defines the User's current status, for example "ask me", "join me" or "offline.
+         * 
+         * This status is a combined indicator of their online activity and privacy preference. Default: offline Allowed: active┃join me┃ask me┃busy┃offline */
+        status?: VRCAPI.Users.Models.UserStatus;
+        statusDescription?: string;
+        /** Min 0 chars */
+        bio?: string;
+        bioLinks?: string[];
+        /** MUST be a valid VRChat /file/ url. */
+        userIcon?: string;
+      }
+      /** Get User Groups Options */
       type getUserGroupsByUserIdOptions = {
+        userId: string;
+      };
+      /** Get User Group Requests Options */
+      type getUserGroupRequestsOptions = {
         userId: string;
       };
     }

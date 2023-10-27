@@ -505,7 +505,7 @@ declare namespace VRCAPI {
 
     type dataKeysUpdateUser = {
       email?: string;
-      birthday?: Date;
+      birthday?: string;
       acceptedTOSVersion?: number;
       tags?: string[];
       status?: Users.Models.UserStatus;

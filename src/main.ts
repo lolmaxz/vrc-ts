@@ -1,6 +1,6 @@
 import { VRCWrapper } from "./VRCWrapper";
 import dotenv from "dotenv";
-import { getVRCRankName } from "./requests/UsersApi";
+import { getVRCRankTags } from "./requests/UsersApi";
 // import { GroupJoinState, GroupPrivacy, GroupRoleTemplate } from "./types/GroupsEnums";
 // import { GroupJoinState, GroupPrivacy, GroupRoleTemplate } from "./types/GroupsEnums";
 dotenv.config();
@@ -17,7 +17,7 @@ async function main() {
   // Get Current User that is logged in
   const currentUser = await vrchat.authApi.getCurrentUser();
   console.log("Current user: ", currentUser);     
-  console.log("Current user's Rank is:", getVRCRankName(currentUser));
+  console.log("Current user's Rank is:", getVRCRankTags(currentUser).rankName);
   
   // console.log("Current user's tags: ", currentUser.tags, "------------------");
     // Search users with query and quantity (min: 1, max: 100, default: 60) (WORKS)
@@ -38,15 +38,15 @@ async function main() {
     // const resultGetUserById = await vrchat.userApi.getUserById({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797"})
     // console.log("User found by id: ", resultGetUserById);
 
-    // // Get a user's groups
+    // Get a user's groups
     // const resultgetUserGroups = await vrchat.userApi.getUserGroups({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797"})
     // console.log("User's groups by User ID: ", resultgetUserGroups, "-------------------");
 
-    // // Get a group by ID
+    // Get a group by ID
     // const group = await vrchat.groupApi.getGroupbyID({groupId:"grp_3b8bf582-5dd9-4387-89e2-93bb521087b9"})
     // console.log("Group by ID: ", group, "-------------------");
 
-    // // get a group's audit's logs
+    // get a group's audit's logs
     // const groupAuditLogs = await vrchat.groupApi.getGroupAuditLogs({groupId:"grp_3b8bf582-5dd9-4387-89e2-93bb521087b9"});
     // console.log("Group's audit logs: ", groupAuditLogs, "-------------------");
     
@@ -61,6 +61,42 @@ main().then(() => {
     console.error("Error main: ", error);
 });
 
+
+export async function authenticationAPITest() {
+
+  // Check if a user exist
+  const userExist = await vrchat.authApi.userExist({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797",displayName:"test"});
+  console.log("User exist: ", userExist, "-------------------");
+
+  // Get Current User that is logged in
+  const currentUser = await vrchat.authApi.getCurrentUser();
+  console.log("Current user: ", currentUser);
+
+  // Verify Auth token
+  const verifyAuthToken = await vrchat.authApi.verifyAuthToken();
+  console.log("Verify Auth token: ", verifyAuthToken, "-------------------");
+
+  // Logout
+  const logout = await vrchat.authApi.logout();
+  console.log("Logout: ", logout, "-------------------");
+  
+}
+
+export async function avatarAPITest() {
+
+}
+
+export async function favoriteAPITest() {
+
+}
+
+export async function filesAPITest() {
+
+}
+
+export async function friendAPITest() {
+
+}
 
 // todo to complete (all the test for group API)
 export async function groupAPITest() {
@@ -239,6 +275,54 @@ export async function groupAPITest() {
 
   // deleteGroupRole
   
+}
 
+export async function instanceAPITest() {
+
+}
+
+export async function inviteAPITest() {
+
+}
+
+export async function notificationApiTest() {
+
+}
+
+export async function permissionAPITest() {
+
+}
+
+export async function moderationAPITest() {
+
+}
+
+export async function systemAPITest() {
+
+}
+
+export async function userAPITest() {
+  // search User
+  const searchUser = await vrchat.userApi.searchAllUsers({search:"test",quantity: 5});
+  console.log("Search result for Users with name 'test': ", searchUser, "-------------------");
+
+  // get User by ID
+  const userById = await vrchat.userApi.getUserById({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797"})
+  console.log("User found by id: ", userById);
+
+  // update User
+  const userUpdate = await vrchat.userApi.updateUserInfo({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797", email:" ", birthday:"1993-10-07"});
+  console.log("User updated: ", userUpdate, "-------------------");
+
+  // get User's groups
+  const userGroups = await vrchat.userApi.getUserGroups({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797"})
+  console.log("User's groups by User ID: ", userGroups, "-------------------");
+
+  // get User's Group Requests
+  const userGroupRequests = await vrchat.userApi.getUserGroupRequests({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797"})
+  console.log("User's group requests by User ID: ", userGroupRequests, "-------------------");
+}
+
+export async function worldAPITest() {
 
 }

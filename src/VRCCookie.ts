@@ -9,7 +9,6 @@ export type CookieOpts = {
   key: string;
   value: string;
   expires: Date;
-  domain: string;
   path: string;
   hostOnly: boolean;
   creation: Date;
@@ -20,7 +19,6 @@ export class VRCCookie implements CookieOpts {
   key: string;
   value: string;
   expires: Date;
-  domain: string;
   path: string;
   hostOnly: boolean;
   creation: Date;
@@ -30,7 +28,6 @@ export class VRCCookie implements CookieOpts {
     this.key = cookie.key;
     this.value = cookie.value;
     this.expires = cookie.expires;
-    this.domain = cookie.domain;
     this.path = cookie.path;
     this.hostOnly = cookie.hostOnly;
     this.creation = cookie.creation;
@@ -47,7 +44,6 @@ export class VRCCookie implements CookieOpts {
     result = `key: ${this.key}; `;
     result += `value: ${this.value}; `;
     result += `expires: ${this.expires.toISOString()}; `;
-    result += `domain: ${this.domain}; `;
     result += `path: ${this.path}; `;
     result += `hostOnly: ${this.hostOnly}; `;
     result += `creation: ${this.creation.toISOString()}; `;
@@ -67,6 +63,7 @@ export type SavedCookieJar = {
  * @param cookies An array of cookies to set for the user [Optional].
  */
 export class cookiesHandler {
+
   private usernameOwner: string;
   private cookies: VRCCookie[];
   private cookieFilePath: string = process.env.COOKIES_PATH || './cookies.json';
@@ -89,7 +86,11 @@ export class cookiesHandler {
     return this.cookies;
   }
 
-
+  // saves back cookies for the user with empty array
+  public async deleteCookies(): Promise<void> {
+    this.cookies = [];
+    await this.saveCookies();
+}
 
   /**
    * This method will load cookies from the file specified in process.env.COOKIES_PATH and based on the username provided in the constructor.
@@ -127,7 +128,6 @@ export class cookiesHandler {
           key: cookie.key,
           value: cookie.value,
           expires: expirationDate,
-          domain: cookie.domain,
           path: cookie.path,
           hostOnly: cookie.hostOnly,
           creation: cookie.creation,
@@ -165,7 +165,7 @@ export class cookiesHandler {
       await fs.writeFile(this.cookieFilePath, JSON.stringify(allCookies), 'utf8')
 
       // Loggin the result in the console
-        console.log(`${C.blue + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.blue + C.b}' have been ${fileExist?"updated":"created"} successfully!${C.r}`);
+      console.log(`${C.blue + C.b}✅ The cookies for '${C.r}${this.usernameOwner}${C.blue + C.b}' have been ${fileExist ? "updated" : "created"} successfully!${C.r}`);
 
     } catch (error) {
       if (error instanceof CookiesUser404) {
@@ -181,13 +181,15 @@ export class cookiesHandler {
   }
 
   // add cookies
-  addCookies(cookies: VRCCookie[]): void {
+  async addCookies(cookies: VRCCookie[]): Promise<void> {
     this.cookies = this.cookies.concat(cookies);
+    await this.saveCookies();
   }
 
   // add cookie
-  addCookie(cookie: VRCCookie): void {
+  async addCookie(cookie: VRCCookie): Promise<void> {
     this.cookies.push(cookie);
+    await this.saveCookies();
   }
 
   /**
@@ -198,9 +200,9 @@ export class cookiesHandler {
     try {
       await fs.stat(this.cookieFilePath);
       const cookies: SavedCookieJar = JSON.parse(await fs.readFile(this.cookieFilePath, 'utf8')) as SavedCookieJar;
-      if (username && !cookies[username]) throw new CookiesUser404("No Cookies was found for user '" + username + "'!");  
-      if (!cookies[this.usernameOwner]) throw new CookiesUser404("No Cookies was found for user '" + this.usernameOwner + "'!");  
-      
+      if (username && !cookies[username]) throw new CookiesUser404("No Cookies was found for user '" + username + "'!");
+      if (!cookies[this.usernameOwner]) throw new CookiesUser404("No Cookies was found for user '" + this.usernameOwner + "'!");
+
     } catch (error) {
 
       if (error instanceof Error) {
@@ -258,11 +260,65 @@ export class cookiesHandler {
     });
     // trim the end
     cookieString = cookieString.trimEnd();
-  
+
     return cookieString;
   }
 
-  public async parseCookieString(cookieString: string, domain: string): Promise<void> {
+  /**
+   * Add cookies from a string array to the cookies for this instance and then saves them. This method will also update cookies that already exist with the same key.
+   * @param cookiesStrings An array of strings of cookies to add to the cookies for this instance.
+   * @returns `Promise<void>` A promise that will resolve when the new/updated cookies are saved.
+   */
+  public async addCookiesFromStrings(cookiesStrings: string[]): Promise<void> {
+    const cookies: VRCCookie[] = [];
+    cookiesStrings.forEach((cookieString) => {
+      const cookieParts = cookieString.split(';');
+
+      cookieParts.forEach((part, index) => {
+        const [key, value] = part.split('=').map(s => s.trim());
+        if (index === 0) {
+          // This is the main cookie key-value pair
+          cookies.push(new VRCCookie({
+            key,
+            value,
+            expires: new Date(),
+            path: '/',
+            hostOnly: false,
+            creation: new Date(),
+            lastAccessed: new Date(),
+          } as CookieOpts));
+        } else {
+          // These are the cookie attributes
+          const currentCookie = cookies[cookies.length - 1];
+          switch (key.toLowerCase()) {
+            case 'expires':
+              currentCookie.expires = new Date(value);
+              break;
+            case 'path':
+              currentCookie.path = value;
+              break;
+            case 'httponly':
+              currentCookie.hostOnly = true;
+              break;
+          }
+        }
+      });
+    });
+
+    // we make sure to add or update cookies that were already existing with the same key
+    cookies.forEach((cookie) => {
+      const index = this.cookies.findIndex((c) => c.key === cookie.key);
+      if (index !== -1) {
+        this.cookies[index] = cookie;
+      } else {
+        this.cookies.push(cookie);
+      }
+    });
+
+    await this.saveCookies();
+  }
+
+  public async parseCookieString(cookieString: string): Promise<void> {
     const cookies: VRCCookie[] = [];
     const cookieParts = cookieString.split(';');
 
@@ -274,7 +330,6 @@ export class cookiesHandler {
           key,
           value,
           expires: new Date(),
-          domain,
           path: '/',
           hostOnly: false,
           creation: new Date(),

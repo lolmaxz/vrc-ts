@@ -1,7 +1,7 @@
 
 import cookiesHandler from './VRCCookie';
 import { Color as C } from './colors';
-import { CookiesExpired, CookiesNotFound, CookiesReadError, CookiesUser404, CookiesWriteError, RequestError, TOTPRequired } from './errors';
+import { CookiesExpired, CookiesNotFound, CookiesReadError, CookiesUser404, CookiesWriteError, RequestError } from './errors';
 import { AuthApi } from './requests/AuthApi';
 import { GroupsApi } from './requests/GroupsApi';
 import { UsersApi } from './requests/UsersApi';
@@ -86,12 +86,15 @@ export class VRCWrapper {
 
     try {
 
-      const response: VRCAPI.Generics.API<VRCAPI.Generics.twoFactorAuthResponseType | VRCAPI.Generics.RequestSuccess, VRCAPI.Generics.error2FABase | RequestError> = await fetch(url, { ...options });
+      const response: VRCAPI.Generics.API<VRCAPI.Generics.twoFactorAuthResponseType, VRCAPI.Generics.error2FABase | RequestError> = await fetch(url, { ...options });
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
+      const cookies = response.headers.getSetCookie();
+      console.log("cookies: ", cookies);
+      
 
       // Check if the response contains the Set-Cookie header so we can save them
       if (response.headers.has('set-cookie')) {
@@ -102,7 +105,7 @@ export class VRCWrapper {
         // Parse the cookie string into a list of cookies
         if (cookies === null) throw new Error('No cookies were set.');
 
-        await this.instanceCookie.parseCookieString(cookies, VRCWrapper.baseDomain);
+        await this.instanceCookie.parseCookieString(cookies);
 
         // We save cookies if the user wants to keep them
         if (process.env.USE_COOKIES === "true") {
@@ -187,10 +190,6 @@ export class VRCWrapper {
 
 
     } catch (error) {
-      if (error instanceof TOTPRequired) {
-        error.logError();
-      }
-
       if (error instanceof Error) {
         // check if message is contains 401
         if (error.message.includes("401")) {
