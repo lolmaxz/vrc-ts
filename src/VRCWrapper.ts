@@ -1,7 +1,7 @@
 
 import cookiesHandler from './VRCCookie';
 import { Color as C } from './colors';
-import { CookiesExpired, CookiesNotFound, CookiesReadError, CookiesUser404, CookiesWriteError, RequestError } from './errors';
+import { CookiesExpired, CookiesNotFound, CookiesUser404, RequestError } from './errors';
 import { AuthApi } from './requests/AuthApi';
 import { GroupsApi } from './requests/GroupsApi';
 import { UsersApi } from './requests/UsersApi';
@@ -92,43 +92,12 @@ export class VRCWrapper {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      const cookies = response.headers.getSetCookie();
-      console.log("cookies: ", cookies);
-      
-
-      // Check if the response contains the Set-Cookie header so we can save them
-      if (response.headers.has('set-cookie')) {
-        console.log("we have set-cookie");
-
-        const cookies = response.headers.get('set-cookie');
-
-        // Parse the cookie string into a list of cookies
-        if (cookies === null) throw new Error('No cookies were set.');
-
-        await this.instanceCookie.parseCookieString(cookies);
-
-        // We save cookies if the user wants to keep them
-        if (process.env.USE_COOKIES === "true") {
-          try {
-            console.log("saving cookies");
-
-            await this.instanceCookie.saveCookies();
-          } catch (error) {
-            console.log("error saving cookies");
-
-            console.log("error: ", error);
-
-            if (error instanceof CookiesWriteError) {
-              throw new CookiesWriteError(`Error writing cookies.` + error.message);
-            } else if (error instanceof CookiesReadError) {
-              throw new CookiesReadError(`Error reading cookies.` + error.message);
-            } else if (error instanceof Error) {
-              throw new Error(`Unknown error writing cookies: ` + error.message);
-            }
-          }
-        }
-
-      }
+     // we get the set-cookies if there is any (way more optimized solution)
+     const cookies = response.headers.getSetCookie();
+     if (response.headers.getSetCookie().length > 0) {
+         // making sure there is at least one cookie and then adding it to our Cookies Instance and it will be saved in the cookies file.
+         await this.instanceCookie.addCookiesFromStrings(cookies);
+     }
 
       const data = await response.json();
 
