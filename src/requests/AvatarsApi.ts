@@ -1,4 +1,5 @@
 import { VRCWrapper } from "../VRCWrapper";
+import { ApiPaths } from "../types/ApiPaths";
 import { BaseApi } from "./BaseApi";
 
 /**
@@ -15,14 +16,33 @@ export class AvatarsApi extends BaseApi {
     /**
      * Get the current avatar for the user. This will return an error for any other user than the one logged in.
      */
-    public async getOwnAvatars() {
+    public async getOwnAvatars(): Promise<VRCAPI.Avatars.Models.Avatar> { 
+                
+                const paramRequest: VRCAPI.Generics.executeRequestType = {
+                    currentRequest: ApiPaths.avatars.getOwnAvatar,
+                    pathFormated: ApiPaths.avatars.getOwnAvatar.path,
+                };
+        
+                const queryResult = await this.executeRequest<VRCAPI.Avatars.Models.Avatar>(paramRequest);
+        
+                return queryResult;
+    
 
     }
 
     /**
      * Search and list avatars by query filters. You can only search your own or featured avatars. It is not possible as a normal user to search other peoples avatars.
      */
-    public async searchAvatars() {
+    public async searchAvatars(): Promise<VRCAPI.Avatars.Models.Avatar[]> {
+            
+            const paramRequest: VRCAPI.Generics.executeRequestType = {
+                currentRequest: ApiPaths.avatars.searchAvatars,
+                pathFormated: ApiPaths.avatars.searchAvatars.path,
+            };
+    
+            const queryResult = await this.executeRequest<VRCAPI.Avatars.Models.Avatar[]>(paramRequest);
+    
+            return queryResult;
 
     }
 
