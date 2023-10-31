@@ -92,60 +92,83 @@ VRCHAT_USERNAME=username_here
 VRCHAT_PASSWORD=password_here
 ```
 
+Then in your program, you can simply authenticate this way:
+```typescript
+api.login().then(() => {
+    console.log('Logged in successfully!');
+});
+```
+No need for sending the credentials.
+
 For more option with the `.env` file, check the `.env.example` file in the project.
 
 Websocket will eventually come when I can implement it.
 
-### Endpoints
+## Endpoints
 
-- __Full Support of VRChat API with Typing__
-- 
+### Full Support of VRChat API with Typing
+
 Here is the full list of endpoints by category that this wrapper does implements and has all typed:
 
-**auth** :
-    - `userExist`, `getCurrentUserInfo`, `verify2FATOTP`, `verify2FAOTP`*, `verify2FAEmail`, `verifyAuthToken`, `logout`, `deleteUser`*
+**Authentication API** :
+
+- `userExist`, `getCurrentUserInfo`, `verify2FATOTP`, `verify2FAOTP` `*`, `verify2FAEmail`, `verifyAuthToken`, `logout`, `deleteUser` `*`
     
-**avatars** :
-    - `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`
+**Avatars API** :
+
+- `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`
     
-**economy*** :
-    - `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`
+**Economy API**`*` :
+
+- `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`
     
-**favorites*** :
-    - `listFavorites`, `addFavorite`, `showFavorite`, `removeFavorite`, `listFavoriteGroups`, `showFavoriteGroup`, `updateFavoriteGroup`, `clearFavoriteGroup`
+**Favorites API**`*` :
+
+- `listFavorites`, `addFavorite`, `showFavorite`, `removeFavorite`, `listFavoriteGroups`, `showFavoriteGroup`, `updateFavoriteGroup`, `clearFavoriteGroup`
     
-**files*** :
-    - `listFiles`, `createFile`, `showFile`, `createFileVersion`, `deleteFile`, `downloadFileVersion`, `deleteFileVersion`, `finishFileDataUpload`, `startFileDataUpload`, `checkFileDataUploadStatus`
+**Files API**`*` :
+
+- `listFiles`, `createFile`, `showFile`, `createFileVersion`, `deleteFile`, `downloadFileVersion`, `deleteFileVersion`, `finishFileDataUpload`, `startFileDataUpload`, `checkFileDataUploadStatus`
     
-**friends** :
-    - `listFriends`, `sendFriendRequest`, `deleteFriendRequest`, `checkFriendStatus`, `unfriend`
+**Friends API** :
+
+- `listFriends`, `sendFriendRequest`, `deleteFriendRequest`, `checkFriendStatus`, `unfriend`
     
-**groups** :
-    - `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `getGroupAnnouncement`, `createGroupAnnouncement`, `deleteGroupAnnouncement`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`
+**Groups API** :
+
+- `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `getGroupAnnouncement`, `createGroupAnnouncement`, `deleteGroupAnnouncement`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`
     
-**invites** :
-    - `inviteUser`, `inviteMyselfToInstance`, `requestInvite`, `respondInvite`, `listInviteMessages`, `getInviteMessage`, `updateInviteMessage`, `resetInviteMessage`
+**Invites API**`*` :
+
+- `inviteUser`, `inviteMyselfToInstance`, `requestInvite`, `respondInvite`, `listInviteMessages`, `getInviteMessage`, `updateInviteMessage`, `resetInviteMessage`
     
-**instances*** :
-    - `getInstance`, `getInstanceShortName`, `sendSelfInvite`, `getInstanceByShortName`, `createInstance`
+**Instances API**`*` :
+
+- `getInstance`, `getInstanceShortName`, `sendSelfInvite`, `getInstanceByShortName`, `createInstance`
     
-**notifications*** :
-    - `listNotifications`, `acceptFriendRequest`, `markNotificationAsRead`, `deleteNotification`, `clearAllNotifications`
+**Notifications API**`*` :
+
+- `listNotifications`, `acceptFriendRequest`, `markNotificationAsRead`, `deleteNotification`, `clearAllNotifications`
     
-**permissions*** :
-    - `getAssignedPermissions`, `getPermission`
+**Permissions API**`*` :
+
+- `getAssignedPermissions`, `getPermission`
     
-**playermoderations*** :
-    - `searchPlayerModerations`, `moderateUser`, `clearAllPlayerModerations`, `getPlayerModeration`, `deletePlayerModeration`, `unmoderateUser`
+**Playermoderations API**`*` :
+
+- `searchPlayerModerations`, `moderateUser`, `clearAllPlayerModerations`, `getPlayerModeration`, `deletePlayerModeration`, `unmoderateUser`
     
-**system*** :
-    - `fetchAPIConfig`, `showInformationNotices`, `downloadCSS`, `downloadJavaScript`, `checkAPIHealth`, `currentOnlineUsers`, `currentSystemTime`
+**System API**`*` :
+
+- `fetchAPIConfig`, `showInformationNotices`, `downloadCSS`, `downloadJavaScript`, `checkAPIHealth`, `currentOnlineUsers`, `currentSystemTime`
     
-**users** :
-    - `searchAllUsers`, `getUserbyUsername`, `getUserbyID`, `updateUserInfo`, `getUserGroups`, `getUserGroupRequests`
+**Users API** :
+
+- `searchAllUsers`, `getUserbyUsername`, `getUserbyID`, `updateUserInfo`, `getUserGroups`, `getUserGroupRequests`
     
-**worlds*** :
-    - `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
+**Worlds API**`*` :
+
+- `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
 
 ! Marks of an asterics are either not yet implemented or yet to be added. Progress is going fast, come back to see the update.
 
