@@ -1,8 +1,5 @@
 export const ApiPaths: VRCAPI.Generics.APIPaths = {
-    api: {
-        base: { path: "https://api.vrchat.cloud/api/1", method: "GET", cookiesNeeded: ["none"]  },
-    },
-
+    apiBasePath: "https://api.vrchat.cloud/api/1",
     auth: {
         userExist: { path: "/auth/exists", method: "GET", cookiesNeeded: ["none"] },
         getCurrentUserInfo: { path: "/auth/user", method: "GET", cookiesNeeded: ["authCookie", "authorization", "twoFactorAuth"] },
@@ -13,10 +10,10 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         logout: { path: "/logout", method: "PUT", cookiesNeeded: ["authCookie"] },
         deleteUser: { path: "/users/{userId}/delete", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
     },
-    avi: {
-        getOwnAvatars: { path: "/users/{userId}/avatar", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
+    avatars: {
+        getOwnAvatar: { path: "/users/{userId}/avatar", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         searchAvatars: { path: "/avatars", method: "GET", cookiesNeeded: ["authCookie"] },
-        createAvatars: { path: "/avatars", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
+        createAvatar: { path: "/avatars", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
         getAvatar: { path: "/avatars/{avatarId}", method: "GET", cookiesNeeded: ["authCookie"] },
         updateAvatar: { path: "/avatars/{avatarId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true },
         deleteAvatar: { path: "/avatars/{avatarId}", method: "DELETE", cookiesNeeded: ["authCookie"] },
@@ -31,7 +28,7 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         listSubscriptions: { path: "/subscriptions", method: "GET", cookiesNeeded: ["authCookie"] },
         getLicenseGroup: { path: "/licenseGroups/{licenseGroupId}", method: "GET", cookiesNeeded: ["authCookie"] },
     },
-    fav: {
+    favorites: {
         listFavorites: { path: "/favorites", method: "GET", cookiesNeeded: ["authCookie"] },
         addFavorite: { path: "/favorites", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
         showFavorite: { path: "/favorites/{favoriteId}", method: "GET", cookiesNeeded: ["authCookie"] },
@@ -98,7 +95,7 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         updateGroupRole: { path: "/groups/{groupId}/roles/{groupRoleId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId", "groupRoleId"] },
         deleteGroupRole: { path: "/groups/{groupId}/roles/{groupRoleId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "groupRoleId"] },
     },
-    invite: {
+    invites: {
         inviteUser: { path: "/invite/{userId}", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId"] },
         inviteMyselfToInstance: { path: "/invite/myself/to/{worldId}:{instanceId}", method: "POST", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
         requestInvite: { path: "/requestInvite/{userId}", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId"] },
@@ -111,7 +108,7 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
     instances: {
         getInstance: { path: "/instances/{worldId}:{instanceId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
         getInstanceShortName: { path: "/instances/{worldId}:{instanceId}/shortName", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
-        sendSelfInvite: { path: "/instances/{worldId}:{instanceId}/invite", method: "POST", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
+        sendSelfInvite: { path: "/instances/{worldId}:{instanceId}/invite", method: "POST", deprecated:true, cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
         getInstanceByShortName: { path: "/instances/s/{shortName}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["shortName"] },
         createInstance: { path: "/instances", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
     },
@@ -124,12 +121,12 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         clearAllNotifications: { path: "/auth/user/notifications/clear", method: "PUT", cookiesNeeded: ["authCookie"] },
     },
 
-    perms: {
+    permissions: {
         getAssignedPermissions: { path: "/auth/permissions", method: "GET", cookiesNeeded: ["authCookie"] },
         getPermission: { path: "/permissions/{permissionId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["permissionId"] },
     },
 
-    Playermods: {
+    playermoderations: {
         searchPlayerModerations: { path: "/auth/user/playermoderations", method: "GET", cookiesNeeded: ["authCookie"] },
         moderateUser: { path: "/auth/user/playermoderations", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
         clearAllPlayerModerations: { path: "/auth/user/playermoderations", method: "DELETE", cookiesNeeded: ["authCookie"] },
