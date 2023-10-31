@@ -1,6 +1,6 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 
-export async function avatarsAPITest(vrchat: VRCWrapper) {
+export async function avatarsAPITest(vrchat: VRChatAPI) {
 
     // Examples of how to use the avatar API
   

@@ -23,7 +23,7 @@ import { ApiPaths } from './types/ApiPaths';
  * @export
  * @class VRCWrapper
  */
-export class VRCWrapper {
+export class VRChatAPI {
 
   username: string;
   password: string;
@@ -67,7 +67,7 @@ export class VRCWrapper {
     this.instanceCookie = new cookiesHandler(this.username);
   }
 
-  async authenticate() {
+  async login() {
     console.log("Authenticating...");
 
     if (process.env.USE_COOKIES && process.env.USE_COOKIES === 'true') {

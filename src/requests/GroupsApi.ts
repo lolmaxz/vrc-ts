@@ -1,4 +1,4 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 import { BadRequestParameter } from "../errors";
 import { ApiPaths } from "../types/ApiPaths";
 import { BaseApi } from "./BaseApi";
@@ -7,9 +7,9 @@ import { BaseApi } from "./BaseApi";
  * This class is used to make requests to the Groups API.
  */
 export class GroupsApi extends BaseApi {
-    baseClass: VRCWrapper;
+    baseClass: VRChatAPI;
 
-    constructor(baseClass: VRCWrapper) {
+    constructor(baseClass: VRChatAPI) {
         super(baseClass);
         this.baseClass = baseClass;
     }

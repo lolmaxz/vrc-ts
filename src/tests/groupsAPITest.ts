@@ -1,6 +1,6 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 
-export async function groupAPITest(vrchat: VRCWrapper) {
+export async function groupAPITest(vrchat: VRChatAPI) {
     // Create a group (works)
     // const groupCreated = await vrchat.groupApi.createGroup({name:"test2!", description:"", shortCode:"TEST", roleTemplate:GroupRoleTemplate.Default, joinState:GroupJoinState.Closed, privacy:GroupPrivacy.Private});
     // console.log("Group created: ", groupCreated, "-------------------");

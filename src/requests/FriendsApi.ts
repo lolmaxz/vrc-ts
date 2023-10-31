@@ -1,4 +1,4 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 import { ApiPaths } from "../types/ApiPaths";
 import { BaseApi } from "./BaseApi";
 
@@ -6,9 +6,9 @@ import { BaseApi } from "./BaseApi";
  * This class is used to make requests to the Friends API.
  */
 export class FriendsApi extends BaseApi {
-    baseClass: VRCWrapper;
+    baseClass: VRChatAPI;
 
-    constructor(baseClass: VRCWrapper) {
+    constructor(baseClass: VRChatAPI) {
         super(baseClass);
         this.baseClass = baseClass;
     }

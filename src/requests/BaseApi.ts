@@ -1,13 +1,13 @@
-import { VRCWrapper } from '../VRCWrapper';
+import { VRChatAPI } from '../VRChatAPI';
 import { RequestError, UserNotAuthenticated } from '../errors';
 
 /**
  * This class is used to handle the base API requests. This class should not be used directly.
  */
 export class BaseApi {
-    baseClass: VRCWrapper;
+    baseClass: VRChatAPI;
 
-    constructor(baseClass: VRCWrapper) {
+    constructor(baseClass: VRChatAPI) {
         this.baseClass = baseClass;
     }
 

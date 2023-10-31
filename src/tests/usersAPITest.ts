@@ -1,6 +1,6 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 
-export async function userAPITest(vrchat: VRCWrapper) {
+export async function userAPITest(vrchat: VRChatAPI) {
     // search User
     const searchUser = await vrchat.userApi.searchAllUsers({search:"test",quantity: 5});
     console.log("Search result for Users with name 'test': ", searchUser, "-------------------");

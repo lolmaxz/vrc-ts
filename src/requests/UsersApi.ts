@@ -1,12 +1,12 @@
-import { VRCWrapper } from '../VRCWrapper';
+import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
 import { VRCRanks, VRCRanksName } from '../types/UsersEnums';
 import { BaseApi } from './BaseApi';
 
 export class UsersApi extends BaseApi {
-    baseClass: VRCWrapper;
+    baseClass: VRChatAPI;
 
-    constructor(baseClass: VRCWrapper) {
+    constructor(baseClass: VRChatAPI) {
         super(baseClass);
         this.baseClass = baseClass;
     }
@@ -18,7 +18,7 @@ export class UsersApi extends BaseApi {
     }: VRCAPI.Users.Requests.SearchAllUsersOptions): Promise<
         VRCAPI.Users.Models.LimitedUser[]
     > {
-        
+
         const parameters: URLSearchParams = new URLSearchParams();
 
         if (quantity) {

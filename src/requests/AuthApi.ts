@@ -1,4 +1,4 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 import { ApiPaths } from "../types/ApiPaths";
 import { BaseApi } from "./BaseApi";
 import totp from 'totp-generator';
@@ -7,10 +7,10 @@ import totp from 'totp-generator';
 
 
 export class AuthApi extends BaseApi {
-    baseClass: VRCWrapper;
+    baseClass: VRChatAPI;
     regexCode: RegExp;
 
-    constructor(baseClass: VRCWrapper) {
+    constructor(baseClass: VRChatAPI) {
         super(baseClass);
         this.baseClass = baseClass;
         this.regexCode = new RegExp('^[0-9]{6}$');
