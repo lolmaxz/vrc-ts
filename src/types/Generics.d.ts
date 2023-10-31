@@ -303,13 +303,13 @@ declare namespace VRCAPI {
     };
 
     export type dataSetKeys =
+      | dataKeys2Fa
       | VRCAPI.Avatars.Requests.createAvatarOption
       | VRCAPI.Avatars.Requests.updateAvatarOption
-      | dataKeys2Fa
       | VRCAPI.Favorites.Requests.dataKeysFavoriteTypes
-      | dataKeysCreateFile
-      | dataKeysCreateFileVersion
-      | dataKeysFinishFileDataUpload
+      | VRCAPI.Files.Requests.dataKeysCreateFile
+      | VRCAPI.Files.Requests.dataKeysCreateFileVersion
+      | VRCAPI.Files.Requests.dataKeysFinishFileDataUpload
       | VRCAPI.Groups.Requests.CreateGroupRequest
       | VRCAPI.Groups.Requests.dataKeysUpdateGroup
       | VRCAPI.Groups.Requests.dataKeysCreateGroupAnnouncement
@@ -322,15 +322,15 @@ declare namespace VRCAPI {
       | VRCAPI.Groups.Requests.dataKeysRespondGroupJoinRequest
       | VRCAPI.Groups.Requests.dataKeysCreateGroupRole
       | VRCAPI.Groups.Requests.dataKeysUpdateGroupRole
-      | dataKeysSendInvite
-      | dataKeysRequestInvite
-      | dataKeysInviteResponse
-      | dataKeysUpdateInviteMessage
-      | dataKeysModerateUserRequest
-      | dataKeysUnModerateUser
-      | dataKeysUpdateUser
-      | dataKeysCreateWorld
-      | dataKeysUpdateWorld;
+      | VRCAPI.Invites.Requests.dataKeysSendInvite
+      | VRCAPI.Invites.Requests.dataKeysRequestInvite
+      | VRCAPI.Invites.Requests.dataKeysInviteResponse
+      | VRCAPI.Invites.Requests.dataKeysUpdateInviteMessage
+      | VRCAPI.PlayerModerations.Requests.dataKeysModerateUserRequest
+      | VRCAPI.PlayerModerations.Requests.dataKeysUnModerateUser
+      | VRCAPI.Users.Requests.dataKeysUpdateUser
+      | VRCAPI.Worlds.Requests.dataKeysCreateWorld
+      | VRCAPI.Worlds.Requests.dataKeysUpdateWorld;
 
     type dataKeys2Fa = {
       code: string;
@@ -340,30 +340,6 @@ declare namespace VRCAPI {
     type avatarTags = 'avatar1' | 'avatar2' | 'avatar3' | 'avatar4';
     type worldTags = 'world1' | 'world2' | 'world3' | 'world4';
     type allFavoriteTags = groupTags | avatarTags | worldTags;
-
-    type dataKeysCreateFile = {
-      name: string;
-      mimeType: MIMEType;
-      extension: string;
-      tags?: AllTags[];
-    };
-
-    enum MIMEType {
-      JPEG = 'image/jpeg',
-      JPG = 'image/jpg',
-      PNG = 'image/png',
-      WEBP = 'image/webp',
-      GIF = 'image/gif',
-      BMP = 'image/bmp',
-      SVG_XML = 'image/svg+xml',
-      TIFF = 'image/tiff',
-      AVATAR = 'application/x-avatar',
-      WORLD = 'application/x-world',
-      GZIP = 'application/gzip',
-      RSYNC_SIGNATURE = 'application/x-rsync-signature',
-      RSYNC_DELTA = 'application/x-rsync-delta',
-      OCTET_STREAM = 'application/octet-stream',
-    }
 
     type AdminTags =
       | 'admin_avatar_access'
@@ -457,99 +433,5 @@ declare namespace VRCAPI {
       | LanguageTags
       | GroupTags
       | UselessTags;
-
-    type dataKeysCreateFileVersion = {
-      signatureMd5: string;
-      signatureSizeInBytes: number;
-      fileMd5?: string;
-      fileSizeInBytes?: number;
-    };
-
-    type dataKeysFinishFileDataUpload = {
-      etags?: [string, string];
-      nextPartNumber: '0';
-      maxParts: '0';
-    };
-
-    type dataKeysSendInvite = {
-      instanceId: string;
-      messageSlot?: number;
-    };
-
-    type dataKeysRequestInvite = {
-      messageSlot?: number;
-    };
-
-    type dataKeysInviteResponse = {
-      responseSlot: number;
-    };
-
-    type dataKeysUpdateInviteMessage = {
-      message: string;
-    };
-
-    enum PlayerModerationType {
-      Mute = 'mute',
-      Unmute = 'unmute',
-      Block = 'block',
-      Unblock = 'unblock',
-      InteractOn = 'interactOn',
-      InteractOff = 'interactOff',
-    }
-
-    type dataKeysModerateUserRequest = {
-      moderated: string;
-      type: PlayerModerationType;
-    };
-
-    type dataKeysUnModerateUser = {
-      moderated: string;
-      type: PlayerModerationType;
-    };
-
-    type dataKeysUpdateUser = {
-      email?: string;
-      birthday?: string;
-      acceptedTOSVersion?: number;
-      tags?: string[];
-      status?: Users.Models.UserStatus;
-      statusDescription?: string;
-      bio?: string;
-      bioLinks?: string[];
-      userIcon?: string;
-    };
-
-    type dataKeysCreateWorld = {
-      assetUrl: string;
-      assetVersion?: number;
-      authorId?: string;
-      authorName?: string;
-      capacity?: number;
-      description?: string;
-      id?: string;
-      imageUrl: string;
-      name: string;
-      platform?: string;
-      releaseStatus?: VRCAPI.Worlds.Models.ReleaseStatus;
-      tags?: string[];
-      unityPackageUrl?: string;
-      unityVersion?: string;
-    };
-
-    type dataKeysUpdateWorld = {
-      assetUrl?: string;
-      assetVersion?: string;
-      authorId?: string;
-      authorName?: string;
-      capacity?: number;
-      description?: string;
-      imageUrl?: string;
-      name?: string;
-      platform?: string;
-      releaseStatus?: VRCAPI.Worlds.Models.ReleaseStatus;
-      tags?: string[];
-      unityPackageUrl?: string;
-      unityVersion?: string;
-    };
   }
 }

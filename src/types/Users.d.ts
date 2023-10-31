@@ -232,18 +232,40 @@ declare namespace VRCAPI {
       type getUserByIdOptions = {
         userId: string;
       };
-      /** Update User Info Options */
-      type updateUserByIdOptions = {
-        userId: string;
+
+      type dataKeysUpdateUser = {
+        /** The user's email address. */
         email?: string;
-        /** format YYYY-MM-DD */
+        /** The user's birthday. Formated like YYYY-MM-DD */
         birthday?: string;
+        /** The user's accepted TOS version. */
         acceptedTOSVersion?: number;
+        /** The user's tags. */
         tags?: VRCAPI.Generics.AllTags[];
         /** UserStatus: Defines the User's current status, for example "ask me", "join me" or "offline.
          * 
          * This status is a combined indicator of their online activity and privacy preference. Default: offline Allowed: active┃join me┃ask me┃busy┃offline */
-        status?: VRCAPI.Users.Models.UserStatus;
+        status?: Users.Models.UserStatus;
+        /** The user's status description. Min 1 chars, Max 32 chars */
+        statusDescription?: string;
+        /** The user's bio. Min 0 chars, Max 512 chars */
+        bio?: string;
+        /** The user's bio links. Maximum of 3 links. Must contain 'https://' and finish with '.*[2]' */
+        bioLinks?: [string?,string?,string?];
+        /** The user's user icon. MUST be a valid VRChat /file/ url. */
+        userIcon?: string;
+      };
+
+      /** Update User Info Options */
+      type updateUserByIdOptions = dataKeysUpdateUser & {
+        userId: string;
+        email?: string;
+        /**  */
+        birthday?: string;
+        acceptedTOSVersion?: number;
+        
+        
+        status?: Users.Models.UserStatus;
         statusDescription?: string;
         /** Min 0 chars */
         bio?: string;
@@ -251,10 +273,12 @@ declare namespace VRCAPI {
         /** MUST be a valid VRChat /file/ url. */
         userIcon?: string;
       }
+
       /** Get User Groups Options */
       type getUserGroupsByUserIdOptions = {
         userId: string;
       };
+
       /** Get User Group Requests Options */
       type getUserGroupRequestsOptions = {
         userId: string;

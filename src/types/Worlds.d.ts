@@ -39,10 +39,51 @@ declare namespace VRCAPI {
                 Private = 'private',
                 Hidden = 'hidden',
                 All = 'all',
-              }
+            }
         }
         namespace Requests {
 
+            type dataKeysCreateWorld = {
+                assetUrl: string;
+                assetVersion?: number;
+                authorId?: string;
+                authorName?: string;
+                capacity?: number;
+                description?: string;
+                id?: string;
+                imageUrl: string;
+                name: string;
+                platform?: string;
+                releaseStatus?: VRCAPI.Worlds.Models.ReleaseStatus;
+                tags?: string[];
+                unityPackageUrl?: string;
+                unityVersion?: string;
+            };
+
+            /** The data for requesting to create a world. */
+            type CreateWorldRequest = dataKeysCreateWorld;
+
+            type dataKeysUpdateWorld = {
+                assetUrl?: string;
+                assetVersion?: string;
+                authorId?: string;
+                authorName?: string;
+                capacity?: number;
+                description?: string;
+                imageUrl?: string;
+                name?: string;
+                platform?: string;
+                releaseStatus?: VRCAPI.Worlds.Models.ReleaseStatus;
+                tags?: string[];
+                unityPackageUrl?: string;
+                unityVersion?: string;
+            };
+
+            /** The data for requesting to update a world. */
+            type UpdateWorldRequest = dataKeysUpdateWorld & {
+                /** The id of the world to update.*/
+                worldId: string;
+            }
         }
     }
 }
