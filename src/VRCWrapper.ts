@@ -35,20 +35,20 @@ export class VRCWrapper {
   basePath: string = ApiPaths.apiBasePath;
   cookiesLoaded = false;
 
-  authApi: AuthApi;
-  avatarApi: AvatarsApi;
-  favoriteApi: FavoritesApi;
-  fileApi: FilesApi;
-  friendApi: FriendsApi;
-  groupApi: GroupsApi;
-  instanceApi: InstanceApi;
-  inviteApi: InvitesApi;
-  notificationApi: NotificationsApi;
-  permissionApi: PermissionsApi;
-  playermoderationApi: PlayerModerationApi;
-  systemApi: SystemApi;
-  userApi: UsersApi;
-  worldApi: WorldsApi;
+  authApi: AuthApi = new AuthApi(this);
+  avatarApi: AvatarsApi = new AvatarsApi(this);
+  favoriteApi: FavoritesApi = new FavoritesApi(this);
+  fileApi: FilesApi = new FilesApi(this);
+  friendApi: FriendsApi = new FriendsApi(this);
+  groupApi: GroupsApi = new GroupsApi(this);
+  instanceApi: InstanceApi = new InstanceApi(this);
+  inviteApi: InvitesApi = new InvitesApi(this);
+  notificationApi: NotificationsApi = new NotificationsApi(this);
+  permissionApi: PermissionsApi = new PermissionsApi(this);
+  playermoderationApi: PlayerModerationApi = new PlayerModerationApi(this);
+  systemApi: SystemApi = new SystemApi(this);
+  userApi: UsersApi = new UsersApi(this);
+  worldApi: WorldsApi = new WorldsApi(this);
 
   constructor(username?: string, password?: string) {
     if (username) {
@@ -65,20 +65,6 @@ export class VRCWrapper {
     this.isAuthentificated = false;
     this.instanceCookie = new cookiesHandler(this.username)
     this.instanceCookie = new cookiesHandler(this.username);
-    this.authApi = new AuthApi(this);
-    this.avatarApi = new AvatarsApi(this);
-    this.favoriteApi = new FavoritesApi(this);
-    this.fileApi = new FilesApi(this);
-    this.friendApi = new FriendsApi(this);
-    this.groupApi = new GroupsApi(this);
-    this.instanceApi = new InstanceApi(this);
-    this.inviteApi = new InvitesApi(this);
-    this.notificationApi = new NotificationsApi(this);
-    this.permissionApi = new PermissionsApi(this);
-    this.playermoderationApi = new PlayerModerationApi(this);
-    this.systemApi = new SystemApi(this);
-    this.userApi = new UsersApi(this);
-    this.worldApi = new WorldsApi(this);
   }
 
   async authenticate() {
