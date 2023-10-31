@@ -304,9 +304,9 @@ declare namespace VRCAPI {
 
     export type dataSetKeys =
       | VRCAPI.Avatars.Requests.createAvatarOption
-      | VRCAPI.Avatars.Requests.dataKeysUpdateAvatar
+      | VRCAPI.Avatars.Requests.updateAvatarOption
       | dataKeys2Fa
-      | dataKeysFavoriteTypes
+      | VRCAPI.Favorites.Requests.dataKeysFavoriteTypes
       | dataKeysCreateFile
       | dataKeysCreateFileVersion
       | dataKeysFinishFileDataUpload
@@ -335,12 +335,6 @@ declare namespace VRCAPI {
     type dataKeys2Fa = {
       code: string;
     };
-
-    type dataKeysFavoriteTypes =
-      | VRCAPI.Favorites.Requests.dataKeysAddFavoriteFriend
-      | VRCAPI.Favorites.Requests.dataKeysAddFavoriteAvatar
-      | VRCAPI.Favorites.Requests.dataKeysAddFavoriteWorld
-      | VRCAPI.Favorites.Requests.dataKeysFavoriteUpdate;
 
     type groupTags = 'group_0' | 'group_1' | 'group_2' | 'group_3';
     type avatarTags = 'avatar1' | 'avatar2' | 'avatar3' | 'avatar4';
@@ -464,13 +458,6 @@ declare namespace VRCAPI {
       | GroupTags
       | UselessTags;
 
-    enum ReleaseStatus {
-      Public = 'public',
-      Private = 'private',
-      Hidden = 'hidden',
-      All = 'all',
-    }
-
     type dataKeysCreateFileVersion = {
       signatureMd5: string;
       signatureSizeInBytes: number;
@@ -543,7 +530,7 @@ declare namespace VRCAPI {
       imageUrl: string;
       name: string;
       platform?: string;
-      releaseStatus?: ReleaseStatus;
+      releaseStatus?: VRCAPI.Worlds.Models.ReleaseStatus;
       tags?: string[];
       unityPackageUrl?: string;
       unityVersion?: string;
@@ -559,7 +546,7 @@ declare namespace VRCAPI {
       imageUrl?: string;
       name?: string;
       platform?: string;
-      releaseStatus?: ReleaseStatus;
+      releaseStatus?: VRCAPI.Worlds.Models.ReleaseStatus;
       tags?: string[];
       unityPackageUrl?: string;
       unityVersion?: string;

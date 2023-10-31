@@ -92,142 +92,49 @@ export class VRCWrapper {
       this.instanceCookie = new cookiesHandler(this.username);
     }
 
-    // const url: URL = new URL(this.basePath + ApiPaths.auth.getCurrentUserInfo.path);
-    // const headers: VRCAPI.Generics.headerOptions = {
-    //   'Authorization': `Basic ${this.getBase64Credentials()}`,
-    //   "User-Agent":
-    //     process.env.USER_AGENT || "ExampleApp/1.0.0 Email@example.com",
-    // };
-
-    // if (this.cookiesLoaded) {
-    //   // check if cookies is not expired!
-    //   headers["Cookie"] = `${this.instanceCookie.getAuthCookie()}`;
-    // }
-
-    // const options: RequestInit = {
-    //   method: 'GET',
-    //   headers: headers
-    // };
-
     try {
+      // we first try to login or get current user
+      const getCurrentUser = await this.authApi.getCurrentUser<VRCAPI.Users.Models.currentUserOrTwoFactorType>();
+      // if current user is not null or undefined and is of type CurrentUser then we are logged in
+      console.log("getCurrentUser: ", getCurrentUser);
 
-      // const response: VRCAPI.Generics.API<VRCAPI.Generics.twoFactorAuthResponseType, VRCAPI.Generics.error2FABase | RequestError> = await fetch(url, { ...options });
+      if ('displayName' in getCurrentUser) {
+        this.isAuthentificated = true;
+        console.log(`${C.green}Logged in as: ${C.r}`, getCurrentUser.displayName);
+      } else if ('verified' in getCurrentUser && !getCurrentUser.verified) {
+        this.isAuthentificated = false;
+      } else {
+        // If we are not logged in then we try to login
+        if (getCurrentUser.requiresTwoFactorAuth) {
+          if (this.arraysAreEqual(getCurrentUser.requiresTwoFactorAuth, ["emailOtp"])) {
+            // If we can't login we check if it's because of email otp
+            const verify = await this.authApi.verify2FAEmailCode();
 
-      // if (!response.ok) {
-      //   throw new Error(`HTTP error! Status: ${response.status}`);
-      // }
-      // console.log("response: ", response);
-
-      // const data = await this.authApi.getCurrentUser();
-      // console.log("data: ", data);
-
-
-      // we get the set-cookies if there is any (way more optimized solution)
-      //  const cookies = response.headers.getSetCookie();
-      //  if (response.headers.getSetCookie().length > 0) {
-      //      // making sure there is at least one cookie and then adding it to our Cookies Instance and it will be saved in the cookies file.
-      //      await this.instanceCookie.addCookiesFromStrings(cookies);
-      //  }
-
-
-      try {
-        // this.isAuthentificated = true;
-        const getCurrentUser = await this.authApi.getCurrentUser();
-        if ('displayName' in getCurrentUser) {
-          console.log(`${C.green}Logged in as: ${C.r}`, getCurrentUser.displayName);
-        } else {
-          if (getCurrentUser.requiresTwoFactorAuth) {
-            if (this.arraysAreEqual(getCurrentUser.requiresTwoFactorAuth, ["emailOtp"])) {
-
-              const verify = await this.authApi.verify2FAEmailCode({});
-              
-              if ('verified' in verify && verify.verified) {
-                this.isAuthentificated = true;
-              } else if ('verified' in verify && !verify.verified) {
-                
-                throw new EmailOtpRequired("Authentication failed! Email Otp authentication didn't work. Check your credentials or code in your .env file.")
-              }
-              
+            // if after verifying email otp we are verified then we are logged in and we set isAuthentificated to true, otherwise we throw an error
+            if (!verify.verified) {
               // throw new Error("Couldn't get current user!");
-            } else if (this.arraysAreEqual(getCurrentUser.requiresTwoFactorAuth, ["totp","otp"])) { 
-              
-              const verify = await this.authApi.verify2FACodeTOTP({});
-
-              if ('verified' in verify && verify.verified) {
-                this.isAuthentificated = true;
-              } else if ('verified' in verify && !verify.verified) {
-                throw new TOTPRequired("Authentication failed! TOTP authentication didn't work. Check your credentials or your TOTP code/secret in your .env file.")
-              }
+              throw new EmailOtpRequired("Authentication failed! Email Otp authentication didn't work. Check your credentials or code in your .env file.")
             }
+
+            this.isAuthentificated = true;
+          } else if (this.arraysAreEqual(getCurrentUser.requiresTwoFactorAuth, ["totp", "otp"])) {
+            // if we can't login we check if it's because of totp
+            const verify = await this.authApi.verify2FACodeTOTP();
+
+            // if we can login then we are logged in and we set isAuthentificated to true, otherwise we throw an error
+            if (!verify.verified) {
+              throw new TOTPRequired("Authentication failed! TOTP authentication didn't work. Check your credentials or your TOTP code/secret in your .env file.")
+            }
+            this.isAuthentificated = true;
           }
         }
-
-      } catch (error) {
-        console.log("can't login?");
-        console.log(error);
-        
-
-        this.isAuthentificated = false;
       }
 
-      // if (('displayName' in data)) {
-      //   console.log("displayName: " + data.displayName);
-
-      //   return;
-      // }
-
-      // // check type of data
-      // if (typeof data === 'object') {
-      //   console.log("data: ", data);
-      // } else {
-      //   console.log("data: ", data);
-      // }
-
-      // if (data.verified) {
-      //   throw new Error("2FA is already verified!");
-      // }
-
-      // Handle special cases where authentication was not successful
-      // if (data.requiresTwoFactorAuth) {
-      //   let isVerified = false;
-      //   if (JSON.stringify(data.requiresTwoFactorAuth) === JSON.stringify(["totp", "otp"])) {
-
-      //     console.log('Handling TOTP or OTP two-factor authentication...');
-      //     try {
-      //       const check2FA = await this.authApi.verify2FACodeTOTP({});
-      //       if (check2FA.verified) isVerified = true;
-      //       console.log("check2FA: ", check2FA);
-      //     } catch (error) {
-      //       console.log("error: ", error);
-      //     }
-
-
-      //   } else if (JSON.stringify(data.requiresTwoFactorAuth) === JSON.stringify(['emailOtp'])) {
-
-      //     console.log('Handling Email OTP two-factor authentication...');
-      //     try {
-      //       const check2FAEmail = await this.authApi.verify2FAEmailCode({});
-      //       if (check2FAEmail.verified) isVerified = true;
-      //     } catch (error) {
-      //       console.log("error: ", error);
-      //     }
-
-
-      //   } else {
-      //     // Handle other unknown two-factor authentication methods
-      //     throw new Error('Unknown error while authenticating!');
-      //   }
-
-      //   if (isVerified) {
-      //     console.log("2FA verified!");
-      //     this.isAuthentificated = true;
-      //   } else {
-      //     console.log("2FA not verified!");
-      //     this.isAuthentificated = false;
-      //   }
-
-      // }
-
+      if (this.isAuthentificated) {
+        const currentUser = await this.authApi.getCurrentUser();
+        console.log(`${C.green}Logged in as: ${C.r}`, currentUser.displayName);
+        return;
+      }
 
     } catch (error) {
       if (error instanceof Error) {
@@ -242,7 +149,6 @@ export class VRCWrapper {
         console.error('Unknown error: ', error);
       }
     }
-
   }
 
   arraysAreEqual<T>(array1: T[], array2: T[]): boolean {

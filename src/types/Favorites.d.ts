@@ -113,6 +113,12 @@ declare namespace VRCAPI {
              * The Request parameters for the `updateFavoriteGroup` method.
              */
             type clearFavoriteGroupRequest = favoriteGroupRequest;
+
+            type dataKeysFavoriteTypes =
+                | dataKeysAddFavoriteFriend
+                | dataKeysAddFavoriteAvatar
+                | dataKeysAddFavoriteWorld
+                | dataKeysFavoriteUpdate;
         }
     }
 }

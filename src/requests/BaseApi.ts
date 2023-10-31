@@ -130,6 +130,8 @@ export class BaseApi {
 
         // if the base class is not authenticated then we need to throw an error unless it's a 2FA authentication process!
         if (!this.baseClass.isAuthentificated) {
+            console.log(this.baseClass);
+            
             if (!pathFormated.includes("/auth/twofactorauth") && !pathFormated.includes("/auth/user")) {
                 throw new UserNotAuthenticated();
             }
