@@ -75,6 +75,8 @@ declare namespace VRCAPI {
         username?: string | null;
       };
 
+      type currentUserOrTwoFactorType = VRCAPI.Generics.twoFactorAuthResponseType | CurrentUser;
+
       /** Represents a past display name of a user. */
       export type PastDisplayName = {
         displayName: string;

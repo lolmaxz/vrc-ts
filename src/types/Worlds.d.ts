@@ -33,6 +33,13 @@ declare namespace VRCAPI {
                 version: number; // Min 0, Default: 0
                 visits: number; // Min 0, Default: 0
             };
+
+            enum ReleaseStatus {
+                Public = 'public',
+                Private = 'private',
+                Hidden = 'hidden',
+                All = 'all',
+              }
         }
         namespace Requests {
 

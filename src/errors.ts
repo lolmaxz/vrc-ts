@@ -71,6 +71,16 @@ export class TOTPRequired extends Error {
 }
 
 /**
+ * Error thrown when the Email Otp is required
+ * @throws {EmailOtpRequired}
+ */
+export class EmailOtpRequired extends Error {
+    constructor(message: string) {
+        super(`${C.yellow}[ WARNING ]${C.reset} - Email Otp is Required! - ${message}`); // Pass the message to the Error constructor
+    }
+}
+
+/**
  * Error thrown when the request failed. Includes the status code and the message.
  * @throws {RequestError}
  */

@@ -542,693 +542,287 @@ declare namespace VRCAPI {
       }
     }
     namespace Requests {
-      /**
-       * Information Required to request to create a group.
-       */
-      type CreateGroupRequest = {
-        /**
-         * The name of the group. Must be between 3 and 64 characters. **[REQUIRED]**.
-         */
-        name: string;
-        /**
-         * The short code of the group. Must be between 3 and 6 characters. **[REQUIRED]**.
-         */
-        shortCode: string;
-        /**
-         * The description of the group. Must be between 0 and 250 characters. *[OPTIONAL]*.
-         */
-        description?: string;
-        /**
-         * The JoinState of the group. Must be one of the following: `open`, `invite`, `request`, `closed`. Default is `open`. *[OPTIONAL]*
-         */
-        joinState?: VRCAPI.Groups.Models.GroupJoinState;
-        /**
-         * The IconId of the group. *[OPTIONAL]*.
-         */
-        iconId?: string;
-        /**
-         * The BannerId of the group. *[OPTIONAL]*.
-         */
-        bannerId?: string;
-        /**
-         * The Privacy of the group. Must be one of the following: `default`, `private`. Default is `default`. *[OPTIONAL]*.
-         */
-        privacy?: VRCAPI.Groups.Models.GroupPrivacy;
-        /**
-         * The RoleTemplate of the group. Must be one of the following: `default`, `managedFree`, `managedInvite`, `managedRequest`. Default is `default`. **[REQUIRED]**.
-         */
-        roleTemplate: VRCAPI.Groups.Models.GroupRoleTemplate;
+
+      type GroupId = {
+        /** The groupId of the group you want to perform this action on. **[REQUIRED]** */
+        groupId: string;
       }
 
-      /**
-       * Information Required to request to get a group.
-       */
-      type getGroupByIdRequest = {
-        /**
-         * The groupId of the Group you want to get information about. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * Whether or not to include the group's roles. Defaults to false if omitted. *[OPTIONAL]*.
-         */
+      type UserId = {
+        /** UserId of the User needed to perform this action on. **[REQUIRED]** */
+        userId: string;
+      }
+
+      type Quantity = {
+        /** A quantity to specify how much information to receive. Must be between 1 and 100. Defaults to 60 if omitted. *[OPTIONAL]*. */
+        n?: number;
+      }
+
+      type Offset = {
+        /** The offset to get the information from. Must be at least 0. Defaults to 0 if omitted. *[OPTIONAL]*. */
+        offset?: number;
+      }
+
+      type ReqName = {
+        /** The required name to perform this action. Must be between 3 and 64 characters. **[REQUIRED]** */
+        name: string;
+      }
+
+      type OptName = {
+        /** The optional name to perform this action. Must be between 3 and 64 characters. *[OPTIONAL]*. */
+        name?: string;
+      }
+
+      type Description = {
+        /** The description to attach to this action. Must be between 0 and 512 characters. *[OPTIONAL]*. */
+        description?: string;
+      }
+
+      type BasicGroupData = Description & {
+        /** The short code of the group. Must be between 3 and 6 characters. **[REQUIRED]**. */
+        shortCode?: string;
+        /** The JoinState of the group. Must be one of the following: `open`, `invite`, `request`, `closed`. Default is `open`. *[OPTIONAL]* */
+        joinState?: VRCAPI.Groups.Models.GroupJoinState;
+        /** The IconId of the group. *[OPTIONAL]*. */
+        iconId?: string;
+        /** The BannerId of the group. *[OPTIONAL]*. */
+        bannerId?: string;
+      }
+
+      /** Information Required to request to create a group. */
+      type CreateGroupRequest = BasicGroupData & ReqName & {
+        /** The Privacy of the group. Must be one of the following: `default`, `private`. Default is `default`. *[OPTIONAL]*. */
+        privacy?: VRCAPI.Groups.Models.GroupPrivacy;
+        /** The RoleTemplate of the group. Must be one of the following: `default`, `managedFree`, `managedInvite`, `managedRequest`. Default is `default`. **[REQUIRED]**. */
+        roleTemplate: VRCAPI.Groups.Models.GroupRoleTemplate;
+        /** test */
+        shortCode: string; // redefining
+      }
+
+      /** Information Required to request to get a group. */
+      type getGroupByIdRequest = GroupId & {
+        /** Whether or not to include the group's roles. Defaults to false if omitted. *[OPTIONAL]*. */
         includeRoles?: boolean;
       };
 
-      /**
-       * Information Required to request to get a group's Audit Logs.
-       */
-      type getGroupAuditLogsRequest = {
-        /**
-         * The groupId of the Group you want to get the audit logs from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The number of logs to get. Defaults to 60 if omitted. *[OPTIONAL]*.
-         */
-        n?: number;
-        /**
-         * The offset to get the logs from. Defaults to 0 if omitted. *[OPTIONAL]*.
-         */
-        offset?: number;
-        /**
-         * The Starting date of the logs to get. *[OPTIONAL]*.
-         */
+      /** Information Required to request to get a group's Audit Logs.*/
+      type getGroupAuditLogsRequest = GroupId & Quantity & Offset & {
+        /** The Starting date of the logs to get. *[OPTIONAL]*. */
         startDate?: string;
-        /**
-         * The Ending date of the logs to get. *[OPTIONAL]*.
-         */
+        /** The Ending date of the logs to get. *[OPTIONAL]*. */
         endDate?: string;
       }
 
-      /**
-       * Information Required to request to update a group.
-       */
-      type UpdateGroupRequest = {
-        /**
-         * The groupId of the Group you want to update. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-        * The name of the group. Must be between 3 and 64 characters. *[OPTIONAL]*.
-        */
-        name?: string;
-        /**
-        * The short code of the group. Must be between 3 and 6 characters. *[OPTIONAL]*.
-        */
-        shortCode?: string;
-        /**
-         * The description of the group. Must be between 0 and 250 characters. *[OPTIONAL]*.
-         */
-        description?: string; // Must be 0 to 250 characters long, optional
-        /**
-         * The JoinState of the group. Must be one of the following: `open`, `invite`, `request`, `closed`. *[OPTIONAL]*.
-         */
-        joinState?: VRCAPI.Groups.Models.GroupJoinState;
-        /**
-         * The IconId of the group. *[OPTIONAL]*.
-         */
-        iconId?: string;
-        /**
-         * The BannerId of the group. *[OPTIONAL]*.
-         */
-        bannerId?: string;
-        /**
-         * The language tags of the group. Must be a valid Language Tag. Maximum of 3 tags. *[OPTIONAL]*.
-         */
+      type dataKeysUpdateGroup = BasicGroupData & OptName & {
+        /** The language tags of the group. Must be a valid Language Tag. Maximum of 3 tags. *[OPTIONAL]*. */
         languages?: [VRCAPI.Generics.languageTagsShort?, VRCAPI.Generics.languageTagsShort?, VRCAPI.Generics.languageTagsShort?];
-        /**
-         * The links of the group. Must not contain more then 3 elements. *[OPTIONAL]*.
-         */
+        /** The links of the group. Must not contain more then 3 elements. *[OPTIONAL]*. */
         links?: [string, string?, string?];
-        /**
-         * The Rules of the group. Minimum length is 0, maximum length is 2048. *[OPTIONAL]*.
-         */
+        /** The Rules of the group. Minimum length is 0, maximum length is 2048. *[OPTIONAL]*. */
         rules?: string;
-
+        /** The tags of the group. Each string must be at least 1 character long. *[OPTIONAL]*. */
+        tags?: VRCAPI.Generics.AllTags[];
       }
 
-      /**
-       * Information Required to request to delete a group.
-       * 
-       * **BE CAREFULL WITH THIS, YOU CAN'T GO BACK!**
-       */
-      type DeleteGroupRequest = {
-        /**
-         * The groupId of the Group you want to delete. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to update a group. */
+      type UpdateGroupRequest = GroupId & dataKeysUpdateGroup;
 
-      /**
-       * Information Required to request to get a group's announcements.
-       */
-      type GetGroupAnnouncementRequest = {
-        /**
-         * The groupId of the Group you want to get an announcement from. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to delete a group.
+       * ### BE CAREFULL WITH THIS, YOU CAN'T GO BACK!*/
+      type DeleteGroupRequest = GroupId;
 
-      /**
-       * Information Required to request to create a group announcement.
-       */
-      type CreateGroupAnnouncementRequest = {
-        /**
-         * The groupId of the Group you want to create an announcement for. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The title of the Group Announcement. Must be minimum 1 character long. **[REQUIRED]**.
-         */
+      /** Information Required to request to get a group's announcements. */
+      type GetGroupAnnouncementRequest = GroupId;
+
+      type dataKeysCreateGroupAnnouncement = {
+        /** The title of the Group Announcement. Must be minimum 1 character long. **[REQUIRED]**.*/
         title: string;
-        /**
-         * The text of the Group Announcement. Must be minimum 1 character long. **[REQUIRED]**.
-         */
+        /** The text of the Group Announcement. Must be minimum 1 character long. **[REQUIRED]**.*/
         text: string;
-        /**
-         * The imageId of the Group Announcement. *[OPTIONAL]*.
-         */
+        /** The imageId of the Group Announcement. *[OPTIONAL]*.*/
         imageId?: string;
-        /**
-         * Whether or not to send a notification to all group members. Defaults to true. *[OPTIONAL]*.
-         */
+        /** Whether or not to send a notification to all group members. Defaults to true. *[OPTIONAL]*.*/
         sendNotification?: boolean;
       }
 
-      /**
-       * Information Required to request to delete a GroupAnnouncement.
-       */
-      type deleteGroupAnnouncementRequest = {
-        /**
-         * The groupId of the Group you want to delete an announcement from. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to create a group announcement. */
+      type CreateGroupAnnouncementRequest = GroupId & dataKeysCreateGroupAnnouncement;
 
-      /**
-       * Information Required to request to get a group's banned users.
-       */
-      type GetBannedUsersRequest = {
-        /**
-         * The groupId of the Group you want to get the banned users from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The number of users to get. Defaults to 60 if omitted. *[OPTIONAL]*.
-         */
-        n?: number;
-        /**
-         * The offset to get the users from. Defaults to 0 if omitted. *[OPTIONAL]*.
-         */
-        offset?: number;
-      }
+      /** Information Required to request to delete a GroupAnnouncement. */
+      type deleteGroupAnnouncementRequest = GroupId;
 
-      /**
-       * Information Required to request to ban a user from a group.
-       */
-      type BanGroupMemberRequest = {
-        /**
-         * The groupId of the Group you want to ban a user from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to ban. **[REQUIRED]**.
-         */
+      /** Information Required to request to get a group's banned users. */
+      type GetBannedUsersRequest = GroupId & Quantity & Offset
+
+      type dataKeysGroupBanMember = {
+        /** The ID of the user to ban. **[REQUIRED]**.*/
         userId: string;
       }
 
-      /**
-       * Information Required to request to unban a user from a group.
-       */
-      type UnbanGroupMemberRequest = {
-        /**
-         * The groupId of the Group you want to unban a user from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to unban. **[REQUIRED]**.
-         */
-        userId: string;
-      }
+      /** Information Required to request to ban a user from a group. */
+      type BanGroupMemberRequest = GroupId & dataKeysGroupBanMember;
 
-      /**
-       * Information Required to request to create a group gallery.
-       */
-      type createGroupGalleryRequest = {
-        /**
-         * The groupId of the Group you want to create a gallery for. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-        * The name of the Group Gallery. Must be between 1 and 64 characters. **[REQUIRED]**.
-        */
-        name: string;
-        /**
-         * The description of the Group Gallery. Must be between 0 and 512 characters. *[OPTIONAL]*.
-         */
-        description?: string;
-        /**
-         * Whether or not the gallery is members only. Defaults to false. *[OPTIONAL]*.
-         */
+      /** Information Required to request to unban a user from a group. */
+      type UnbanGroupMemberRequest = GroupId & UserId;
+
+      type dataKeysGroupCreateGallery = ReqName & Description & {
+        /** Whether or not the gallery is members only. Defaults to false. *[OPTIONAL]*.*/
         membersOnly?: boolean;
-        /**
-         * The roleIds that can view the gallery. *[OPTIONAL]*.
-         */
+        /** The roleIds that can view the gallery. *[OPTIONAL]*.*/
         roleIdsToView?: string[];
-        /**
-         * The roleIds that can submit to the gallery. *[OPTIONAL]*.
-         */
+        /** The roleIds that can submit to the gallery. *[OPTIONAL]*.*/
         roleIdsToSubmit?: string[];
-        /**
-         * The roleIds that can auto approve submissions to the gallery. *[OPTIONAL]*.
-         */
+        /** The roleIds that can auto approve submissions to the gallery. *[OPTIONAL]*.*/
         roleIdsToAutoApprove?: string[];
-        /**
-         * The roleIds that can manage the gallery. *[OPTIONAL]*.
-         */
+        /** The roleIds that can manage the gallery. *[OPTIONAL]*.*/
         roleIdsToManage?: string[];
       }
 
-      /**
-       * Information Required to request to get a group's gallerie's Images.
-       */
-      type GetGroupGalleryImagesRequest = {
-        /**
-         * The groupId of the Group you want to get the gallerie's images from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The groupGalleryId of the Group Gallery you want to get the images from. **[REQUIRED]**.
-         */
+      /** Information Required to request to create a group gallery. */
+      type createGroupGalleryRequest = GroupId & dataKeysGroupCreateGallery;
+
+      type GroupGalleryId = {
+        /** The groupGalleryId of the Group Gallery you want to perform this action on. **[REQUIRED]** */
         groupGalleryId: string;
-        /**
-         * The number of images to get. Must be between 1 and 100. Defaults to 60 if omitted. *[OPTIONAL]*.
-         */
-        n?: number;
-        /**
-         * The offset to get the images from. Must be at least 0. Defaults to 0 if omitted. *[OPTIONAL]*.
-         */
-        offset?: number;
-        /**
-         * Whether or not to include images that are approved. *[OPTIONAL]*.
-         */
+      }
+
+      /** Information Required to request to get a group's gallerie's Images. */
+      type GetGroupGalleryImagesRequest = GroupId & GroupGalleryId & Quantity & Offset & {
+        /** Whether or not to include images that are approved. *[OPTIONAL]*.*/
         approved?: boolean; // TODO FIND THE DEFAULT?
       }
 
-      /**
-       * Information Required to request to update a group gallery.
-       */
-      type UpdateGroupGalleryRequest = {
-        /**
-         * The groupId of the Group you want to update a gallery for. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The groupGalleryId of the Group Gallery you want to update. **[REQUIRED]**.
-         */
-        groupGalleryId: string;
-        /**
-         * The name of the Group Gallery. Must be between 1 and 64 characters. *[OPTIONAL]*.
-         */
-        name?: string;
-        /**
-         * The description of the Group Gallery. Must be between 0 and 512 characters. *[OPTIONAL]*.
-         */
-        description?: string;
-        /**
-         * Whether or not the gallery is members only. *[OPTIONAL]*.
-         */
+      type dataKeysGroupUpdateGallery = OptName & Description & {
+        /** Whether or not the gallery is members only. *[OPTIONAL]*.*/
         membersOnly?: boolean;
-        /**
-         * The roleIds that can view the gallery. *[OPTIONAL]*.
-         */
+        /** The roleIds that can view the gallery. *[OPTIONAL]*.*/
         roleIdsToView?: string[];
-        /**
-         * The roleIds that can submit to the gallery. *[OPTIONAL]*.
-         */
+        /** The roleIds that can submit to the gallery. *[OPTIONAL]*.*/
         roleIdsToSubmit?: string[];
-        /**
-         * The roleIds that can auto approve submissions to the gallery. *[OPTIONAL]*.
-         */
+        /** The roleIds that can auto approve submissions to the gallery. *[OPTIONAL]*.*/
         roleIdsToAutoApprove?: string[];
-        /**
-         * The roleIds that can manage the gallery. *[OPTIONAL]*.
-         */
+        /** The roleIds that can manage the gallery. *[OPTIONAL]*.*/
         roleIdsToManage?: string[];
       }
 
-      /**
-       * Information Required to request to delete a group gallery.
-       */
-      type DeleteGroupGalleryRequest = {
-        /**
-         * The groupId of the Group you want to delete a gallery from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The groupGalleryId of the Group Gallery you want to delete. **[REQUIRED]**.
-         */
-        groupGalleryId: string;
-      }
+      /** Information Required to request to update a group gallery. */
+      type UpdateGroupGalleryRequest = GroupId & GroupGalleryId & OptName & Description & dataKeysGroupUpdateGallery;
 
-      /**
-       * Information Required to request to add a image to a group gallery.
-       */
-      type AddGroupGalleryImagesRequest = {
-        /**
-         * The groupId of the Group you want to add a image to a gallery from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The groupGalleryId of the Group Gallery you want to add a image to. **[REQUIRED]**.
-         */
-        groupGalleryId: string;
-        /**
-         * The fileId of the image you want to add to the gallery. **[REQUIRED]**.
-         */
+      /** Information Required to request to delete a group gallery. */
+      type DeleteGroupGalleryRequest = GroupId & GroupGalleryId;
+
+      type dataKeysAddGroupGalleryImage = {
+        /** The fileId of the image you want to add to the gallery. **[REQUIRED]**.*/
         fileId: string; // TODO Research how that file ID looks like ( file_ce35d830-e20a-4df0-a6d4-5aaef4508044 )
       }
 
-      /**
-       * Information Required to request to delete a image from a group gallery.
-       */
-      type DeleteGroupGalleryImagesRequest = {
-        /**
-         * The groupId of the Group you want to delete a image from a gallery from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The groupGalleryId of the Group Gallery you want to delete a image from. **[REQUIRED]**.
-         */
-        groupGalleryId: string;
-        /**
-         * The groupGalleryImageId of the Group Gallery Image you want to delete. **[REQUIRED]**.
-         */
+      /** Information Required to request to add a image to a group gallery. */
+      type AddGroupGalleryImagesRequest = GroupId & GroupGalleryId & dataKeysAddGroupGalleryImage;
+
+      /** Information Required to request to delete a image from a group gallery. */
+      type DeleteGroupGalleryImagesRequest = GroupId & GroupGalleryId & {
+        /** The groupGalleryImageId of the Group Gallery Image you want to delete. **[REQUIRED]**.*/
         groupGalleryImageId: string;
       }
 
-      /**
-       * Information Required to request to get a group's invites.
-       */
-      type GetGroupInvitesSentRequest = {
-        /**
-         * The groupId of the Group you want to get the invites from. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to get a group's invites. */
+      type GetGroupInvitesSentRequest = GroupId;
 
-      /**
-       * Information Required to request to invite a user to a group.
-       */
-      type InviteUserToGroupRequest = {
-        /**
-         * The groupId of the Group you want to invite a user to. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to invite. **[REQUIRED]**.
-         */
+      type dataKeysCreateGroupInvite = {
+        /** The ID of the user to invite to the group. **[REQUIRED]**.*/
         userId: string;
-        /**
-         * TODO research what this does. *[OPTIONAL]*.
-         */
-        confirmOverrideBlock: boolean;
+        /** // TODO research what this does. *[OPTIONAL]*. */
+        confirmOverrideBlock?: boolean;
       }
 
-      /**
-       * Information Required to request to delete a group invite.
-       */
-      type deleteGroupUserInviteRequest = {
-        /**
-         * The groupId of the Group you want to delete an invite from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to delete an invite from. **[REQUIRED]**.
-         */
-        userId: string;
-      }
+      /** Information Required to request to invite a user to a group. */
+      type InviteUserToGroupRequest = GroupId & dataKeysCreateGroupInvite;
 
-      /**
-       * Information Required to request to join a group.
-       */
-      type joinGroupRequest = {
-        /**
-         * The groupId of the Group you want to join. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to delete a group invite. */
+      type deleteGroupUserInviteRequest = GroupId & UserId;
 
-      /**
-       * Information Required to request to leave a group.
-       */
-      type leaveGroupRequest = {
-        /**
-         * The groupId of the Group you want to leave. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to join a group. */
+      type joinGroupRequest = GroupId;
 
-      /**
-       * Information Required to request to get a group's members.
-       */
-      type listGroupMembersRequest = {
-        /**
-         * The groupId of the Group you want to get the members from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The number of members to get. Must be between 1 and 100. Defaults to 60 if omitted. *[OPTIONAL]*.
-         */
-        n?: number;
-        /**
-         * The offset to get the members from. Must be at least 0. Defaults to 0 if omitted. *[OPTIONAL]*.
-         */
-        offset?: number;
-      }
+      /** Information Required to request to leave a group. */
+      type leaveGroupRequest = GroupId;
 
-      /**
-       * Information Required to request to get a group's member.
-       */
-      type getGroupMemberRequest = {
-        /**
-         * The groupId of the Group you want to get the member from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to get the member from. **[REQUIRED]**.
-         */
-        userId: string;
-      }
+      /** Information Required to request to get a group's members. */
+      type listGroupMembersRequest = GroupId & Quantity & Offset;
 
-      /**
-       * Information Required to request to update a group's member.
-       */
-      type updateGroupMemberRequest = {
-        /**
-         * The groupId of the Group you want to update the member from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to update the member from. **[REQUIRED]**.
-         */
-        userId: string;
-        /**
-         * The visibility of the member. Must be one of the following: `visible`, `hidden`, `friends`. *[OPTIONAL]*.
-         */
+      /** Information Required to request to get a group's member. */
+      type getGroupMemberRequest = GroupId & UserId;
+
+      type dataKeysUpdateGroupMember = {
+        /** The visibility of the member. Must be one of the following: `visible`, `hidden`, `friends`. *[OPTIONAL]*.*/
         visibility?: VRCAPI.Groups.Models.GroupUserVisibility;
-        /**
-         * Whether or not the member is subscribed to announcements. *[OPTIONAL]*.
-         */
+        /** Whether or not the member is subscribed to announcements. *[OPTIONAL]*.*/
         isSubscribedToAnnouncements?: boolean;
-        /**
-         * The notes about the member. *[OPTIONAL]*.
-         */
+        /** The notes about the member. *[OPTIONAL]*.*/
         managerNotes?: string;
-      };
-
-      /**
-       * Information Required to request to kick a user from a group.
-       */
-      type kickGroupMemberRequest = {
-        /**
-         * The groupId of the Group you want to kick the member from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to kick. **[REQUIRED]**.
-         */
-        userId: string;
       }
 
-      /**
-       * Information Required to request to add a role to a group member.
-       */
-      type addRoleToGroupMemberRequest = {
-        /**
-         * The groupId of the Group you want to add the role to the member from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to add the role to. **[REQUIRED]**.
-         */
-        userId: string;
-        /**
-         * The groupRoleId of the Group Role you want to add. **[REQUIRED]**.
-         */
+      /** Information Required to request to update a group's member. */
+      type updateGroupMemberRequest = GroupId & UserId & dataKeysUpdateGroupMember;
+
+      /** Information Required to request to kick a user from a group. */
+      type kickGroupMemberRequest = GroupId & UserId;
+
+      type GroupRoleId = {
+        /** The groupRoleId of the Group Role you want to perform this action on. **[REQUIRED]** */
         groupRoleId: string;
       }
 
-      /**
-       * Information Required to request to remove a role from a group member.
-       */
-      type removeRoleFromGroupMemberRequest = {
-        /**
-         * The groupId of the Group you want to remove the role from the member from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to remove the role from. **[REQUIRED]**.
-         */
-        userId: string;
-        /**
-         * The groupRoleId of the Group Role you want to remove. **[REQUIRED]**.
-         */
-        groupRoleId: string;
-      }
+      /** Information Required to request to add a role to a group member. */
+      type addRoleToGroupMemberRequest = GroupId & UserId & GroupRoleId;
 
-      /**
-       * Information Required to request to get a group's permissions.
-       */
-      type listGroupPermissionsRequest = {
-        /**
-         * The groupId of the Group you want to get the permissions from. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to remove a role from a group member. */
+      type removeRoleFromGroupMemberRequest = GroupId & UserId & GroupRoleId;
 
-      /**
-       * Information Required to request to get a group's current join request.
-       */
-      type getGroupJoinRequestsRequest = {
-        /**
-         * The groupId of the Group you want to get the join requests from. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to get a group's permissions. */
+      type listGroupPermissionsRequest = GroupId;
 
-      /**
-       * Information Required to request to cancel a group's join request.
-       */
-      type cancelGroupJoinRequestRequest = {
-        /**
-         * The groupId of the Group you want to cancel the join request from. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to get a group's current join request. */
+      type getGroupJoinRequestsRequest = GroupId;
 
-      /**
-       * Information Required to request to respond to a group's join request.
-       */
-      type respondGroupJoinrequestRequest = {
-        /**
-         * The groupId of the Group you want to respond to the join request from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The userId of the User you want to respond to the join request from. **[REQUIRED]**.
-         */
-        userId: string;
-        /**
-         * The action to take on the join request. Must be one of the following: `Accept`, `Deny`. **[REQUIRED]**.
-         */
+      /** Information Required to request to cancel a group's join request. */
+      type cancelGroupJoinRequestRequest = GroupId;
+
+      type dataKeysRespondGroupJoinRequest = {
+        /** The action to take on the join request. Must be one of the following: `Accept`, `Deny`. **[REQUIRED]**.*/
         action: VRCAPI.Groups.Models.GroupInviteResponse;
       }
 
-      /**
-       * Information Required to request to get a group's roles.
-       */
-      type getGroupRolesRequest = {
-        /**
-         * The groupId of the Group you want to get the roles from. **[REQUIRED]**.
-         */
-        groupId: string;
-      }
+      /** Information Required to request to respond to a group's join request. */
+      type respondGroupJoinrequestRequest = GroupId & UserId & dataKeysRespondGroupJoinRequest;
 
-      /**
-       * Information Required to request to create a group role.
-       */
-      type createGroupRoleRequest = {
-        /**
-         * The groupId of the Group you want to create the role for. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The name of the Group Role. Must be between 1 and 64 characters. **[REQUIRED]**.
-         */
-        name: string;
-        /**
-         * The description of the Group Role. Must be between 1 and 512 characters. *[OPTIONAL]*.
-         */
-        description?: string;
-        /**
-         * Whether or not the role is self assignable. Defaults to false. *[OPTIONAL]*.
-         */
+      /** Information Required to request to get a group's roles. */
+      type getGroupRolesRequest = GroupId;
+
+      type dataKeysCreateGroupRole = ReqName & Description & {
+        /** The id of the role to create, will not have anything beside "new" when used. */
+        id: string;
+        /** Whether or not the role is self assignable. Defaults to false. *[OPTIONAL]*.*/
         isSelfAssignable?: boolean;
-        /**
-         * The permissions of the role. *[OPTIONAL]*.
-         */
+        /** The permissions of the role. *[OPTIONAL]*.*/
         permissions?: VRCAPI.Groups.Models.GroupPermissionEnum[];
       }
+      /** Information Required to request to create a group role. */
+      type createGroupRoleRequest = GroupId & dataKeysCreateGroupRole;
 
-      /**
-       * Information Required to request to update a group role.
-       */
-      type updateGroupRoleRequest = {
-        /**
-         * The groupId of the Group you want to update the role for. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The groupRoleId of the Group Role you want to update. **[REQUIRED]**.
-         */
-        groupRoleId: string;
-        /**
-         * The name of the Group Role. Must be between 1 and 64 characters. *[OPTIONAL]*.
-         */
-        name?: string;
-        /**
-         * The description of the Group Role. Must be between 1 and 512 characters. *[OPTIONAL]*.
-         */
-        description?: string;
-        /**
-         * Whether or not the role is self assignable. *[OPTIONAL]*.
-         */
+      type dataKeysUpdateGroupRole = OptName & Description & {
+        /** Whether or not the role is self assignable. *[OPTIONAL]*.*/
         isSelfAssignable?: boolean;
-        /**
-         * The permissions of the role. *[OPTIONAL]*.
-         */
+        /** The permissions of the role. *[OPTIONAL]*.*/
         permissions?: VRCAPI.Groups.Models.GroupPermissionEnum[];
-        /**
-         * The order of the role in the group. *[OPTIONAL]*.
-         */
+        /** The order of the role in the group. *[OPTIONAL]*.*/
         order?: number;
       }
+      /** Information Required to request to update a group role. */
+      type updateGroupRoleRequest = GroupId & GroupRoleId & dataKeysUpdateGroupRole;
 
-      /**
-       * Information Required to request to delete a group role.
-       */
-      type deleteGroupRoleRequest = {
-        /**
-         * The groupId of the Group you want to delete the role from. **[REQUIRED]**.
-         */
-        groupId: string;
-        /**
-         * The groupRoleId of the Group Role you want to delete. **[REQUIRED]**.
-         */
-        groupRoleId: string;
-      }
-
+      /** Information Required to request to delete a group role. */
+      type deleteGroupRoleRequest = GroupId & GroupRoleId;
     }
   }
 }

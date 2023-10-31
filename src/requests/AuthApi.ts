@@ -16,24 +16,23 @@ export class AuthApi extends BaseApi {
         this.regexCode = new RegExp('^[0-9]{6}$');
     }
 
-/**
- * **Get Current User Info**
- * 
- * This method lets you get the information about the current user being logged in with the current instance.
- * 
- * Cookies needs to be valid for this to work. If the user isn't authenticated, then this will throw an error.
- * @returns {Promise<VRCAPI.Auth.responseTypes.loginResponse>} - Returns a Promise with the response from the API.
- */
-    public async getCurrentUser(): Promise<VRCAPI.Users.Models.CurrentUser> {
+    /**
+     * **Get Current User Info**
+     * 
+     * This method lets you get the information about the current user being logged in with the current instance.
+     * 
+     * Cookies needs to be valid for this to work. If the user isn't authenticated, then this will throw an error.
+     * @returns {Promise<VRCAPI.Auth.responseTypes.loginResponse>} - Returns a Promise with the response from the API.
+     */
+    public async getCurrentUser<E=VRCAPI.Users.Models.CurrentUser>(): Promise<E> {
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.auth.getCurrentUserInfo,
             pathFormated: ApiPaths.auth.getCurrentUserInfo.path,
         };
 
-        const queryResult = await this.executeRequest<VRCAPI.Users.Models.CurrentUser>(paramRequest);
-
-        return queryResult;
+        return await this.executeRequest<E>(paramRequest);
+        
     }
 
     /**
@@ -67,9 +66,7 @@ export class AuthApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.checkUserExistResponse>(paramRequest);
-
-        return queryResult;
+        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.checkUserExistResponse>(paramRequest);
     }
 
     /**
@@ -83,32 +80,25 @@ export class AuthApi extends BaseApi {
      * 
      * `code` : The 2FA code to verify. If no code is provided then the code from the .env file will be used.
      */
-    public async verify2FACodeTOTP({ generateCode = true, code }: VRCAPI.Auth.Requests.verify2FACodeOptions): Promise<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse> {
+    public async verify2FACodeTOTP(): Promise<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse> {
 
         let finalCode = "";
+        const code = process.env.TOTP_2FA_CODE;
 
-        if (code) {
-            if (code.length !== 6) {
-                throw new Error("Invalid 2FA code!");
-            } else {
-                finalCode = code;
+        // we use .env file for generating the code here
+        if (!code || code.length !== 6) {
+            // we generate the code
+            if (process.env.VRCHAT_2FA_SECRET === undefined || (process.env.VRCHAT_2FA_SECRET && process.env.VRCHAT_2FA_SECRET.length < 32)) {
+                throw new Error("Bad or no 2FA secret was provided in 'VRCHAT_2FA_SECRET' !");
             }
+            // secret was correctly set now we compute it
+            finalCode = totp(process.env.VRCHAT_2FA_SECRET);
         } else {
-            // we use .env file for generating the code here
-            if (generateCode) {
-                // we generate the code
-                if (process.env.VRCHAT_2FA_SECRET === undefined || (process.env.VRCHAT_2FA_SECRET && process.env.VRCHAT_2FA_SECRET.length < 32)) {
-                    throw new Error("Bad or no 2FA secret was provided in 'VRCHAT_2FA_SECRET' !");
-                }
-                // secret was correctly set now we compute it
-                finalCode = totp(process.env.VRCHAT_2FA_SECRET);
-            } else {
-                // we use the code from .env file
-                if (process.env.TOTP_2FA_CODE === undefined || process.env.TOTP_2FA_CODE.length !== 6) {
-                    throw new Error("Bad or no 2FA code was provided in 'TOTP_2FA_CODE' !");
-                }
-                finalCode = process.env.TOTP_2FA_CODE;
+            // we use the code from .env file
+            if (process.env.TOTP_2FA_CODE === undefined || process.env.TOTP_2FA_CODE.length !== 6) {
+                throw new Error("Bad or no 2FA code was provided in 'TOTP_2FA_CODE' !");
             }
+            finalCode = process.env.TOTP_2FA_CODE;
         }
 
         if (!this.regexCode.test(finalCode)) {
@@ -127,14 +117,7 @@ export class AuthApi extends BaseApi {
             body: body
         };
 
-        console.log(paramRequest);
-        
-        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse>(paramRequest);
-
-        console.log(queryResult);
-        
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse>(paramRequest);
     }
 
 
@@ -147,29 +130,19 @@ export class AuthApi extends BaseApi {
      * 
      * `code` : The 2FA code to verify. If no code is provided then the code from the .env file will be used. From `EMAIL_2FA_CODE`.
      */
-    public async verify2FAEmailCode({ code }: VRCAPI.Auth.Requests.verify2FAEmailOptions): Promise<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse> {
+    public async verify2FAEmailCode(): Promise<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse> {
 
         let finalCode = "";
-        if (code) {
-            if (code.length !== 6) {
-                throw new Error("Invalid 2FA code!");
-            } else {
-                finalCode = code;
-            }
-        } else {
-            // we use the code from .env file
-            if (process.env.EMAIL_2FA_CODE === undefined || process.env.EMAIL_2FA_CODE.length !== 6) {
-                throw new Error("Bad or no 2FA code was provided in 'EMAIL_2FA_CODE' !");
-            }
-            finalCode = process.env.EMAIL_2FA_CODE;
+        const code = process.env.EMAIL_2FA_CODE;
 
-        }
+            // we use the code from .env file
+            if (!code || code.length !== 6) throw new Error("Bad or no 2FA code was provided in 'EMAIL_2FA_CODE' in .env file. !");
+
+            finalCode = code;
 
         if (!this.regexCode.test(finalCode)) {
             throw new Error("The provided 2FA code is invalid! It must be a 6 digit number.");
         }
-
-        // the fetching
 
         const body: VRCAPI.Generics.dataKeys2Fa = {
             code: finalCode
@@ -181,10 +154,7 @@ export class AuthApi extends BaseApi {
             body: body
         };
 
-        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse>(paramRequest);
     }
 
     /**

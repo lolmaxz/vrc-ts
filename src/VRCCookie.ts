@@ -189,6 +189,8 @@ export class cookiesHandler {
   // add cookie
   async addCookie(cookie: VRCCookie): Promise<void> {
     this.cookies.push(cookie);
+    console.log(`${C.green}Added cookie information: ${C.brightGreen+cookie.key}`);
+    
     await this.saveCookies();
   }
 
@@ -249,6 +251,7 @@ export class cookiesHandler {
     });
     return result;
   }
+  
   /**
    * Return all keys with values in a concatenated string from the cookies for this instance.
    * @returns `string` A string of all cookies in a format that can be used in a request.
@@ -309,8 +312,11 @@ export class cookiesHandler {
     cookies.forEach((cookie) => {
       const index = this.cookies.findIndex((c) => c.key === cookie.key);
       if (index !== -1) {
+        console.log(`${C.green+C.underline}Updated${C.r+C.green} cookie information: ${C.brightGreen+cookie.key}`);
+        
         this.cookies[index] = cookie;
       } else {
+        console.log(`${C.green+C.underline}Added${C.r+C.green} cookie information: ${C.brightGreen+cookie.key}`);
         this.cookies.push(cookie);
       }
     });

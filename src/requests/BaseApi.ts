@@ -47,32 +47,33 @@ export class BaseApi {
             'User-Agent': this.baseClass.headerAgent, // we set the User_Agent header
             "Content-Type": "application/json"
         };
-
+        
         if (!currentRequest.cookiesNeeded.includes('none')) {
-            headers['Cookie'] = ``;
+            headers.cookie = ``;
 
-            if (currentRequest.cookiesNeeded.includes('authorization')) {
+            if (currentRequest.cookiesNeeded.includes('authorization') && !this.baseClass.cookiesLoaded) {
                 headers['Authorization'] = `Basic ${this.baseClass.getBase64Credentials()}`;
             }
-            if (currentRequest.cookiesNeeded.includes('authCookie')) {
-                const authCookie = this.baseClass.instanceCookie.getAuthCookie();
-
+            const authCookie = this.baseClass.instanceCookie.getAuthCookie();
+            if (currentRequest.cookiesNeeded.includes('authCookie') && authCookie) {
                 if (!authCookie) {
                     throw new Error('No Auth cookie was found! Please make sure you are logged in.');
                 }
 
-                headers['Cookie'] += `${authCookie} `;
+                headers.cookie += `${authCookie} `;
             }
-            if (currentRequest.cookiesNeeded.includes('twoFactorAuth')) {
+            if (currentRequest.cookiesNeeded.includes('twoFactorAuth') && this.baseClass.instanceCookie.getTwoFactorAuthCookie()) {
                 const twoFactorAuth = this.baseClass.instanceCookie.getTwoFactorAuthCookie();
 
                 if (!twoFactorAuth) {
                     throw new Error('No 2FA cookie was found! Please make sure you are logged in.');
                 }
 
-                headers['Cookie'] += `${twoFactorAuth} `;
+                headers.cookie += `${twoFactorAuth} `;
             }
         }
+
+        headers.cookie?.trim();
 
         const options: VRCAPI.Generics.VRCRequest = {
             method: currentRequest.method,
@@ -82,20 +83,18 @@ export class BaseApi {
         if (body && currentRequest.requiresData) {
             options.body = JSON.stringify(body);
         }
-
-
-
-
         const response: VRCAPI.Generics.API<E, VRCAPI.Generics.RequestError> = await fetch(url, options);
-
+        
         if (process.env.DEBUG === 'true') {
-            console.log("response: ", response);
-            console.log("options: ", options);
-            console.log("url: ", url);
+            console.log("#1 url: ", url);
+            console.log("#2 options: ", options);
+            console.log("#3 response: ", response);
         }
 
         if (!response.ok) {
             let extraMessage = "";
+            console.log("not okay?:", response);
+            
             const reponseTry = await response.json();
             // console.log(reponseTry);
 
@@ -119,6 +118,7 @@ export class BaseApi {
         }
 
         return result
+    
     }
 
     checkValidData({
@@ -127,10 +127,12 @@ export class BaseApi {
         queryOptions,
         body
     }: VRCAPI.Generics.executeRequestType) {
-        
+
         // if the base class is not authenticated then we need to throw an error unless it's a 2FA authentication process!
         if (!this.baseClass.isAuthentificated) {
-            if (!pathFormated.includes("/auth/twofactorauth")) {
+            console.log(this.baseClass);
+            
+            if (!pathFormated.includes("/auth/twofactorauth") && !pathFormated.includes("/auth/user")) {
                 throw new UserNotAuthenticated();
             }
         }
