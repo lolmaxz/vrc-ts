@@ -62,8 +62,8 @@ export class AuthApi extends BaseApi {
         }
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
-            currentRequest: ApiPaths.auth.checkUserExist,
-            pathFormated: ApiPaths.auth.checkUserExist.path,
+            currentRequest: ApiPaths.auth.userExist,
+            pathFormated: ApiPaths.auth.userExist.path,
             queryOptions: parameters,
         };
 
@@ -212,7 +212,7 @@ export class AuthApi extends BaseApi {
         const result = await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
 
         await this.baseClass.instanceCookie.deleteCookies();
-        
+
         return result;
 
     }

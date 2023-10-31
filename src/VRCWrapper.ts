@@ -3,8 +3,19 @@ import cookiesHandler from './VRCCookie';
 import { Color as C } from './colors';
 import { CookiesExpired, CookiesNotFound, CookiesUser404, RequestError } from './errors';
 import { AuthApi } from './requests/AuthApi';
+import { AvatarsApi } from './requests/AvatarsApi';
+import { FavoritesApi } from './requests/FavoritesApi';
+import { FilesApi } from './requests/FilesApi';
+import { FriendsApi } from './requests/FriendsApi';
 import { GroupsApi } from './requests/GroupsApi';
+import { InstanceApi } from './requests/InstancesApi';
+import { InvitesApi } from './requests/InvitesApi';
+import { NotificationsApi } from './requests/NotificationsApi';
+import { PermissionsApi } from './requests/PermissionsApi';
+import { PlayerModerationApi } from './requests/PlayerModerationApi';
+import { SystemApi } from './requests/SystemApi';
 import { UsersApi } from './requests/UsersApi';
+import { WorldsApi } from './requests/WorldsApi';
 import { ApiPaths } from './types/ApiPaths';
 
 /**
@@ -21,29 +32,56 @@ export class VRCWrapper {
   static baseDomain: string = 'api.vrchat.cloud';
   public static ApiBaseUrl: string = "https://api.vrchat.cloud/api/1"
   headerAgent: string = process.env.USER_AGENT || "ExampleApp/1.0.0 Email@example.com";
-  basePath: string = ApiPaths.api.base.path;
-
+  basePath: string = ApiPaths.apiBasePath;
   cookiesLoaded = false;
 
   authApi: AuthApi;
-  userApi: UsersApi;
+  avatarApi: AvatarsApi;
+  favoriteApi: FavoritesApi;
+  fileApi: FilesApi;
+  friendApi: FriendsApi;
   groupApi: GroupsApi;
+  instanceApi: InstanceApi;
+  inviteApi: InvitesApi;
+  notificationApi: NotificationsApi;
+  permissionApi: PermissionsApi;
+  playermoderationApi: PlayerModerationApi;
+  systemApi: SystemApi;
+  userApi: UsersApi;
+  worldApi: WorldsApi;
 
-
-
-  constructor(username: string, password: string) {
-    this.username = username;
-    this.password = password;
+  constructor(username?: string, password?: string) {
+    if (username) {
+      this.username = username;
+    } else {
+      this.username = process.env.VRCHAT_USERNAME || '';
+    }
+    if (password) {
+      this.password = password;
+    } else {
+      this.password = process.env.VRCHAT_PASSWORD || '';
+    }
+    
     this.isAuthentificated = false;
     this.instanceCookie = new cookiesHandler(this.username)
     this.instanceCookie = new cookiesHandler(this.username);
     this.authApi = new AuthApi(this);
-    this.userApi = new UsersApi(this);
+    this.avatarApi = new AvatarsApi(this);
+    this.favoriteApi = new FavoritesApi(this);
+    this.fileApi = new FilesApi(this);
+    this.friendApi = new FriendsApi(this);
     this.groupApi = new GroupsApi(this);
+    this.instanceApi = new InstanceApi(this);
+    this.inviteApi = new InvitesApi(this);
+    this.notificationApi = new NotificationsApi(this);
+    this.permissionApi = new PermissionsApi(this);
+    this.playermoderationApi = new PlayerModerationApi(this);
+    this.systemApi = new SystemApi(this);
+    this.userApi = new UsersApi(this);
+    this.worldApi = new WorldsApi(this);
   }
 
   async authenticate() {
-
 
     if (process.env.USE_COOKIES && process.env.USE_COOKIES === 'true') {
       try {
@@ -67,7 +105,7 @@ export class VRCWrapper {
       this.instanceCookie = new cookiesHandler(this.username);
     }
 
-    const url: URL = new URL(ApiPaths.api.base.path + ApiPaths.auth.getCurrentUserInfo.path);
+    const url: URL = new URL(this.basePath + ApiPaths.auth.getCurrentUserInfo.path);
     const headers: VRCAPI.Generics.headerOptions = {
       'Authorization': `Basic ${this.getBase64Credentials()}`,
       "User-Agent":
@@ -87,10 +125,12 @@ export class VRCWrapper {
     try {
 
       const response: VRCAPI.Generics.API<VRCAPI.Generics.twoFactorAuthResponseType, VRCAPI.Generics.error2FABase | RequestError> = await fetch(url, { ...options });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
+      const data = await response.json();
 
      // we get the set-cookies if there is any (way more optimized solution)
      const cookies = response.headers.getSetCookie();
@@ -99,7 +139,7 @@ export class VRCWrapper {
          await this.instanceCookie.addCookiesFromStrings(cookies);
      }
 
-      const data = await response.json();
+      
 
       if ('success' in data) return;
 

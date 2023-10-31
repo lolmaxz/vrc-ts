@@ -131,8 +131,8 @@ export class UsersApi extends BaseApi {
         }
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
-            currentRequest: ApiPaths.users.updateUserById,
-            pathFormated: ApiPaths.users.updateUserById.path.replace('{userId}', userId),
+            currentRequest: ApiPaths.users.updateUserInfo,
+            pathFormated: ApiPaths.users.updateUserInfo.path.replace('{userId}', userId),
             body: body
         };
 

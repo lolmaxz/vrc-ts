@@ -136,11 +136,175 @@ declare namespace VRCAPI {
     };
 
     type APIPaths = {
-      [section: string]: subSectionPath;
+      apiBasePath : string;
+      auth: {
+        userExist: subSectionType;
+        getCurrentUserInfo: subSectionType;
+        verify2FATOTP: subSectionType;
+        verify2FAOTP: subSectionType;
+        verify2FAEmail: subSectionType;
+        verifyAuthToken: subSectionType;
+        logout: subSectionType;
+        deleteUser: subSectionType;
+      };
+      avatars: {
+        getOwnAvatar: subSectionType;
+        searchAvatars: subSectionType;
+        createAvatar: subSectionType;
+        getAvatar: subSectionType;
+        updateAvatar: subSectionType;
+        deleteAvatar: subSectionType;
+        selectAvatar: subSectionType;
+        selectFallbackAvatar: subSectionType;
+        listFavoritedAvatars: subSectionType;
+      };
+      economy: {
+        listSteamTransactions: subSectionType;
+        getSteamTransaction: subSectionType;
+        getCurrentSubscriptions: subSectionType;
+        listSubscriptions: subSectionType;
+        getLicenseGroup: subSectionType;
+      };
+      favorites: {
+        listFavorites: subSectionType;
+        addFavorite: subSectionType;
+        showFavorite: subSectionType;
+        removeFavorite: subSectionType;
+        listFavoriteGroups: subSectionType;
+        showFavoriteGroup: subSectionType;
+        updateFavoriteGroup: subSectionType;
+        clearFavoriteGroup: subSectionType;
+      };
+      files: {
+        listFiles: subSectionType;
+        createFile: subSectionType;
+        showFile: subSectionType;
+        createFileVersion: subSectionType;
+        deleteFile: subSectionType;
+        downloadFileVersion: subSectionType;
+        deleteFileVersion: subSectionType;
+        finishFileDataUpload: subSectionType;
+        startFileDataUpload: subSectionType;
+        checkFileDataUploadStatus: subSectionType;
+      };
+      friends: {
+        listFriends: subSectionType;
+        sendFriendRequest: subSectionType;
+        deleteFriendRequest: subSectionType;
+        checkFriendStatus: subSectionType;
+        unfriend: subSectionType;
+      };
+      groups: {
+        createGroup: subSectionType;
+        getGroupById: subSectionType;
+        updateGroup: subSectionType;
+        deleteGroup: subSectionType;
+        getGroupAnnouncement: subSectionType;
+        createGroupAnnouncement: subSectionType;
+        deleteGroupAnnouncement: subSectionType;
+        getGroupAuditLogs: subSectionType;
+        getGroupBans: subSectionType;
+        banGroupMember: subSectionType;
+        unbanGroupMember: subSectionType;
+        createGroupGallery: subSectionType;
+        getGroupGalleryImages: subSectionType;
+        updateGroupGallery: subSectionType;
+        deleteGroupGallery: subSectionType;
+        addGroupGalleryImage: subSectionType;
+        deleteGroupGalleryImage: subSectionType;
+        getGroupInvitesSent: subSectionType;
+        inviteUserToGroup: subSectionType;
+        deleteUserInvite: subSectionType;
+        joinGroup: subSectionType;
+        leaveGroup: subSectionType;
+        listGroupMembers: subSectionType;
+        getGroupMember: subSectionType;
+        updateGroupMember: subSectionType;
+        kickGroupMember: subSectionType;
+        addRoleToGroupMember: subSectionType;
+        removeRoleFromGroupMember: subSectionType;
+        listGroupPermissions: subSectionType;
+        getGroupJoinRequests: subSectionType;
+        cancelGroupJoinRequest: subSectionType;
+        respondGroupJoinrequest: subSectionType;
+        getGroupRoles: subSectionType;
+        createGroupRole: subSectionType;
+        updateGroupRole: subSectionType;
+        deleteGroupRole: subSectionType;
+      };
+      invites: {
+        inviteUser: subSectionType;
+        inviteMyselfToInstance: subSectionType;
+        requestInvite: subSectionType;
+        respondInvite: subSectionType;
+        listInviteMessages: subSectionType;
+        getInviteMessage: subSectionType;
+        updateInviteMessage: subSectionType;
+        resetInviteMessage: subSectionType;
+      };
+      instances: {
+        getInstance: subSectionType;
+        getInstanceShortName: subSectionType;
+        sendSelfInvite: subSectionType;
+        getInstanceByShortName: subSectionType;
+        createInstance: subSectionType;
+      };
+      notifications: {
+        listNotifications: subSectionType;
+        acceptFriendRequest: subSectionType;
+        markNotificationAsRead: subSectionType;
+        deleteNotification: subSectionType;
+        clearAllNotifications: subSectionType;
+      };
+      permissions: {
+        getAssignedPermissions: subSectionType;
+        getPermission: subSectionType;
+      };
+      playermoderations: {
+        searchPlayerModerations: subSectionType;
+        moderateUser: subSectionType;
+        clearAllPlayerModerations: subSectionType;
+        getPlayerModeration: subSectionType;
+        deletePlayerModeration: subSectionType;
+        unmoderateUser: subSectionType;
+      };
+      system: {
+        fetchAPIConfig: subSectionType;
+        showInformationNotices: subSectionType;
+        downloadCSS: subSectionType;
+        downloadJavaScript: subSectionType;
+        checkAPIHealth: subSectionType;
+        currentOnlineUsers: subSectionType;
+        currentSystemTime: subSectionType;
+      };
+      users: {
+        searchAllUsers: subSectionType
+        getUserbyUsername: subSectionType
+        getUserbyID: subSectionType
+        updateUserInfo: subSectionType
+        getUserGroups: subSectionType
+        getUserGroupRequests: subSectionType
+      };
+      worlds: {
+        searchAllWorlds: subSectionType;
+        createWorld: subSectionType;
+        listActiveWorlds: subSectionType;
+        listFavoritedWorlds: subSectionType;
+        listRecentWorlds: subSectionType;
+        getWorldbyID: subSectionType;
+        updateWorld: subSectionType;
+        deleteWorld: subSectionType;
+        getWorldMetadata: subSectionType;
+        getWorldPublishStatus: subSectionType;
+        publishWorld: subSectionType;
+        unpublishWorld: subSectionType;
+        getWorldInstance: subSectionType;
+      };
     };
 
     export type dataSetKeys =
-      | dataKeysCreateUpdateAvatar
+      | VRCAPI.Avatars.Requests.createAvatarOption
+      | VRCAPI.Avatars.Requests.dataKeysUpdateAvatar
       | dataKeys2Fa
       | dataKeysFavoriteTypes
       | dataKeysCreateFile
@@ -171,18 +335,6 @@ declare namespace VRCAPI {
 
     type dataKeys2Fa = {
       code: string;
-    };
-
-    type dataKeysCreateUpdateAvatar = {
-      assetUrl: string;
-      id: '{avatarId}';
-      name: string;
-      description: string;
-      tags: AllTags[];
-      imageUrl: string;
-      releaseStatus: ReleaseStatus;
-      version: number;
-      unityPackageUrl: string;
     };
 
     type dataKeysFavoriteTypes =
