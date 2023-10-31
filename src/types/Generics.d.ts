@@ -33,10 +33,10 @@ declare namespace VRCAPI {
     };
 
     type headerOptions = {
-      Authorization?: `Basic ${string}`;
+      'Authorization'?: `Basic ${string}`;
       'User-Agent': string;
       'Content-Type'?: string;
-      Cookie?: string;
+      'cookie'?: string;
     };
 
     type error2fa = { requiresTwoFactorAuth: ['totp', 'otp'] };
@@ -310,19 +310,18 @@ declare namespace VRCAPI {
       | dataKeysCreateFile
       | dataKeysCreateFileVersion
       | dataKeysFinishFileDataUpload
-      | dataKeysCreateGroupRequest
-      | dataKeysUpdateGroup
-      | dataKeysCreateGroupAnnouncement
-      | dataKeysGroupBanMember
-      | dataKeysGroupCreateGallery
-      | dataKeysGroupUpdateGallery
-      | dataKeysAddGroupGalleryImage
-      | dataKeysCreateGroupInvite
-      | dataKeysCreateGroupInviteUser
-      | dataKeysUpdateGroupMember
-      | dataKeysRespondGroupJoinRequest
-      | dataKeysCreateGroupRole
-      | dataKeysUpdateGroupRole
+      | VRCAPI.Groups.Requests.CreateGroupRequest
+      | VRCAPI.Groups.Requests.dataKeysUpdateGroup
+      | VRCAPI.Groups.Requests.dataKeysCreateGroupAnnouncement
+      | VRCAPI.Groups.Requests.dataKeysGroupBanMember
+      | VRCAPI.Groups.Requests.dataKeysGroupCreateGallery
+      | VRCAPI.Groups.Requests.dataKeysGroupUpdateGallery
+      | VRCAPI.Groups.Requests.dataKeysAddGroupGalleryImage
+      | VRCAPI.Groups.Requests.dataKeysCreateGroupInvite
+      | VRCAPI.Groups.Requests.dataKeysUpdateGroupMember
+      | VRCAPI.Groups.Requests.dataKeysRespondGroupJoinRequest
+      | VRCAPI.Groups.Requests.dataKeysCreateGroupRole
+      | VRCAPI.Groups.Requests.dataKeysUpdateGroupRole
       | dataKeysSendInvite
       | dataKeysRequestInvite
       | dataKeysInviteResponse
@@ -338,54 +337,15 @@ declare namespace VRCAPI {
     };
 
     type dataKeysFavoriteTypes =
-      | dataKeysAddFavoriteFriend
-      | dataKeysAddFavoriteAvatar
-      | dataKeysAddFavoriteWorld
-      | dataKeysFavoriteUpdate;
-
-    enum FavoriteType {
-      Friend = 'friend',
-      Avatar = 'avatar',
-      World = 'world',
-    }
-
-    type dataKeysAddFavoriteFriend = {
-      type: FavoriteType.Friend;
-      favoriteId: string;
-      tags: groupTags[];
-    };
+      | VRCAPI.Favorites.Requests.dataKeysAddFavoriteFriend
+      | VRCAPI.Favorites.Requests.dataKeysAddFavoriteAvatar
+      | VRCAPI.Favorites.Requests.dataKeysAddFavoriteWorld
+      | VRCAPI.Favorites.Requests.dataKeysFavoriteUpdate;
 
     type groupTags = 'group_0' | 'group_1' | 'group_2' | 'group_3';
     type avatarTags = 'avatar1' | 'avatar2' | 'avatar3' | 'avatar4';
     type worldTags = 'world1' | 'world2' | 'world3' | 'world4';
     type allFavoriteTags = groupTags | avatarTags | worldTags;
-
-    type dataKeysAddFavoriteAvatar = {
-      type: FavoriteType.Avatar;
-      favoriteId: string;
-      tags: avatarTags[];
-    };
-
-    /**
-     * @description Data keys for adding a world to favorites
-     */
-    type dataKeysAddFavoriteWorld = {
-      type: FavoriteType.World;
-      favoriteId: string;
-      tags: worldTags[];
-    };
-
-    type dataKeysFavoriteUpdate = {
-      displayName: string;
-      visibility: dataKeysFavoriteGroupVisibility;
-      tags: (AllTags | allFavoriteTags)[];
-    };
-
-    enum dataKeysFavoriteGroupVisibility {
-      Private = 'private',
-      Friends = 'friends',
-      Public = 'public',
-    }
 
     type dataKeysCreateFile = {
       name: string;
@@ -522,101 +482,6 @@ declare namespace VRCAPI {
       etags?: [string, string];
       nextPartNumber: '0';
       maxParts: '0';
-    };
-
-    type dataKeysCreateGroupRequest = {
-      name: string; // Must be 3 to 64 characters long
-      shortCode: string; // Must be 3 to 6 characters long
-      description?: string; // Must be 0 to 250 characters long, optional
-      joinState?: VRCAPI.Groups.Models.GroupJoinState; // Optional, default is GroupJoinState.Open
-      iconId?: string; // Optional
-      bannerId?: string; // Optional
-      privacy?: VRCAPI.Groups.Models.GroupPrivacy; // Optional, default is GroupPrivacy.Default
-      roleTemplate: VRCAPI.Groups.Models.GroupRoleTemplate; // Required, default is GroupRoleTemplate.Default
-    };
-
-    type dataKeysUpdateGroup = {
-      name?: string; // Must be 3 to 64 characters long
-      shortCode?: string; // Must be 3 to 6 characters long
-      description?: string; // Must be 0 to 250 characters long
-      joinState?: VRCAPI.Groups.Models.GroupJoinState; // Using the previously defined GroupJoinState enum
-      iconId?: string;
-      bannerId?: string;
-      languages?: [VRCAPI.Generics.languageTagsShort?,VRCAPI.Generics.languageTagsShort?,VRCAPI.Generics.languageTagsShort?]; // Array of 3-letter language codes, max 3 items
-      links?: [string?,string?,string?]; // Array of strings, max 3 items
-      rules?: string; // max 2048 characters
-      tags?: AllTags[]; // Array of strings, each string must be at least 1 character long
-    };
-
-    type dataKeysCreateGroupAnnouncement = {
-      title: string; // Announcement title, must be at least 1 character long
-      text: string; // Announcement text, must be at least 1 character long
-      imageId?: string; // Must match the pattern: file_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
-      sendNotification?: boolean; // Optional, default is true
-    };
-
-    type dataKeysGroupBanMember = {
-      userId: string; // A users unique ID, usually in the form of usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469. Legacy players can have old IDs in the form of 8JoV9XEdpo. The ID can never be changed.
-    };
-
-    type dataKeysGroupCreateGallery = {
-      name: string;
-      description?: string;
-      membersOnly?: boolean;
-      roleIdsToView?: string[];
-      roleIdsToSubmit?: string[];
-      roleIdsToAutoApprove?: string[];
-      roleIdsToManage?: string[];
-    };
-
-    type dataKeysGroupUpdateGallery = {
-      name?: string;
-      description?: string;
-      membersOnly?: boolean;
-      roleIdsToView?: string[];
-      roleIdsToSubmit?: string[];
-      roleIdsToAutoApprove?: string[];
-      roleIdsToManage?: string[];
-    };
-
-    type dataKeysAddGroupGalleryImage = {
-      fileId: string;
-    };
-
-    type dataKeysCreateGroupInvite = {
-      userId: string;
-      confirmOverrideBlock?: boolean;
-    };
-
-    type dataKeysCreateGroupInviteUser = {
-      userId: string;
-      confirmOverrideBlock?: boolean;
-    };
-
-    type dataKeysUpdateGroupMember = {
-      visibility?: VRCAPI.Groups.Models.GroupUserVisibility;
-      isSubscribedToAnnouncements?: boolean;
-      managerNotes?: string;
-    };
-
-    type dataKeysRespondGroupJoinRequest = {
-      action: VRCAPI.Groups.Models.GroupInviteResponse;
-    }
-
-    type dataKeysCreateGroupRole = {
-      id?: "new";
-      name?: string;
-      description?: string;
-      isSelfAssignable?: boolean;
-      permissions?: string[];
-    };
-
-    type dataKeysUpdateGroupRole = {
-      name?: string;
-      description?: string;
-      isSelfAssignable?: boolean;
-      permissions?: string[];
-      order?: number;
     };
 
     type dataKeysSendInvite = {

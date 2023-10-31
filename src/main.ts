@@ -6,8 +6,10 @@ dotenv.config();
 async function main() {
     
   const vrchat = new VRCWrapper();
-  
+
   await vrchat.authenticate()
+  console.log("done?");
+  
   
   // Get Current User that is logged in
   // const currentUser = await vrchat.authApi.getCurrentUser();
@@ -15,8 +17,8 @@ async function main() {
   // console.log("Current user's Rank is:", getVRCRankTags(currentUser).rankName);  
   
   // Get avatar for the current user
-  const ownAvatar = await vrchat.avatarApi.getOwnAvatar({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797"});
-  console.log("Current user's avatar: ", ownAvatar);
+  // const ownAvatar = await vrchat.avatarApi.getOwnAvatar({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797"});
+  // console.log("Current user's avatar: ", ownAvatar);
 
   }
   

@@ -24,16 +24,14 @@ export class AuthApi extends BaseApi {
  * Cookies needs to be valid for this to work. If the user isn't authenticated, then this will throw an error.
  * @returns {Promise<VRCAPI.Auth.responseTypes.loginResponse>} - Returns a Promise with the response from the API.
  */
-    public async getCurrentUser(): Promise<VRCAPI.Users.Models.CurrentUser> {
+    public async getCurrentUser(): Promise<VRCAPI.Users.Models.CurrentUser | VRCAPI.Generics.twoFactorAuthResponseType> {
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.auth.getCurrentUserInfo,
             pathFormated: ApiPaths.auth.getCurrentUserInfo.path,
         };
-
-        const queryResult = await this.executeRequest<VRCAPI.Users.Models.CurrentUser>(paramRequest);
-
-        return queryResult;
+        
+        return await this.executeRequest<VRCAPI.Users.Models.CurrentUser | VRCAPI.Generics.twoFactorAuthResponseType>(paramRequest);
     }
 
     /**
@@ -67,9 +65,7 @@ export class AuthApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.checkUserExistResponse>(paramRequest);
-
-        return queryResult;
+        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.checkUserExistResponse>(paramRequest);
     }
 
     /**
@@ -83,7 +79,7 @@ export class AuthApi extends BaseApi {
      * 
      * `code` : The 2FA code to verify. If no code is provided then the code from the .env file will be used.
      */
-    public async verify2FACodeTOTP({ generateCode = true, code }: VRCAPI.Auth.Requests.verify2FACodeOptions): Promise<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse> {
+    public async verify2FACodeTOTP({ generateCode = true, code }: VRCAPI.Auth.Requests.verify2FACodeOptions): Promise<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse | VRCAPI.Generics.RequestError> {
 
         let finalCode = "";
 
@@ -126,15 +122,8 @@ export class AuthApi extends BaseApi {
             pathFormated: ApiPaths.auth.verify2FATOTP.path,
             body: body
         };
-
-        console.log(paramRequest);
         
-        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse>(paramRequest);
-
-        console.log(queryResult);
-        
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse>(paramRequest);
     }
 
 
@@ -169,8 +158,6 @@ export class AuthApi extends BaseApi {
             throw new Error("The provided 2FA code is invalid! It must be a 6 digit number.");
         }
 
-        // the fetching
-
         const body: VRCAPI.Generics.dataKeys2Fa = {
             code: finalCode
         }
@@ -181,10 +168,7 @@ export class AuthApi extends BaseApi {
             body: body
         };
 
-        const queryResult = await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse>(paramRequest);
-
-        return queryResult;
-
+        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse>(paramRequest);
     }
 
     /**
