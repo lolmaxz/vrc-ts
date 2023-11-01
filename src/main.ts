@@ -1,4 +1,4 @@
-import { VRCWrapper } from "./VRCWrapper";
+import { VRChatAPI } from "./VRChatAPI";
 import dotenv from "dotenv";
 import { getVRCRankTags } from "./requests/UsersApi";
 dotenv.config();
@@ -6,9 +6,9 @@ dotenv.config();
 // use an async main function
 async function main() {
     
-  const vrchat = new VRCWrapper();
+  const vrchat = new VRChatAPI();
 
-  await vrchat.authenticate();
+  await vrchat.login();
   
   // Get Current User that is logged in
   const currentUser = await vrchat.authApi.getCurrentUser();

@@ -1,12 +1,12 @@
-import { VRCWrapper } from '../VRCWrapper';
+import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
 import { VRCRanks, VRCRanksName } from '../types/UsersEnums';
 import { BaseApi } from './BaseApi';
 
 export class UsersApi extends BaseApi {
-    baseClass: VRCWrapper;
+    baseClass: VRChatAPI;
 
-    constructor(baseClass: VRCWrapper) {
+    constructor(baseClass: VRChatAPI) {
         super(baseClass);
         this.baseClass = baseClass;
     }
@@ -14,33 +14,25 @@ export class UsersApi extends BaseApi {
     async searchAllUsers({
         search,
         offset,
-        quantity,
-    }: VRCAPI.Users.Requests.SearchAllUsersOptions): Promise<
+        n,
+    }: VRCAPI.Users.Requests.SearchAllUsersRequest): Promise<
         VRCAPI.Users.Models.LimitedUser[]
     > {
+
         const parameters: URLSearchParams = new URLSearchParams();
 
-        if (quantity) {
-            if (quantity > 100 || quantity < 1) {
-                throw new Error('Quantity must be between 1 and 100!');
-            }
-            parameters.append('n', quantity.toString());
+        if (n) {
+            if (n > 100 || n < 1) throw new Error('Quantity must be between 1 and 100!');
+            parameters.append('n', n.toString());
         }
 
         if (offset) {
-            if (offset < 0) {
-                throw new Error('Offset must be greater than 0!');
-            }
+            if (offset < 0) throw new Error('Offset must be greater than 0!');
             parameters.append('offset', offset.toString());
         }
 
-        if (!search.trim()) {
-            throw new Error('No search term was provided!');
-        }
-
-        if (search.includes('%')) {
-            throw new Error('Search term must not contain any spaces!');
-        }
+        if (!search.trim()) throw new Error('No search term was provided!');
+        if (search.includes('%')) throw new Error('Search term must not contain any spaces!');
 
         parameters.append('search', search);
 
@@ -58,11 +50,7 @@ export class UsersApi extends BaseApi {
      * @param userId The id of the user to get information about.
      * @returns the information about the user. If the user is not found then it will return undefined.
      */
-    async getUserById({ userId }: VRCAPI.Users.Requests.getUserByIdOptions): Promise<VRCAPI.Users.Models.User> {
-
-        if (userId.length < 1) {
-            throw new Error('Empty User id or no User id were provided!');
-        }
+    async getUserById({ userId }: VRCAPI.Users.Requests.getUserByIdRequest): Promise<VRCAPI.Users.Models.User> {
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.users.getUserbyID,
@@ -86,49 +74,28 @@ export class UsersApi extends BaseApi {
         bio,
         bioLinks,
         userIcon
-    }:VRCAPI.Users.Requests.updateUserByIdOptions): Promise<VRCAPI.Users.Models.CurrentUser> {
+    }: VRCAPI.Users.Requests.updateUserByIdRequest): Promise<VRCAPI.Users.Models.CurrentUser> {
 
-        if (userId.length < 1) {
-            throw new Error('Empty User id or no User id were provided!');
-        }
+        const body: VRCAPI.Users.Requests.dataKeysUpdateUser = {};
 
-       const body: VRCAPI.Generics.dataKeysUpdateUser = {};
-
-        if (email) {
-            body.email = email;
-        }
-
-        if (birthday) {
-            body.birthday = birthday;
-        }
-       
-        if (acceptedTOSVersion) {
-            body.acceptedTOSVersion = acceptedTOSVersion;
-        }
-
-        if (tags) {
-            body.tags = tags;
-        }
-
-        if (status) {
-            body.status = status;
-        }
+        if (email) body.email = email;
+        if (birthday) body.birthday = birthday;
+        if (acceptedTOSVersion) body.acceptedTOSVersion = acceptedTOSVersion;
+        if (tags) body.tags = tags;
+        if (status) body.status = status;
+        if (bioLinks) body.bioLinks = bioLinks;
+        if (userIcon) body.userIcon = userIcon;
 
         if (statusDescription) {
+            if (statusDescription.length > 32) throw new Error('Status description must be 32 characters or less!');
             body.statusDescription = statusDescription;
         }
 
         if (bio) {
+            if (bio.length > 512) throw new Error('Bio must be 512 characters or less!');
             body.bio = bio;
         }
 
-        if (bioLinks) {
-            body.bioLinks = bioLinks;
-        }
-
-        if (userIcon        ) {
-            body.userIcon = userIcon;
-        }
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.users.updateUserInfo,
@@ -137,7 +104,6 @@ export class UsersApi extends BaseApi {
         };
 
         return await this.executeRequest<VRCAPI.Users.Models.CurrentUser>(paramRequest);
-
     }
 
     /**
@@ -145,20 +111,11 @@ export class UsersApi extends BaseApi {
      * @param userId The id of the user to get information about.
      * @returns The information about the user. If the user is not found then it will return undefined.
      */
-    async getUserGroups({ userId }: VRCAPI.Users.Requests.getUserGroupsByUserIdOptions): Promise<VRCAPI.Groups.Models.Group[]> {
-
-        const parameters: URLSearchParams = new URLSearchParams();
-
-        if (userId.length < 1) {
-            throw new Error('Empty User id or no User id were provided!');
-        }
-
-        parameters.append('userId', userId);
+    async getUserGroups({ userId }: VRCAPI.Users.Requests.getUserGroupsByUserIdRequest): Promise<VRCAPI.Groups.Models.Group[]> {
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.users.getUserGroups,
-            pathFormated: ApiPaths.users.getUserGroups.path.replace('{userId}', userId),
-            queryOptions: parameters,
+            pathFormated: ApiPaths.users.getUserGroups.path.replace('{userId}', userId)
         };
 
         return await this.executeRequest<VRCAPI.Groups.Models.Group[]>(paramRequest);
@@ -167,11 +124,7 @@ export class UsersApi extends BaseApi {
     /**
      * Returns a list of Groups the user has requested to be invited into.
      */
-    public async getUserGroupRequests({userId}:VRCAPI.Users.Requests.getUserGroupRequestsOptions): Promise<VRCAPI.Groups.Models.Group[]> {
-
-        if (userId.length < 1) {
-            throw new Error('Empty User id or no User id were provided!');
-        }
+    public async getUserGroupRequests({ userId }: VRCAPI.Users.Requests.getUserGroupRequestsOptions): Promise<VRCAPI.Groups.Models.Group[]> {
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.users.getUserGroupRequests,
@@ -179,8 +132,6 @@ export class UsersApi extends BaseApi {
         };
 
         return await this.executeRequest<VRCAPI.Groups.Models.Group[]>(paramRequest);
-
-
     }
 
 }
@@ -226,6 +177,5 @@ export function getVRCRankTags(user: VRCAPI.Users.Models.User | VRCAPI.Users.Mod
  */
 export function isVRCPlusSubcriber(user: VRCAPI.Users.Models.User): boolean {
     return user.tags.includes("system_supporter");
-
 }
 

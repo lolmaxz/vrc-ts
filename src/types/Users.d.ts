@@ -221,29 +221,56 @@ declare namespace VRCAPI {
     }
 
     namespace Requests {
+
+      type UserId = {
+        /** The user's ID needed to perform this action.*/
+        userId: string;
+      }
       /** Search All Users Options */
-      type SearchAllUsersOptions = {
+      type SearchAllUsersRequest = {
+        /** Searches by displayName. Will return empty array if search query is empty or missing. Min 0 characters*/
         search: string;
+        /** Active user by developer type, none for normal users and internal for moderators*/
         developerType?: 'none' | 'internal';
-        quantity?: number;
+        /** The number of objects to return. Min 0, Max 100 Default 60*/
+        n?: number;
+        /** A zero-based offset from the default object sorting from where search results start. Min 0*/
         offset?: number;
       };
-      /** Get User by ID Options */
-      type getUserByIdOptions = {
-        userId: string;
-      };
-      /** Update User Info Options */
-      type updateUserByIdOptions = {
-        userId: string;
+
+      /** Information required to get a user by their ID. */
+      type getUserByIdRequest = UserId;
+
+      type dataKeysUpdateUser = {
+        /** The user's email address. */
         email?: string;
-        /** format YYYY-MM-DD */
+        /** The user's birthday. Formated like YYYY-MM-DD */
         birthday?: string;
+        /** The user's accepted TOS version. */
         acceptedTOSVersion?: number;
+        /** The user's tags. */
         tags?: VRCAPI.Generics.AllTags[];
         /** UserStatus: Defines the User's current status, for example "ask me", "join me" or "offline.
          * 
          * This status is a combined indicator of their online activity and privacy preference. Default: offline Allowed: active┃join me┃ask me┃busy┃offline */
-        status?: VRCAPI.Users.Models.UserStatus;
+        status?: Users.Models.UserStatus;
+        /** The user's status description. Min 1 chars, Max 32 chars */
+        statusDescription?: string;
+        /** The user's bio. Min 0 chars, Max 512 chars */
+        bio?: string;
+        /** The user's bio links. Maximum of 3 links. Must contain 'https://' and finish with '.*[2]' */
+        bioLinks?: [string?,string?,string?];
+        /** The user's user icon. MUST be a valid VRChat /file/ url. */
+        userIcon?: string;
+      };
+
+      /** Information required to update a user's information. */
+      type updateUserByIdRequest = dataKeysUpdateUser & UserId & {
+        email?: string;
+        /** The user's birthday date. Formated like YYYY-MM-DD */
+        birthday?: string;
+        acceptedTOSVersion?: number;
+        status?: Users.Models.UserStatus;
         statusDescription?: string;
         /** Min 0 chars */
         bio?: string;
@@ -251,14 +278,12 @@ declare namespace VRCAPI {
         /** MUST be a valid VRChat /file/ url. */
         userIcon?: string;
       }
-      /** Get User Groups Options */
-      type getUserGroupsByUserIdOptions = {
-        userId: string;
-      };
-      /** Get User Group Requests Options */
-      type getUserGroupRequestsOptions = {
-        userId: string;
-      };
+
+      /** Information required to get a user's groups. */
+      type getUserGroupsByUserIdRequest = UserId;
+
+      /** Information required to get a user's group requests. */
+      type getUserGroupRequestsOptions = UserId
     }
   }
 }

@@ -1,97 +1,186 @@
-# TypeScript Boilerplate Template
 
-A minimalistic TypeScript boilerplate template to kickstart your TypeScript projects on GitHub.
+# VRChat Wrapper TS
+
+A TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's functionalities programmatically.
 
 ## Table of Contents
 
 - [Features](#features)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
+- [Installation](#installation)
 - [Usage](#usage)
-- [Folder Structure](#folder-structure)
+- [Authenticating](#authenticating)
+- [Notes](#notes)
+- [Endpoints Supported](#endpoints)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
-- TypeScript pre-configured.
-- Minimal project structure for quick start.
-- Includes common configuration files like `.gitignore`, `.eslint`, and `.prettierrc`.
-- Easy to extend and customize.
+- Simplified interaction with the VRChat API.
+- Written in TypeScript, promoting type safety and object-oriented patterns.
+- Suitable for creating bots, applications, or services that interact with VRChat.
 
-## Getting Started
+## Installation
 
-Follow these instructions to get started with your TypeScript project using this boilerplate template.
-
-### Prerequisites
-
-Before you begin, ensure you have met the following requirements:
-
-- Node.js and npm installed on your development machine.
-
-### Installation
-
-1. Clone this repository to your local machine using:
+Clone the repository to your local machine:
 
 ```bash
-git clone git@github.com:Huijiro/typescript-base.git
+git clone https://github.com/lolmaxz/vrchat-wrapper-ts.git
 ```
 
-### Navigate to the project directory:
+Navigate to the project directory:
 
 ```bash
-cd typescript-boilerplate
+cd vrchat-wrapper-ts
 ```
 
-### Install the project dependencies:
+Install the project dependencies:
 
 ```bash
 npm install
 ```
 
-# Usage
+## Usage
 
-Once you have installed the project and its dependencies, you can start writing your TypeScript code in the src directory. You can also customize the project configuration files to suit your needs.
+Here’s how you can use the `vrchat-wrapper-ts` in your project:
 
-### To build your TypeScript code, run:
+```typescript
+import VRChatAPI from 'vrchat-wrapper-ts';
 
-```bash
-npm run build
+const api = new VRChatAPI();
+
+api.login('username', 'password').then(() => {
+    console.log('Logged in successfully!');
+});
 ```
 
-This will generate the compiled JavaScript code in the dist directory.
+## Authenticating
 
-### To start a development server with automatic code reloading, run:
+VRChat now has an automatic 2FA system in place that is by default set to email and you can also enable Authy App 2FA with a TOTP (Time based One Time Password).
+Given this, you need to remember that **YOU WILL** need to add one more thing in your `.env` file in order to complete the authenticating process.
 
-```bash
-npm run dev
+Depending on your situation, here is how you can define either the **Email OTP** or the **TOTP** in the `.env` file:
+
+- **Email OTP** :
+```.env
+EMAIL_2FA_CODE=123456
 ```
 
-# Folder Structure
-
-The project structure is minimal and organized as follows:
-
-```bash
-typescript-boilerplate/
-├── src/
-│ ├── main.ts
-│ └── ...
-├── dist/
-│ └── ...
-├── .gitignore
-├── .eslintrc.json
-├── .prettierrc.json
-├── package.json
-├── tsconfig.json
-└── README.md
+- **TOTP** :
+```.env
+TOTP_2FA_CODE=123456
 ```
 
-- **src**: Contains your TypeScript source files.
-- **dist**: Contains the compiled JavaScript files (generated after - running npm run build).
-- **.gitignore**: Specifies files and directories to be ignored by Git.
-- **.eslintrc.json**: Defines linting rules used in the project.
-- **.prettierrc.json**: Prettier configuration for code formatting.
-- **package.json**: Project dependencies and scripts.
-- **tsconfig.json**: TypeScript compiler configuration.
+For the **Email OTP** you have 15 minutes after receiving it to use it.
+For the **TOTP** you have 30 seconds between each code reset. It is time based!
 
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Bonus Easier Authentication
+
+This Wrapper also comes with a 2FA Secret code generator. You will simply need to specify it in your `.env` file like so:
+```.env
+VRCHAT_2FA_SECRET=2W4X6Z7YQ9A2B4C62W4X6Z7YQ9A2B4C6
+```
+It comes in the form of 32 digits and capital characters mixed string.
+-> Using this secret, you'll be able to authenticate automatically each time without having to deal with a 6 digits code.
+*To get your secret you can simply scan the QR code VRChat gives you when enabling 2FA on your account. Scan it with a camera and copy the text to get the secret. Then you can add it to the Authy App if you want.*
+
+## Notes
+
+You can also use the `.env` file to login and/or store your credential like so:
+```text
+VRCHAT_USERNAME=username_here
+VRCHAT_PASSWORD=password_here
+```
+
+Then in your program, you can simply authenticate this way:
+```typescript
+api.login().then(() => {
+    console.log('Logged in successfully!');
+});
+```
+No need for sending the credentials.
+
+For more option with the `.env` file, check the `.env.example` file in the project.
+
+Websocket will eventually come when I can implement it.
+
+## Endpoints
+
+### Full Support of VRChat API with Typing
+
+Here is the full list of endpoints by category that this wrapper does implements and has all typed:
+
+**Authentication API** :
+
+- `userExist`, `getCurrentUserInfo`, `verify2FATOTP`, `verify2FAOTP` `*`, `verify2FAEmail`, `verifyAuthToken`, `logout`, `deleteUser` `*`
+    
+**Avatars API** :
+
+- `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`
+    
+**Economy API**`*` :
+
+- `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`
+    
+**Favorites API**`*` :
+
+- `listFavorites`, `addFavorite`, `showFavorite`, `removeFavorite`, `listFavoriteGroups`, `showFavoriteGroup`, `updateFavoriteGroup`, `clearFavoriteGroup`
+    
+**Files API**`*` :
+
+- `listFiles`, `createFile`, `showFile`, `createFileVersion`, `deleteFile`, `downloadFileVersion`, `deleteFileVersion`, `finishFileDataUpload`, `startFileDataUpload`, `checkFileDataUploadStatus`
+    
+**Friends API** :
+
+- `listFriends`, `sendFriendRequest`, `deleteFriendRequest`, `checkFriendStatus`, `unfriend`
+    
+**Groups API** :
+
+- `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `getGroupAnnouncement`, `createGroupAnnouncement`, `deleteGroupAnnouncement`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`
+    
+**Invites API**`*` :
+
+- `inviteUser`, `inviteMyselfToInstance`, `requestInvite`, `respondInvite`, `listInviteMessages`, `getInviteMessage`, `updateInviteMessage`, `resetInviteMessage`
+    
+**Instances API**`*` :
+
+- `getInstance`, `getInstanceShortName`, `sendSelfInvite`, `getInstanceByShortName`, `createInstance`
+    
+**Notifications API**`*` :
+
+- `listNotifications`, `acceptFriendRequest`, `markNotificationAsRead`, `deleteNotification`, `clearAllNotifications`
+    
+**Permissions API**`*` :
+
+- `getAssignedPermissions`, `getPermission`
+    
+**Playermoderations API**`*` :
+
+- `searchPlayerModerations`, `moderateUser`, `clearAllPlayerModerations`, `getPlayerModeration`, `deletePlayerModeration`, `unmoderateUser`
+    
+**System API**`*` :
+
+- `fetchAPIConfig`, `showInformationNotices`, `downloadCSS`, `downloadJavaScript`, `checkAPIHealth`, `currentOnlineUsers`, `currentSystemTime`
+    
+**Users API** :
+
+- `searchAllUsers`, `getUserbyUsername`, `getUserbyID`, `updateUserInfo`, `getUserGroups`, `getUserGroupRequests`
+    
+**Worlds API**`*` :
+
+- `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
+
+! Marks of an asterics are either not yet implemented or yet to be added. Progress is going fast, come back to see the update.
+
+## Contributing
+
+Contributions are welcome! Feel free to open an issue or create a pull request.
+
+A huge thank you to the community behind the VRChatApi project for their documentation on the API so far.
+- Check them out at <https://vrchatapi.github.io/>.
+
+Thank you as well to Huijiro, my partner helping me learn the best way :)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

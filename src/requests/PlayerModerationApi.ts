@@ -1,13 +1,13 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 import { BaseApi } from "./BaseApi";
 
 /**
  * This class is used to make requests to the PlayerModeration API.
  */
 export class PlayerModerationApi extends BaseApi {
-    baseClass: VRCWrapper;
+    baseClass: VRChatAPI;
 
-    constructor(baseClass: VRCWrapper) {
+    constructor(baseClass: VRChatAPI) {
         super(baseClass);
         this.baseClass = baseClass;
     }

@@ -1,4 +1,4 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 import { ApiPaths } from "../types/ApiPaths";
 import { BaseApi } from "./BaseApi";
 
@@ -6,9 +6,9 @@ import { BaseApi } from "./BaseApi";
  * This class is used to make requests to the Avatars API.
  */
 export class AvatarsApi extends BaseApi {
-    baseClass: VRCWrapper;
+    baseClass: VRChatAPI;
 
-    constructor(baseClass: VRCWrapper) {
+    constructor(baseClass: VRChatAPI) {
         super(baseClass);
         this.baseClass = baseClass;
     }

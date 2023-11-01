@@ -1,6 +1,6 @@
-import { VRCWrapper } from "../VRCWrapper";
+import { VRChatAPI } from "../VRChatAPI";
 
-export async function authenticationAPITest(vrchat: VRCWrapper) {
+export async function authenticationAPITest(vrchat: VRChatAPI) {
 
     // Check if a user exist
     const userExist = await vrchat.authApi.userExist({userId:"usr_e98ee7ac-2364-4669-b7ef-02991e40a797",displayName:"test"});
