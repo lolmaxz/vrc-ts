@@ -14,16 +14,16 @@ export class UsersApi extends BaseApi {
     async searchAllUsers({
         search,
         offset,
-        quantity,
-    }: VRCAPI.Users.Requests.SearchAllUsersOptions): Promise<
+        n,
+    }: VRCAPI.Users.Requests.SearchAllUsersRequest): Promise<
         VRCAPI.Users.Models.LimitedUser[]
     > {
 
         const parameters: URLSearchParams = new URLSearchParams();
 
-        if (quantity) {
-            if (quantity > 100 || quantity < 1) throw new Error('Quantity must be between 1 and 100!');
-            parameters.append('n', quantity.toString());
+        if (n) {
+            if (n > 100 || n < 1) throw new Error('Quantity must be between 1 and 100!');
+            parameters.append('n', n.toString());
         }
 
         if (offset) {
@@ -50,7 +50,7 @@ export class UsersApi extends BaseApi {
      * @param userId The id of the user to get information about.
      * @returns the information about the user. If the user is not found then it will return undefined.
      */
-    async getUserById({ userId }: VRCAPI.Users.Requests.getUserByIdOptions): Promise<VRCAPI.Users.Models.User> {
+    async getUserById({ userId }: VRCAPI.Users.Requests.getUserByIdRequest): Promise<VRCAPI.Users.Models.User> {
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.users.getUserbyID,
@@ -74,7 +74,7 @@ export class UsersApi extends BaseApi {
         bio,
         bioLinks,
         userIcon
-    }: VRCAPI.Users.Requests.updateUserByIdOptions): Promise<VRCAPI.Users.Models.CurrentUser> {
+    }: VRCAPI.Users.Requests.updateUserByIdRequest): Promise<VRCAPI.Users.Models.CurrentUser> {
 
         const body: VRCAPI.Users.Requests.dataKeysUpdateUser = {};
 
@@ -84,6 +84,7 @@ export class UsersApi extends BaseApi {
         if (tags) body.tags = tags;
         if (status) body.status = status;
         if (bioLinks) body.bioLinks = bioLinks;
+        if (userIcon) body.userIcon = userIcon;
 
         if (statusDescription) {
             if (statusDescription.length > 32) throw new Error('Status description must be 32 characters or less!');
@@ -95,9 +96,6 @@ export class UsersApi extends BaseApi {
             body.bio = bio;
         }
 
-        if (userIcon) {
-            body.userIcon = userIcon;
-        }
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.users.updateUserInfo,
@@ -113,7 +111,7 @@ export class UsersApi extends BaseApi {
      * @param userId The id of the user to get information about.
      * @returns The information about the user. If the user is not found then it will return undefined.
      */
-    async getUserGroups({ userId }: VRCAPI.Users.Requests.getUserGroupsByUserIdOptions): Promise<VRCAPI.Groups.Models.Group[]> {
+    async getUserGroups({ userId }: VRCAPI.Users.Requests.getUserGroupsByUserIdRequest): Promise<VRCAPI.Groups.Models.Group[]> {
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.users.getUserGroups,

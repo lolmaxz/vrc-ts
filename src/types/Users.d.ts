@@ -221,17 +221,25 @@ declare namespace VRCAPI {
     }
 
     namespace Requests {
+
+      type UserId = {
+        /** The user's ID needed to perform this action.*/
+        userId: string;
+      }
       /** Search All Users Options */
-      type SearchAllUsersOptions = {
+      type SearchAllUsersRequest = {
+        /** Searches by displayName. Will return empty array if search query is empty or missing. Min 0 characters*/
         search: string;
+        /** Active user by developer type, none for normal users and internal for moderators*/
         developerType?: 'none' | 'internal';
-        quantity?: number;
+        /** The number of objects to return. Min 0, Max 100 Default 60*/
+        n?: number;
+        /** A zero-based offset from the default object sorting from where search results start. Min 0*/
         offset?: number;
       };
-      /** Get User by ID Options */
-      type getUserByIdOptions = {
-        userId: string;
-      };
+
+      /** Information required to get a user by their ID. */
+      type getUserByIdRequest = UserId;
 
       type dataKeysUpdateUser = {
         /** The user's email address. */
@@ -256,15 +264,12 @@ declare namespace VRCAPI {
         userIcon?: string;
       };
 
-      /** Update User Info Options */
-      type updateUserByIdOptions = dataKeysUpdateUser & {
-        userId: string;
+      /** Information required to update a user's information. */
+      type updateUserByIdRequest = dataKeysUpdateUser & UserId & {
         email?: string;
-        /**  */
+        /** The user's birthday date. Formated like YYYY-MM-DD */
         birthday?: string;
         acceptedTOSVersion?: number;
-        
-        
         status?: Users.Models.UserStatus;
         statusDescription?: string;
         /** Min 0 chars */
@@ -274,15 +279,11 @@ declare namespace VRCAPI {
         userIcon?: string;
       }
 
-      /** Get User Groups Options */
-      type getUserGroupsByUserIdOptions = {
-        userId: string;
-      };
+      /** Information required to get a user's groups. */
+      type getUserGroupsByUserIdRequest = UserId;
 
-      /** Get User Group Requests Options */
-      type getUserGroupRequestsOptions = {
-        userId: string;
-      };
+      /** Information required to get a user's group requests. */
+      type getUserGroupRequestsOptions = UserId
     }
   }
 }

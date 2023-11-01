@@ -1,9 +1,5 @@
 declare namespace VRCAPI {
   namespace Generics {
-
-    namespace Requests {
-
-    }
     interface requestConfig {
       username?: string;
       password?: string;

@@ -47,7 +47,7 @@ export class BaseApi {
             'User-Agent': this.baseClass.headerAgent, // we set the User_Agent header
             "Content-Type": "application/json"
         };
-        
+
         if (!currentRequest.cookiesNeeded.includes('none')) {
             headers.cookie = ``;
 
@@ -84,7 +84,7 @@ export class BaseApi {
             options.body = JSON.stringify(body);
         }
         const response: VRCAPI.Generics.API<E, VRCAPI.Generics.RequestError> = await fetch(url, options);
-        
+
         if (process.env.DEBUG === 'true') {
             console.log("#1 url: ", url);
             console.log("#2 options: ", options);
@@ -94,7 +94,7 @@ export class BaseApi {
         if (!response.ok) {
             let extraMessage = "";
             console.log("not okay?:", response);
-            
+
             const reponseTry = await response.json();
             // console.log(reponseTry);
 
@@ -104,7 +104,7 @@ export class BaseApi {
 
             throw new RequestError(response.status, response.statusText + " | Extra message: " + extraMessage);
         }
-        
+
         // we get the set-cookies if there is any (way more optimized solution)
         const cookies = response.headers.getSetCookie();
         if (response.headers.getSetCookie().length > 0) {
@@ -118,7 +118,6 @@ export class BaseApi {
         }
 
         return result
-    
     }
 
     checkValidData({
@@ -131,7 +130,7 @@ export class BaseApi {
         // if the base class is not authenticated then we need to throw an error unless it's a 2FA authentication process!
         if (!this.baseClass.isAuthentificated) {
             console.log(this.baseClass);
-            
+
             if (!pathFormated.includes("/auth/twofactorauth") && !pathFormated.includes("/auth/user")) {
                 throw new UserNotAuthenticated();
             }
@@ -148,8 +147,8 @@ export class BaseApi {
             throw new Error('No path was provided!');
         }
 
-        // making sure we didn't send empty querryOptions to the server
-        if (queryOptions && queryOptions.size <= 0) {
+        // if we need data but no data was given then we need to throw an error
+        if ((queryOptions && queryOptions.size <= 0) && (currentRequest.requiredQueryParams && currentRequest.requiredQueryParams.length > 0)) {
             throw new Error('No query parameters were provided!');
         }
 
@@ -157,6 +156,5 @@ export class BaseApi {
         if (pathFormated.includes('{') || pathFormated.includes('}')) {
             throw new Error('Missing required query parameter in "pathFormated" query parameters');
         }
-
     }
 }

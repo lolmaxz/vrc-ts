@@ -87,21 +87,10 @@ export class GroupsApi extends BaseApi {
             body.description = description;
         }
 
-        if (joinState) {
-            body.joinState = joinState;
-        }
-
-        if (iconId) {
-            body.iconId = iconId;
-        }
-
-        if (bannerId) {
-            body.bannerId = bannerId;
-        }
-
-        if (privacy) {
-            body.privacy = privacy;
-        }
+        if (joinState) body.joinState = joinState;
+        if (iconId) body.iconId = iconId;
+        if (bannerId) body.bannerId = bannerId;
+        if (privacy) body.privacy = privacy;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.createGroup,
@@ -119,10 +108,6 @@ export class GroupsApi extends BaseApi {
      */
     public async getGroupbyID({ groupId, includeRoles = false }: VRCAPI.Groups.Requests.getGroupByIdRequest): Promise<VRCAPI.Groups.Models.Group> {
         const parameters: URLSearchParams = new URLSearchParams();
-
-        if (!groupId) {
-            throw new Error('No group id was provided!');
-        }
 
         parameters.append('includeRoles', includeRoles.toString());
 
@@ -162,58 +147,31 @@ export class GroupsApi extends BaseApi {
 
         const body: VRCAPI.Groups.Requests.dataKeysUpdateGroup = {}
 
-        // check name
         if (name) {
             if (name.length < 3 || name.length > 64) throw new BadRequestParameter('Name must be between 3 and 64 characters!');
             body.name = name;
         }
 
-        // check shortCode
         if (shortCode) {
             if (shortCode.length < 3 || shortCode.length > 6) throw new BadRequestParameter('ShortCode must be between 3 and 64 characters!');
             body.shortCode = shortCode;
         }
 
-        // check description
         if (description) {
             if (description.length < 0 || description.length > 250) throw new BadRequestParameter('Description must be between 0 and 250 characters!');
             body.description = description;
         }
 
-        // check joinState
-        if (joinState) {
-            body.joinState = joinState;
-        }
+        if (joinState) body.joinState = joinState;
+        if (iconId) body.iconId = iconId;
+        if (bannerId) body.bannerId = bannerId;
+        if (languages && languages.length > 0) body.languages = languages;
+        if (links && links.length > 0) body.links = links;
+        if (tags && tags.length > 0) body.tags = tags;
 
-        // check iconId
-        if (iconId) {
-            body.iconId = iconId;
-        }
-
-        // check bannerId
-        if (bannerId) {
-            body.bannerId = bannerId;
-        }
-
-        // check languages and length
-        if (languages && languages.length > 0) {
-            body.languages = languages;
-        }
-
-        // check links and length
-        if (links && links.length > 0) {
-            body.links = links;
-        }
-
-        // check rules
         if (rules) {
             if (rules.length > 2048) new BadRequestParameter('Rules must be a maximum of 2048 characters!');
             body.rules = rules;
-        }
-
-        // check tags
-        if (tags && tags.length > 0) {
-            body.tags = tags;
         }
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
@@ -265,24 +223,23 @@ export class GroupsApi extends BaseApi {
      */
     public async createGroupAnnouncement({
         groupId,
-        title, // Min 1 chars
-        text, // Min 1 chars
+        title,
+        text,
         imageId,
-        sendNotification,
+        sendNotification = true,
     }: VRCAPI.Groups.Requests.CreateGroupAnnouncementRequest): Promise<VRCAPI.Groups.Models.GroupAnnouncement> {
 
         // check parameters
         if (title.length < 1) new BadRequestParameter('Title must be at least 1 character!');
         if (text.length < 1) new BadRequestParameter('Text must be at least 1 character!');
 
-        const body: VRCAPI.Groups.Requests.dataKeysCreateGroupAnnouncement = { title, text }
+        const body: VRCAPI.Groups.Requests.dataKeysCreateGroupAnnouncement = {
+            title,
+            text,
+            sendNotification
+        }
 
         if (imageId) body.imageId = imageId;
-        if (sendNotification) {
-            body.sendNotification = sendNotification;
-        } else {
-            body.sendNotification = true;
-        }
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.createGroupAnnouncement,
@@ -314,8 +271,8 @@ export class GroupsApi extends BaseApi {
      */
     public async getGroupAuditLogs({
         groupId,
-        n,  // 1 to 100
-        offset, // 0 to infinity
+        n,
+        offset,
         startDate,
         endDate,
     }: VRCAPI.Groups.Requests.getGroupAuditLogsRequest): Promise<VRCAPI.Groups.Models.GroupAudit> {
@@ -326,17 +283,9 @@ export class GroupsApi extends BaseApi {
             parameters.append('n', n.toString());
         }
 
-        if (offset && offset >= 0) {
-            parameters.append('offset', offset.toString());
-        }
-
-        if (startDate) {
-            parameters.append('startDate', startDate);
-        }
-
-        if (endDate) {
-            parameters.append('endDate', endDate);
-        }
+        if (offset && offset >= 0) parameters.append('offset', offset.toString());
+        if (startDate) parameters.append('startDate', startDate);
+        if (endDate) parameters.append('endDate', endDate);
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupAuditLogs,
@@ -354,7 +303,7 @@ export class GroupsApi extends BaseApi {
      */
     public async getGroupBans({
         groupId,
-        n, // 1 to 100
+        n,
         offset
     }: VRCAPI.Groups.Requests.GetBannedUsersRequest): Promise<VRCAPI.Groups.Models.GroupMember[]> {
         const parameters: URLSearchParams = new URLSearchParams();
@@ -365,9 +314,7 @@ export class GroupsApi extends BaseApi {
             parameters.append('n', n.toString());
         }
 
-        if (offset && offset >= 0) {
-            parameters.append('offset', offset.toString());
-        }
+        if (offset && offset >= 0) parameters.append('offset', offset.toString());
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupBans,
@@ -389,12 +336,10 @@ export class GroupsApi extends BaseApi {
         userId
     }: VRCAPI.Groups.Requests.BanGroupMemberRequest): Promise<VRCAPI.Groups.Models.GroupMember> {
 
-
         if (userId.length <= 0) new BadRequestParameter('userId is too short!');
 
-        const body: VRCAPI.Groups.Requests.dataKeysGroupBanMember = {
-            userId: userId,
-        }
+        const body: VRCAPI.Groups.Requests.dataKeysGroupBanMember = { userId }
+
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.banGroupMember,
             pathFormated: ApiPaths.groups.banGroupMember.path.replace('{groupId}', groupId),
@@ -415,8 +360,6 @@ export class GroupsApi extends BaseApi {
         userId
     }: VRCAPI.Groups.Requests.UnbanGroupMemberRequest): Promise<VRCAPI.Groups.Models.GroupMember> {
 
-        if (userId.length <= 0) new BadRequestParameter('userId is too short!');
-
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.unbanGroupMember,
             pathFormated: ApiPaths.groups.unbanGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId),
@@ -432,7 +375,7 @@ export class GroupsApi extends BaseApi {
      */
     public async createGroupGallery({
         groupId,
-        name, // min 1 character
+        name,
         description,
         membersOnly,
         roleIdsToView,
@@ -441,37 +384,16 @@ export class GroupsApi extends BaseApi {
         roleIdsToManage
     }: VRCAPI.Groups.Requests.createGroupGalleryRequest): Promise<VRCAPI.Groups.Models.GroupGallery> {
 
-        if (name && name.length < 1) new BadRequestParameter('Name must be at least 1 character!');
+        if (name.length < 1) new BadRequestParameter('Name must be at least 1 character!');
 
-        const body: VRCAPI.Groups.Requests.dataKeysGroupCreateGallery = {
-            name: name,
-        }
+        const body: VRCAPI.Groups.Requests.dataKeysGroupCreateGallery = { name }
 
-        // check parameters
-        if (description && description.length >= 0) {
-            body.description = description;
-        }
-
-        if (membersOnly) {
-            body.membersOnly = membersOnly;
-        }
-
-        if (roleIdsToView) {
-            body.roleIdsToView = roleIdsToView;
-        }
-
-        if (roleIdsToSubmit) {
-            body.roleIdsToSubmit = roleIdsToSubmit;
-        }
-
-        if (roleIdsToAutoApprove) {
-            body.roleIdsToAutoApprove = roleIdsToAutoApprove;
-        }
-
-        if (roleIdsToManage) {
-            body.roleIdsToManage = roleIdsToManage;
-        }
-
+        if (description && description.length >= 0) body.description = description;
+        if (membersOnly) body.membersOnly = membersOnly;
+        if (roleIdsToView) body.roleIdsToView = roleIdsToView;
+        if (roleIdsToSubmit) body.roleIdsToSubmit = roleIdsToSubmit;
+        if (roleIdsToAutoApprove) body.roleIdsToAutoApprove = roleIdsToAutoApprove;
+        if (roleIdsToManage) body.roleIdsToManage = roleIdsToManage;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.createGroupGallery,
@@ -502,13 +424,8 @@ export class GroupsApi extends BaseApi {
             parameters.append('n', n.toString());
         }
 
-        if (offset && offset >= 0) {
-            parameters.append('offset', offset.toString());
-        }
-
-        if (approved) {
-            parameters.append('approved', approved.toString());
-        }
+        if (offset && offset >= 0) parameters.append('offset', offset.toString());
+        if (approved) parameters.append('approved', approved.toString());
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupGalleryImages,
@@ -527,7 +444,7 @@ export class GroupsApi extends BaseApi {
     public async updateGroupGallery({
         groupId,
         groupGalleryId,
-        name, // min 1 character
+        name,
         description,
         membersOnly,
         roleIdsToView,
@@ -536,38 +453,20 @@ export class GroupsApi extends BaseApi {
         roleIdsToManage
     }: VRCAPI.Groups.Requests.UpdateGroupGalleryRequest): Promise<VRCAPI.Groups.Models.GroupGallery> {
 
+        if (name && name.length < 1) new BadRequestParameter('Name must be at least 1 character!');
 
-        const body: VRCAPI.Groups.Requests.dataKeysGroupUpdateGallery = {}
+        const body: VRCAPI.Groups.Requests.dataKeysGroupUpdateGallery = { name };
 
-        if (name) {
-            if (name.length < 1) new BadRequestParameter('Name must be at least 1 character!');
-            body.name = name;
-        }
 
-        // check parameters
         if (description && description.length >= 0) {
             body.description = description;
         }
 
-        if (membersOnly) {
-            body.membersOnly = membersOnly;
-        }
-
-        if (roleIdsToView) {
-            body.roleIdsToView = roleIdsToView;
-        }
-
-        if (roleIdsToSubmit) {
-            body.roleIdsToSubmit = roleIdsToSubmit;
-        }
-
-        if (roleIdsToAutoApprove) {
-            body.roleIdsToAutoApprove = roleIdsToAutoApprove;
-        }
-
-        if (roleIdsToManage) {
-            body.roleIdsToManage = roleIdsToManage;
-        }
+        if (membersOnly) body.membersOnly = membersOnly;
+        if (roleIdsToView) body.roleIdsToView = roleIdsToView;
+        if (roleIdsToSubmit) body.roleIdsToSubmit = roleIdsToSubmit;
+        if (roleIdsToAutoApprove) body.roleIdsToAutoApprove = roleIdsToAutoApprove;
+        if (roleIdsToManage) body.roleIdsToManage = roleIdsToManage;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.updateGroupGallery,
@@ -603,9 +502,7 @@ export class GroupsApi extends BaseApi {
         fileId
     }: VRCAPI.Groups.Requests.AddGroupGalleryImagesRequest): Promise<VRCAPI.Groups.Models.GroupGalleryImage> {
 
-        const body: VRCAPI.Groups.Requests.dataKeysAddGroupGalleryImage = {
-            fileId: fileId,
-        }
+        const body: VRCAPI.Groups.Requests.dataKeysAddGroupGalleryImage = { fileId };
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.addGroupGalleryImage,
@@ -661,13 +558,9 @@ export class GroupsApi extends BaseApi {
         confirmOverrideBlock
     }: VRCAPI.Groups.Requests.InviteUserToGroupRequest): Promise<boolean> {
 
-        const body: VRCAPI.Groups.Requests.dataKeysCreateGroupInvite = {
-            userId: userId,
-        }
+        const body: VRCAPI.Groups.Requests.dataKeysCreateGroupInvite = { userId };
 
-        if (confirmOverrideBlock) {
-            body.confirmOverrideBlock = confirmOverrideBlock;
-        }
+        if (confirmOverrideBlock) body.confirmOverrideBlock = confirmOverrideBlock;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.inviteUserToGroup,
@@ -676,8 +569,6 @@ export class GroupsApi extends BaseApi {
         };
 
         return await this.executeRequest<boolean>(paramRequest);
-
-
     }
 
     /**
@@ -696,8 +587,6 @@ export class GroupsApi extends BaseApi {
         };
 
         return await this.executeRequest<boolean>(paramRequest);
-
-
     }
 
     /**
@@ -744,16 +633,10 @@ export class GroupsApi extends BaseApi {
     }: VRCAPI.Groups.Requests.listGroupMembersRequest): Promise<VRCAPI.Groups.Models.GroupMember[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
-        // check parameters
-        if (n) {
-            if (!(n >= 1 && n <= 100)) throw new BadRequestParameter('n must be between 1 and 100!');
-            parameters.append('n', n.toString());
-        }
+        if (n && (n < 1 && n > 100)) throw new BadRequestParameter('n must be set between 1 and 100!');
 
-        // Only if it's set and is above 0
-        if (offset && offset >= 0) {
-            parameters.append('offset', offset.toString());
-        }
+        parameters.append('n', n?.toString() || '60');
+        if (offset && offset >= 0) parameters.append('offset', offset.toString());
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.listGroupMembers,
@@ -795,27 +678,16 @@ export class GroupsApi extends BaseApi {
         managerNotes
     }: VRCAPI.Groups.Requests.updateGroupMemberRequest): Promise<VRCAPI.Groups.Models.GroupMemberLimitedUser> {
 
-        // at least one attribute must be set
+        // At least one attribute must be set, otherwise the request will fail.
         if (!visibility && !isSubscribedToAnnouncements && !managerNotes) {
             throw new Error('At least one attribute must be set!');
         }
 
         const body: VRCAPI.Groups.Requests.dataKeysUpdateGroupMember = {}
 
-        // check visibility
-        if (visibility) {
-            body.visibility = visibility;
-        }
-
-        // check isSubscribedToAnnouncements
-        if (isSubscribedToAnnouncements) {
-            body.isSubscribedToAnnouncements = isSubscribedToAnnouncements;
-        }
-
-        // check managerNotes
-        if (managerNotes) {
-            body.managerNotes = managerNotes;
-        }
+        if (visibility) body.visibility = visibility;
+        if (isSubscribedToAnnouncements) body.isSubscribedToAnnouncements = isSubscribedToAnnouncements;
+        if (managerNotes) body.managerNotes = managerNotes;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.updateGroupMember,
@@ -973,34 +845,20 @@ export class GroupsApi extends BaseApi {
         groupId,
         name,
         description,
-        isSelfAssignable,
+        isSelfAssignable = false,
         permissions
     }: VRCAPI.Groups.Requests.createGroupRoleRequest): Promise<VRCAPI.Groups.Models.GroupRole> {
 
-        // check parameters
         if (name.length < 1) new BadRequestParameter('Name must be at least 1 character!');
 
         const body: VRCAPI.Groups.Requests.dataKeysCreateGroupRole = {
             id: "new",
             name: name,
+            isSelfAssignable,
+            permissions: permissions || []
         }
 
-        if (description && description.length >= 0) {
-            body.description = description;
-        }
-
-        if (isSelfAssignable) {
-            body.isSelfAssignable = isSelfAssignable;
-        } else {
-            body.isSelfAssignable = false;
-        }
-
-        if (permissions) {
-            body.permissions = permissions;
-        } else {
-            body.permissions = [];
-        }
-
+        if (description && description.length >= 0) body.description = description;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.createGroupRole,
@@ -1021,36 +879,23 @@ export class GroupsApi extends BaseApi {
         groupRoleId,
         name,
         description,
-        isSelfAssignable,
+        isSelfAssignable = false,
         permissions,
         order
     }: VRCAPI.Groups.Requests.updateGroupRoleRequest): Promise<VRCAPI.Groups.Models.GroupRole[]> {
 
-        const body: VRCAPI.Groups.Requests.dataKeysUpdateGroupRole = {}
-
+        
         // check parameters
         if (name && name.length < 1) new BadRequestParameter('Name must be at least 1 character!');
+        
+        const body: VRCAPI.Groups.Requests.dataKeysUpdateGroupRole = {
+            isSelfAssignable,
+            permissions: permissions || []
+        }
+        
         if (name) body.name = name;
-
-        if (description && description.length >= 0) {
-            body.description = description;
-        }
-
-        if (isSelfAssignable) {
-            body.isSelfAssignable = isSelfAssignable;
-        } else {
-            body.isSelfAssignable = false;
-        }
-
-        if (permissions) {
-            body.permissions = permissions;
-        } else {
-            body.permissions = [];
-        }
-
-        if (order) {
-            body.order = order;
-        }
+        if (description && description.length >= 0) body.description = description;
+        if (order) body.order = order;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.updateGroupRole,
@@ -1078,6 +923,4 @@ export class GroupsApi extends BaseApi {
 
         return await this.executeRequest<VRCAPI.Groups.Models.GroupRole[]>(paramRequest);
     }
-
-
 }
