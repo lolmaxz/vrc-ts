@@ -373,6 +373,16 @@ export class cookiesHandler {
     return result;
   }
 
+  getAuthCookieKey(): string {
+    let result: string = "";
+    this.cookies.forEach((cookie) => {
+      if (cookie.key === 'auth') {
+        result = cookie.value;
+      }
+    });
+    return result;
+  }
+
   // check if the cookies has a field key named 'twoFactorAuth' and if it's value is not empty and return it formated in a single line string
   getTwoFactorAuthCookie(): string {
     let result: string = "";

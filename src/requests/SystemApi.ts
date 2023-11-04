@@ -1,4 +1,5 @@
 import { VRChatAPI } from "../VRChatAPI";
+import { ApiPaths } from "../types/ApiPaths";
 import { BaseApi } from "./BaseApi";
 
 /**
@@ -12,16 +13,22 @@ export class SystemApi extends BaseApi {
         this.baseClass = baseClass;
     }
 
-    
+
     /**
      * API config contains configuration that the clients needs to work properly.
      * 
      * Currently the most important value here is clientApiKey which is used for all other API endpoints.
      */
-    public async fetchAPIConfig() {
+    public async fetchAPIConfig(): Promise<VRCAPI.System.Models.APIConfig> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.updateInviteMessage,
+            pathFormated: ApiPaths.invites.updateInviteMessage.path,
+        };
+
+        return await this.executeRequest<VRCAPI.System.Models.APIConfig>(paramRequest);
     }
-    
+
     /**
      * ⚠️ **Status: Early Access (Still Under Development)**
      * 
@@ -31,44 +38,61 @@ export class SystemApi extends BaseApi {
      * 
      * `require` is used to limit what Information Pushes should be included in the response. This is usually used in combination with `include`, and is an "all of" search.
      */
-    public async showInformationNotices() {
+    public showInformationNotices() {
+        console.log("This endpoint is still under development. Please check back later.");
+
 
     }
-    
+
     /**
      * Fetches the CSS code to the frontend React website.
      */
-    public async downloadCSS() {
+    public downloadCSS() {
+        console.log("This endpoint is still under development. Please check back later.");
 
     }
-    
+
     /**
      * Fetches the JavaScript code to the frontend React website.
      */
-    public async downloadJavaScript() {
+    public downloadJavaScript() {
+        console.log("This endpoint is still under development. Please check back later.");
 
     }
-    
+
     /**
      * NOTE: The response type is not a JSON object, but a simple JSON integer.
      */
-    public async checkAPIHealth() {
+    public checkAPIHealth() {
+        console.log("This endpoint is still under development. Please check back later.");
 
     }
-    
+
     /**
      * NOTE: The response type is not a JSON object, but a simple `number`.
      */
-    public async currentOnlineUsers() {
+    public async currentOnlineUsers(): Promise<number> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.system.currentOnlineUsers,
+            pathFormated: ApiPaths.system.currentOnlineUsers.path,
+        };
+
+        return await this.executeRequest<number>(paramRequest);
     }
-    
+
     /**
      * Returns the current time of the API server.
      * 
      * NOTE: The response type is not a JSON object, but a simple `string`.
      */
-    public async currentSystemTime() {
+    public async currentSystemTime(): Promise<string> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.system.currentSystemTime,
+            pathFormated: ApiPaths.system.currentSystemTime.path,
+        };
+
+        return await this.executeRequest<string>(paramRequest);
     }
 }

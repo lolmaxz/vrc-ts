@@ -4,75 +4,81 @@ declare namespace VRCAPI {
     namespace Models {
       /** The CurrentUserPresence object containing detailed information about the currently logged in user's presence. */
       type CurrentUserPresence = {
-        avatarThumbnail?: string | null;
+        userIcon?: string;
+        id?: string;
+        status?: string;
+        world?: string;
+        profilePicOverride?: string;
+        travelingToWorld?: string;
+        platform?: string;
+        instance?: string;
+        currentAvatarTags?: string[];
+        avatarThumbnail?: string;
+        instanceType?: string;
         displayName?: string;
         groups?: string[];
-        id?: string;
-        instance?: string | null;
-        instanceType?: string | null;
-        isRejoining?: string | null;
-        platform?: string | null;
-        profilePicOverride?: string | null;
-        status?: string | null;
-        travelingToInstance?: string | null;
-        travelingToWorld?: string;
-        world?: string;
+        travelingToInstance?: string;
+        isRejoining?: string; // todo ? is documented but doesn't get sent anymore
       };
 
       /** The CurrentUser object containing detailed information about the currently logged in user. */
       type CurrentUser = {
-        acceptedTOSVersion: number;
-        acceptedPrivacyVersion?: number;
-        accountDeletionDate?: string | null;
-        accountDeletionLog?: Array<AccountDeletionLog>; // ensure it can be null or an array
-        activeFriends?: string[];
-        allowAvatarCopying: boolean;
+        id: string;
+        displayName: string;
+        userIcon: string;
         bio: string;
         bioLinks: string[];
-        currentAvatar: string;
-        currentAvatarAssetUrl: string;
-        currentAvatarImageUrl: string;
-        currentAvatarThumbnailImageUrl: string;
-        date_joined: string;
-        developerType: DeveloperType;
-        displayName: string;
-        emailVerified: boolean;
-        fallbackAvatar?: string;
-        friendGroupNames: string[];
-        friendKey: string;
-        friends: string[];
-        hasBirthday: boolean;
+        profilePicOverride: string;
+        statusDescription: string;
+        username?: string | null;
+        pastDisplayNames: PastDisplayName[];
         hasEmail: boolean;
-        hasLoggedInFromClient: boolean;
         hasPendingEmail: boolean;
-        homeLocation: string;
-        id: string;
-        isFriend: boolean;
-        last_activity?: string;
-        last_login: string;
-        last_platform: string;
         obfuscatedEmail: string;
         obfuscatedPendingEmail: string;
-        oculusId: string;
-        offlineFriends?: string[];
-        onlineFriends?: string[];
-        pastDisplayNames: PastDisplayName[];
-        presence?: CurrentUserPresence;
-        profilePicOverride: string;
-        state: UserState;
-        status: UserStatus;
-        statusDescription: string;
-        statusFirstTime: boolean;
+        emailVerified: boolean;
+        hasBirthday: boolean;
+        hideContentFilterSettings: boolean; // todo new undocumented
+        unsubscribe: boolean;
         statusHistory: string[];
-        steamDetails: Record<string, unknown>;
-        steamId: string;
-        tags: Generics.AllTags[];
+        statusFirstTime: boolean;
+        friends: string[];
+        friendGroupNames: string[];
+        userLanguage?: unknown; // todo undocumented
+        currentAvatarImageUrl: string;
+        currentAvatarThumbnailImageUrl: string;
+        currentAvatarTags: string[]; // todo new undocumented
+        currentAvatar: string;
+        currentAvatarAssetUrl: string;
+        fallbackAvatar?: string;
+        accountDeletionDate?: string | null;
+        accountDeletionLog?: Array<AccountDeletionLog>; // ensure it can be null or an array
+        acceptedTOSVersion: number;
+        acceptedPrivacyVersion?: number;
+        steamId?: string;
+        googleId?: string; // todo new undocumented
+        steamDetails: object; // todo unknown yet, to research more
+        oculusId?: string;
+        hasLoggedInFromClient: boolean;
+        homeLocation: string;
         twoFactorAuthEnabled: boolean;
         twoFactorAuthEnabledDate?: string | null;
-        unsubscribe: boolean;
         updated_at?: string;
-        userIcon: string;
-        username?: string | null;
+        state: UserState;
+        tags: Generics.AllTags[];
+        developerType: DeveloperType;
+        last_login: string;
+        last_platform: string;
+        allowAvatarCopying: boolean;
+        status: UserStatus;
+        date_joined: string;
+        isFriend: boolean;
+        friendKey: string;
+        last_activity?: string;
+        onlineFriends?: string[];
+        activeFriends?: string[];
+        presence?: CurrentUserPresence;
+        offlineFriends?: string[];
       };
 
       type currentUserOrTwoFactorType = VRCAPI.Generics.twoFactorAuthResponseType | CurrentUser;
@@ -150,38 +156,62 @@ declare namespace VRCAPI {
         friendKey?: string;
       };
 
-      /** This Type represents a user in VRChat. */
-      type User = {
-        allowAvatarCopying: boolean;
+      /** Base User type for the websocket when identifying a user object */
+      type UserBase = {
+        id: string;
+        displayName: string;
+        userIcon: string;
         bio: string;
         bioLinks: string[];
+        profilePicOverride: string;
+        statusDescription: string;
         currentAvatarImageUrl: string;
         currentAvatarThumbnailImageUrl: string;
+        currentAvatarTags: string[]; // todo new undocumented
         date_joined: Date;
         developerType: DeveloperType;
-        displayName: string;
         friendKey: string;
-        friendRequestStatus?: string;
-        id: string;
-        instanceId?: string;
         isFriend: boolean;
         last_activity: string;
         last_login: string;
         last_platform: string;
+        status: UserStatus;
+        allowAvatarCopying: boolean;
+        tags: Generics.AllTags[];        
+      }
+      
+      // todo some undocumented stuff here, those fields are not sent to the websocket! (as researched)
+      /** This Type represents a user in VRChat. Includes field that the websocket doesn't send */
+      type User = UserBase & {
+        friendRequestStatus?: string;
+        instanceId?: string;
         location?: string;
         note?: string;
-        profilePicOverride: string;
         state: UserState;
-        status: UserStatus;
-        statusDescription: string;
-        tags: Generics.AllTags[];
         travelingToInstance?: string;
         travelingToLocation?: string;
         travelingToWorld?: string;
-        userIcon: string;
         username?: string;
         worldId?: string;
       };
+
+      type UserUpdateWebSocket = {
+        id: string;
+        displayName: string;
+        userIcon: string;
+        bio: string;
+        profilePicOverride: string;
+        statusDescription: string;
+        username?: string | null;
+        currentAvatarImageUrl: string;
+        currentAvatarThumbnailImageUrl: string;
+        currentAvatarTags: string[]; // todo new undocumented
+        currentAvatar: string;
+        currentAvatarAssetUrl: string;
+        fallbackAvatar?: string;
+        tags: Generics.AllTags[];
+        status: UserStatus;
+      }
 
       /** This enum represents all the possible ranks for a user in VRChat.
        * * Trusted : "system_trust_veteran" - The user is Trusted if he has this tag.

@@ -10,9 +10,27 @@ declare namespace VRCAPI {
                 InteractOn = 'interactOn',
                 InteractOff = 'interactOff',
             }
+
+            type PlayerModeration = {
+                id: string;
+                type?: PlayerModerationType;
+                sourceUserId?: string;
+                sourceDisplayName?: string;
+                targetUserId?: string;
+                targetDisplayName?: string;
+                created?: string;
+            }
         }
 
         namespace Requests {
+
+            /**
+             * The data for requesting to search player moderations.
+             */
+            type SearchPlayerModerationsRequest = {
+                type?: Models.PlayerModerationType;
+                targetUserId?: string;
+            }
 
             type dataKeysModerateUserRequest = {
                 moderated: string;
@@ -24,6 +42,20 @@ declare namespace VRCAPI {
              */
             type ModerateUserRequest = dataKeysModerateUserRequest;
 
+            /**
+             * The data for requesting to get a player moderation.
+             */
+            type GetPlayerModerationRequest = {
+                playerModerationId: string;
+            }
+
+            /**
+             * The data for requesting to delete a player moderation.
+             */
+            type DeletePlayerModerationRequest = {
+                playerModerationId: string;
+            }
+
             type dataKeysUnModerateUser = {
                 moderated: string;
                 type: VRCAPI.PlayerModerations.Models.PlayerModerationType;
@@ -33,7 +65,6 @@ declare namespace VRCAPI {
              * The data for requesting to unmoderate a user.
              */
             type UnModerateUserRequest = dataKeysUnModerateUser;
-
         }
     }
 }

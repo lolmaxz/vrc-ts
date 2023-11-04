@@ -63,7 +63,7 @@ export class VRChatAPI {
     }
 
     this.isAuthentificated = false;
-    this.instanceCookie = new cookiesHandler(this.username)
+    this.instanceCookie = new cookiesHandler(this.username);
     this.instanceCookie = new cookiesHandler(this.username);
   }
 
@@ -96,11 +96,12 @@ export class VRChatAPI {
       // we first try to login or get current user
       const getCurrentUser = await this.authApi.getCurrentUser<VRCAPI.Users.Models.currentUserOrTwoFactorType>();
       // if current user is not null or undefined and is of type CurrentUser then we are logged in
-      console.log("getCurrentUser: ", getCurrentUser);
+      // console.log("getCurrentUser: ", getCurrentUser);
 
       if ('displayName' in getCurrentUser) {
         this.isAuthentificated = true;
         console.log(`${C.green}Logged in as: ${C.r}`, getCurrentUser.displayName);
+        return;
       } else if ('verified' in getCurrentUser && !getCurrentUser.verified) {
         this.isAuthentificated = false;
       } else {

@@ -96,7 +96,7 @@ export class BaseApi {
             console.log("not okay?:", response);
 
             const reponseTry = await response.json();
-            // console.log(reponseTry);
+            console.log(reponseTry);
 
             if (reponseTry.error.message) {
                 extraMessage = reponseTry.error.message;
@@ -129,11 +129,13 @@ export class BaseApi {
 
         // if the base class is not authenticated then we need to throw an error unless it's a 2FA authentication process!
         if (!this.baseClass.isAuthentificated) {
-            console.log(this.baseClass);
-
             if (!pathFormated.includes("/auth/twofactorauth") && !pathFormated.includes("/auth/user")) {
                 throw new UserNotAuthenticated();
             }
+        }
+
+        if (currentRequest.notImplemented) {
+            throw new Error('This request is not implemented yet!');
         }
 
         // make sure we aren't running a fetch on a deprecated endpoint

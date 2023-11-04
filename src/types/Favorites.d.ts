@@ -2,6 +2,24 @@ declare namespace VRCAPI {
     namespace Favorites {
         namespace Models {
 
+            type BaseFavorite = {
+                id: string;
+                type: VRCAPI.Favorites.Models.FavoriteType;
+                tags: string[];
+            }
+
+            type Favorite = BaseFavorite & {
+                favoriteId?: string;
+            }
+
+            type FavoriteGroup = BaseFavorite & {
+                displayName: string;
+                visibility: VRCAPI.Favorites.Models.FavoriteType;
+                ownerId: string;
+                ownerDisplayName?: string;
+                name?: string;
+            }
+
             /** Type of favorite. Defaults: `friend`. */
             enum FavoriteType {
                 Friend = 'friend',
@@ -31,7 +49,7 @@ declare namespace VRCAPI {
              */
             type listFavoritesRequest = quantity & offset & {
                 type?: VRCAPI.Favorites.Models.FavoriteType;
-                tags?: string;
+                tag?: string;
             }
 
             /**

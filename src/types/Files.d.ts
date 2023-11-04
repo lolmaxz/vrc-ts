@@ -56,6 +56,15 @@ declare namespace VRCAPI {
                 url: string;
             };
 
+            type CurrentFileVersionStatus = {
+                uploadId: string;
+                fileName: string;
+                nextPartNumber: number;
+                nextParts: number;
+                parts: object[];
+                etags: object[];
+            }
+
             enum MIMEType {
                 JPEG = 'image/jpeg',
                 JPG = 'image/jpg',
@@ -83,6 +92,7 @@ declare namespace VRCAPI {
         }
         namespace Requests {
 
+            /** Information required to request a list of files. */
             type ListFilesRequest = {
                 /** Min 1 chars. Tag, for example "icon" or "gallery", not included by default. */
                 tag?: string
@@ -122,12 +132,15 @@ declare namespace VRCAPI {
             };
 
             /** The data for requesting to create a file version */
-            type CreateFileVersionRequest = dataKeysCreateFileVersion & FileId;
+            type CreateFileVersionRequest = FileId & dataKeysCreateFileVersion;
 
             type VersionId = {
                 /** The Id of the version you want to use with this request.*/
                 versionId: string;
             }
+
+            /** The data required to request to delete a file */
+            type DeleteFileRequest = FileId;
 
             /** The data for requesting to show a file version */
             type DownloadFileVersionRequest = FileId & VersionId;
@@ -140,22 +153,25 @@ declare namespace VRCAPI {
                 maxParts: '0';
             };
 
+            /** The data for requesting to delete a file version */
+            type DeleteFileVersionRequest = FileId & VersionId;
+
             /** The data for requesting to finish a file data upload */
             type FinishFileDataUploadRequest = dataKeysFinishFileDataUpload & FileId & VersionId & {
                 /** The fileType you want to upload. */
-                fileType: VRCAPI.Files.Models.fileType;
+                fileType: Models.fileType;
             }
 
             /** The data for requesting to start a file data upload */
             type StartFileDataUploadRequest = FileId & VersionId & {
                 /** The fileType you want to upload. */
-                fileType: VRCAPI.Files.Models.fileType;
+                fileType: Models.fileType;
             }
 
             /** The data for requesting to check the file data upload status */
             type CheckFileDataUploadStatus = FileId & VersionId & {
                 /** The fileType of the file you want to check. */
-                fileType: VRCAPI.Files.Models.fileType;
+                fileType: Models.fileType;
             }
 
 

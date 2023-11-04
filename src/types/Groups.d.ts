@@ -290,23 +290,25 @@ declare namespace VRCAPI {
         roleIds?: string[]; // TODO undocumented yet
       };
 
-
-      export type MyMember = {
+      type BaseMyMember = {
         id: string;
         groupId: string;
         userId: string;
-        roleIds: string[];
-        managerNotes: string;
-        membershipStatus: string;
-        isSubscribedToAnnouncements: boolean; // defaults to true
-        visibility: string;
         isRepresenting: boolean;
+        roleIds: string[];
+        mRoleIds?: string[]; // TODO: Undocumented yet!
         joinedAt: string; // assuming date-time is a string in ISO format
+        membershipStatus: string;
+        visibility: string;
+        isSubscribedToAnnouncements: boolean; // defaults to true
+        lastPostReadAt?: string; // TODO: Undocumented yet!
+      }
+
+      export type MyMember = BaseMyMember & {
+        managerNotes: string;
         bannedAt: string | null;
         has2FA: boolean; // Defaults to false
         permissions: VRCAPI.Groups.Models.GroupPermissionEnum[]; // Admins defaults to ["*"]
-        mRoleIds?: string[]; // TODO: Undocumented yet!
-        lastPostReadAt?: string; // TODO: Undocumented yet!
         hasJoinedFromPurchase?: boolean; // TODO: Undocumented yet!
       };
 
