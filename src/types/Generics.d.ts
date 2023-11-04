@@ -125,6 +125,7 @@ declare namespace VRCAPI {
       requiredQueryParams?: querryParamsType[];
       deprecated?: boolean;
       requiresData?: boolean;
+      notImplemented?: boolean;
     };
 
     type subSectionPath = {
@@ -318,6 +319,8 @@ declare namespace VRCAPI {
       | VRCAPI.Groups.Requests.dataKeysRespondGroupJoinRequest
       | VRCAPI.Groups.Requests.dataKeysCreateGroupRole
       | VRCAPI.Groups.Requests.dataKeysUpdateGroupRole
+      | VRCAPI.Instances.Requests.CreateRegularInstanceRequest
+      
       | VRCAPI.Invites.Requests.dataKeysSendInvite
       | VRCAPI.Invites.Requests.dataKeysRequestInvite
       | VRCAPI.Invites.Requests.dataKeysInviteResponse
@@ -363,7 +366,8 @@ declare namespace VRCAPI {
       | 'system_trust_intermediate'
       | 'system_trust_advanced'
       | 'system_trust_legend'
-      | 'system_world_access';
+      | 'system_world_access'
+      | 'Visitor';
 
     type WorldTags =
       | 'author_tag_avatar'

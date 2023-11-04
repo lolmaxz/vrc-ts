@@ -137,9 +137,9 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
 
     system: {
         fetchAPIConfig: { path: "/config", method: "GET", cookiesNeeded: ["none"] },
-        showInformationNotices: { path: "/infoPush", method: "GET", cookiesNeeded: ["none"] },
-        downloadCSS: { path: "/css/app.css", method: "GET", cookiesNeeded: ["none"] },
-        downloadJavaScript: { path: "/js/app.js", method: "GET", cookiesNeeded: ["none"] },
+        showInformationNotices: { path: "/infoPush", method: "GET", cookiesNeeded: ["none"], notImplemented: true },
+        downloadCSS: { path: "/css/app.css", method: "GET", cookiesNeeded: ["none"], notImplemented: true },
+        downloadJavaScript: { path: "/js/app.js", method: "GET", cookiesNeeded: ["none"], notImplemented: true },
         checkAPIHealth: { path: "/health", method: "GET", deprecated: true, cookiesNeeded: ["none"] },
         currentOnlineUsers: { path: "/visits", method: "GET", cookiesNeeded: ["none"] },
         currentSystemTime: { path: "/time", method: "GET", cookiesNeeded: ["none"] },

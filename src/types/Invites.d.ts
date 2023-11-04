@@ -6,7 +6,21 @@ declare namespace VRCAPI {
                 Message = "message",
                 Response = "response",
                 Request = "request",
-                Request_Response = "request_response"
+                Request_Response = "requestResponse"
+            }
+
+            type InviteMessage = {
+                id: string;
+                slot: number;
+                message: string;
+                messageType: MessageType;
+                updatedAt: string;
+                remainingCooldownMinutes: number;
+                canBeUpdated: boolean;
+            }
+
+            type UpdatedInviteMessage = {
+                message: string;
             }
         }
 
@@ -28,7 +42,7 @@ declare namespace VRCAPI {
             type InviteUserRequest = UserId & dataKeysSendInvite;
 
             /** The data for requesting to send an invite to yourself. */
-            type InviteSelfToInstanceRequest = {
+            type InviteMyselfToInstanceRequest = {
                 /** The instance id of the instance */
                 instanceid: string;
                 /** The World id to invite yourself to */
@@ -60,11 +74,11 @@ declare namespace VRCAPI {
             }
 
             /** The data for requesting to get an invite message. */
-            type GetInviteMessagesRequest = UserId & {
+            type GetInviteMessageRequest = UserId & {
                 /** The type of message to fetch, must be a valid InviteMessageType. */
                 messageType: VRCAPI.Invites.Models.MessageType;
                 /** The message slot to fetch of a given message type. Min 0┃Max 11 */
-                slot?: number;
+                slot: number;
             }
 
             type dataKeysUpdateInviteMessage = {
@@ -76,7 +90,7 @@ declare namespace VRCAPI {
                 /** The type of message to fetch, must be a valid InviteMessageType. */
                 messageType: VRCAPI.Invites.Models.MessageType;
                 /** The message slot to fetch of a given message type. Min 0┃Max 11 */
-                slot?: number;
+                slot: number;
             }
 
             /** The data for requesting to reset an invite message. */
@@ -84,7 +98,7 @@ declare namespace VRCAPI {
                 /** The type of message to fetch, must be a valid InviteMessageType. */
                 messageType: VRCAPI.Invites.Models.MessageType;
                 /** The message slot to fetch of a given message type. Min 0┃Max 11 */
-                slot?: number;
+                slot: number;
             }
         }
     }

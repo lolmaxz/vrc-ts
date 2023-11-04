@@ -1,4 +1,5 @@
 import { VRChatAPI } from "../VRChatAPI";
+import { ApiPaths } from "../types/ApiPaths";
 import { BaseApi } from "./BaseApi";
 
 /**
@@ -16,29 +17,76 @@ export class InvitesApi extends BaseApi {
     /**
      * Sends an invite to a user. Returns the Notification of type `invite` that was sent.
      */
-    public async inviteUser() {
+    public async inviteUser({
+        userId,
+        instanceId,
+        messageSlot
+    }: VRCAPI.Invites.Requests.InviteUserRequest): Promise<VRCAPI.Notifications.Models.SentNotification> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.inviteUser,
+            pathFormated: ApiPaths.invites.inviteUser.path.replace('{userId}', userId),
+            body: {
+                instanceId,
+                messageSlot
+            }
+        };
+
+        return await this.executeRequest<VRCAPI.Notifications.Models.SentNotification>(paramRequest);
     }
 
     /**
      * Sends self an invite to an instance.
      */
-    public async inviteMyselfToInstance() {
+    public async inviteMyselfToInstance({
+        instanceid,
+        worldid
+    }: VRCAPI.Invites.Requests.InviteMyselfToInstanceRequest): Promise<VRCAPI.Notifications.Models.SentNotification> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.inviteMyselfToInstance,
+            pathFormated: ApiPaths.invites.inviteMyselfToInstance.path.replace('{instanceId}', instanceid).replace('{worldId}', worldid),
+        };
+
+        return await this.executeRequest<VRCAPI.Notifications.Models.SentNotification>(paramRequest);
     }
 
     /**
      * Requests an invite from a user. Returns the Notification of type `requestInvite` that was sent.
      */
-    public async requestInvite() {
+    public async requestInvite({
+        userId,
+        messageSlot
+    }: VRCAPI.Invites.Requests.RequestInviteRequest): Promise<VRCAPI.Notifications.Models.Notification> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.requestInvite,
+            pathFormated: ApiPaths.invites.requestInvite.path.replace('{userId}', userId),
+            body: {
+                messageSlot
+            }
+        };
+
+        return await this.executeRequest<VRCAPI.Notifications.Models.Notification>(paramRequest);
     }
 
     /**
      * Respond to an invite request by sending a world invite to the requesting user. `:notificationId` is the ID of the requesting notification.
      */
-    public async respondInvite() {
+    public async respondInvite({
+        notificationId,
+        responseSlot
+    }: VRCAPI.Invites.Requests.InviteResponseRequest): Promise<VRCAPI.Notifications.Models.Notification> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.respondInvite,
+            pathFormated: ApiPaths.invites.respondInvite.path.replace('{notificationId}', notificationId),
+            body: {
+                responseSlot
+            }
+        };
+
+        return await this.executeRequest<VRCAPI.Notifications.Models.Notification>(paramRequest);
     }
 
     /**
@@ -50,8 +98,17 @@ export class InvitesApi extends BaseApi {
     * - request = Message when requesting an invite
     * - requestResponse = Message when replying to a request for invite
     */
-    public async listInviteMessages() {
+    public async listInviteMessages({
+        userId,
+        messageType
+    }: VRCAPI.Invites.Requests.ListInviteMessagesRequest): Promise<VRCAPI.Invites.Models.InviteMessage[]> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.listInviteMessages,
+            pathFormated: ApiPaths.invites.listInviteMessages.path.replace('{userId}', userId).replace('{messageType}', messageType),
+        };
+
+        return await this.executeRequest<VRCAPI.Invites.Models.InviteMessage[]>(paramRequest);
     }
 
     /**
@@ -63,8 +120,18 @@ export class InvitesApi extends BaseApi {
     * - request = Message when requesting an invite
     * - requestResponse = Message when replying to a request for invite
     */
-    public async getInviteMessage() {
+    public async getInviteMessage({
+        userId,
+        messageType,
+        slot
+    }: VRCAPI.Invites.Requests.GetInviteMessageRequest): Promise<VRCAPI.Invites.Models.InviteMessage> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.getInviteMessage,
+            pathFormated: ApiPaths.invites.getInviteMessage.path.replace('{userId}', userId).replace('{messageType}', messageType).replace('{slot}', slot.toString()),
+        };
+
+        return await this.executeRequest<VRCAPI.Invites.Models.InviteMessage>(paramRequest);
     }
 
     /**
@@ -79,8 +146,22 @@ export class InvitesApi extends BaseApi {
     * - requestResponse = Message when replying to a request for invite
 
      */
-    public async updateInviteMessage() {
+    public async updateInviteMessage({
+        userId,
+        messageType,
+        slot,
+        message
+    }: VRCAPI.Invites.Requests.UpdateInviteMessageRequest): Promise<VRCAPI.Invites.Models.InviteMessage[]> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.updateInviteMessage,
+            pathFormated: ApiPaths.invites.updateInviteMessage.path.replace('{userId}', userId).replace('{messageType}', messageType).replace('{slot}', slot.toString()),
+            body: {
+                message
+            }
+        };
+
+        return await this.executeRequest<VRCAPI.Invites.Models.InviteMessage[]>(paramRequest);
     }
 
     /**
@@ -94,7 +175,17 @@ export class InvitesApi extends BaseApi {
     * - request = Message when requesting an invite
     * - requestResponse = Message when replying to a request for invite
     */
-    public async resetInviteMessage() {
+    public async resetInviteMessage({
+        userId,
+        messageType,
+        slot
+    }: VRCAPI.Invites.Requests.ResetInviteMessageRequest): Promise<VRCAPI.Invites.Models.InviteMessage[]> {
 
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.invites.resetInviteMessage,
+            pathFormated: ApiPaths.invites.resetInviteMessage.path.replace('{userId}', userId).replace('{messageType}', messageType).replace('{slot}', slot.toString()),
+        };
+
+        return await this.executeRequest<VRCAPI.Invites.Models.InviteMessage[]>(paramRequest);
     }
 }

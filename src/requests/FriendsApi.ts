@@ -13,7 +13,6 @@ export class FriendsApi extends BaseApi {
         this.baseClass = baseClass;
     }
 
-
     /**
      * List information about friends.
      */

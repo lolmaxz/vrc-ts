@@ -12,16 +12,19 @@ declare namespace VRCAPI {
                 tags: string[]; // todo to research more 
                 active: boolean; // If there is currently players in this world/instance
                 full: boolean; // If the instance is full or not. Default to false.
-                n_users: number; // todo check the difference with this and userCount
+                n_users: number; // todo check the difference with this and userCount, seems to be the same..
                 capacity: number;
                 recommendedCapacity: number;
-                userCount: number; // todo check the difference with this and n_users
+                userCount: number; // todo check the difference with this and n_users, seems to be the same..
                 queueEnabled: boolean; // Whether the queue is enabled or not
+                /** The number of player in the instance, per platforms */
                 platforms: {
-                    standalonewindows: number; // todo to research more.  0 or 1 ( I think )
-                    android: number; // todo to research more.  0 or 1 ( I think )
+                    /** Number of PC players */
+                    standalonewindows: number;
+                    /** Number of Quest/Mobile players */
+                    android: number;
                 };
-                gameServerVersion?: number | null; // todo research more. for now we only know that this can be null
+                gameServerVersion?: number | null; // todo research more. for now we only know that this can be null, it can be a number
                 roleRestricted: boolean; // if this instance requires roles to access // todo research more
                 secureName: string; // The short code to access the instance (for short link to share outside vrchat website, only the code part, not the full link!)
                 shortName?: string | null; // todo research more. for now we only know that this can be null
@@ -42,6 +45,11 @@ declare namespace VRCAPI {
                 friends?: string; //friends field is only present if InstanceType is friends aka "Friends", and is instance creator. // TODO research more
                 private?: string; // private field is only present if InstanceType is private aka "Invite" or "Invite+", and is instance creator. // TODO research more
 
+            }
+
+            type InstanceShortName = {
+                shortName?: string;
+                secureName?: string;
             }
 
             /**
@@ -95,20 +103,43 @@ declare namespace VRCAPI {
 
         }
         namespace Requests {
-            namespace CreateInstance {
-                namespace Regular {
 
-                }
-                namespace Group {
-                    type CreateRequest = {
-                        worldId: string;
-                        groupAccessType: string;
-                        ownerId?: string;
-                        region: VRCAPI.Instances.Models.InstanceRegionType;
-                        queueEnabled?: boolean;
-                        roleIds?: string[];
-                    }
-                }
+            type CreateRegularInstanceRequest = {
+                worldId: string;
+                ownerId?: string;
+                region: VRCAPI.Instances.Models.InstanceRegionType;
+            }
+
+            type CreateGroupInstanceRequest = {
+                worldId: string;
+                groupAccessType: string;
+                ownerId?: string;
+                region: VRCAPI.Instances.Models.InstanceRegionType;
+                queueEnabled?: boolean;
+                roleIds?: string[];
+            }
+
+            /** The Required Parameters to get an instance. */
+            type GetInstanceRequest = {
+                worldId: string;
+                instanceId: string;
+            }
+
+            /** The Required Parameters to get an instance's short name. */
+            type GetInstanceShortNameRequest = {
+                worldId: string;
+                instanceId: string;
+            }
+
+            /** The Required Parameters to send an invite to yourself. */
+            type SendSelfInviteRequest = {
+                worldId: string;
+                instanceId: string;
+            }
+
+            /** The Required Parameters to get an instance by short name. */
+            type GetInstanceByShortName = {
+                shortName: string;
             }
 
         }
