@@ -118,15 +118,11 @@ Here is the full list of endpoints by category that this wrapper does implements
 
 - `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`
     
-**Economy API**`*` :
-
-- `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`
-    
-**Favorites API**`*` :
+**Favorites API** :
 
 - `listFavorites`, `addFavorite`, `showFavorite`, `removeFavorite`, `listFavoriteGroups`, `showFavoriteGroup`, `updateFavoriteGroup`, `clearFavoriteGroup`
     
-**Files API**`*` :
+**Files API** :
 
 - `listFiles`, `createFile`, `showFile`, `createFileVersion`, `deleteFile`, `downloadFileVersion`, `deleteFileVersion`, `finishFileDataUpload`, `startFileDataUpload`, `checkFileDataUploadStatus`
     
@@ -138,35 +134,35 @@ Here is the full list of endpoints by category that this wrapper does implements
 
 - `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `getGroupAnnouncement`, `createGroupAnnouncement`, `deleteGroupAnnouncement`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`
     
-**Invites API**`*` :
+**Invites API** :
 
 - `inviteUser`, `inviteMyselfToInstance`, `requestInvite`, `respondInvite`, `listInviteMessages`, `getInviteMessage`, `updateInviteMessage`, `resetInviteMessage`
     
-**Instances API**`*` :
+**Instances API** :
 
 - `getInstance`, `getInstanceShortName`, `sendSelfInvite`, `getInstanceByShortName`, `createInstance`
     
-**Notifications API**`*` :
+**Notifications API** :
 
 - `listNotifications`, `acceptFriendRequest`, `markNotificationAsRead`, `deleteNotification`, `clearAllNotifications`
     
-**Permissions API**`*` :
+**Permissions API** :
 
 - `getAssignedPermissions`, `getPermission`
     
-**Playermoderations API**`*` :
+**Playermoderations API** :
 
 - `searchPlayerModerations`, `moderateUser`, `clearAllPlayerModerations`, `getPlayerModeration`, `deletePlayerModeration`, `unmoderateUser`
     
-**System API**`*` :
+**System API** :
 
-- `fetchAPIConfig`, `showInformationNotices`, `downloadCSS`, `downloadJavaScript`, `checkAPIHealth`, `currentOnlineUsers`, `currentSystemTime`
+- `fetchAPIConfig`, `showInformationNotices` `*`, `downloadCSS` `*`, `downloadJavaScript` `*`, `checkAPIHealth` `*`, `currentOnlineUsers`, `currentSystemTime`
     
 **Users API** :
 
 - `searchAllUsers`, `getUserbyUsername`, `getUserbyID`, `updateUserInfo`, `getUserGroups`, `getUserGroupRequests`
     
-**Worlds API**`*` :
+**Worlds API** :
 
 - `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
 
