@@ -90,6 +90,8 @@ export class AuthApi extends BaseApi {
                 throw new Error("Bad or no 2FA secret was provided in 'VRCHAT_2FA_SECRET' !");
             }
             // secret was correctly set now we compute it
+            console.log("Using generated 2FA code from secret key...");
+            
             code = totp(process.env.VRCHAT_2FA_SECRET);
         } else {
             // we use the code from .env file
@@ -108,7 +110,13 @@ export class AuthApi extends BaseApi {
             body: body
         };
 
-        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse>(paramRequest);
+        try {
+            const result = await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FATOTPResponse>(paramRequest);
+            return result;
+        } catch (error) {
+            console.log("error: ", error);
+            return { verified: false }
+        }
     }
 
     /**
@@ -127,6 +135,7 @@ export class AuthApi extends BaseApi {
 
         // we use the code from .env file
         if (!envCode || envCode.length !== 6) throw new Error("Bad or no 2FA code was provided in 'EMAIL_2FA_CODE' in .env file. !");
+        if (this.baseClass.instanceCookie.isSameEmailCode()) throw new Error("The provided 2FA code is the same as the one from the last request! Please provide a new one.");
         code = envCode;
 
         if (!this.regexCode.test(code)) throw new Error("The provided 2FA code is invalid! It must be a 6 digit number.");
@@ -138,7 +147,15 @@ export class AuthApi extends BaseApi {
             body: body
         };
 
-        return await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse>(paramRequest);
+        try {
+            const result = await this.executeRequest<VRCAPI.Auth.ResponseTypes.verify2FAEmailResponse>(paramRequest);
+            return result;
+        } catch (error) {
+            console.log("error: ", error);
+            return { verified: false }
+        }
+
+
     }
 
     /**

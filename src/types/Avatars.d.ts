@@ -1,7 +1,7 @@
 declare namespace VRCAPI {
     namespace Avatars {
         namespace Models {
-            type Avatar = { // todo: implement
+            type Avatar = {
                 /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12} */
                 id: string;
                 /** Min 1 chars. Name of the avatar */

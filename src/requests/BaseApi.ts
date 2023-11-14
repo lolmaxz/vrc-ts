@@ -54,6 +54,7 @@ export class BaseApi {
             if (currentRequest.cookiesNeeded.includes('authorization') && !this.baseClass.cookiesLoaded) {
                 headers['Authorization'] = `Basic ${this.baseClass.getBase64Credentials()}`;
             }
+
             const authCookie = this.baseClass.instanceCookie.getAuthCookie();
             if (currentRequest.cookiesNeeded.includes('authCookie') && authCookie) {
                 if (!authCookie) {
@@ -62,6 +63,7 @@ export class BaseApi {
 
                 headers.cookie += `${authCookie} `;
             }
+
             if (currentRequest.cookiesNeeded.includes('twoFactorAuth') && this.baseClass.instanceCookie.getTwoFactorAuthCookie()) {
                 const twoFactorAuth = this.baseClass.instanceCookie.getTwoFactorAuthCookie();
 
@@ -92,6 +94,9 @@ export class BaseApi {
         }
 
         if (!response.ok) {
+            if (pathFormated.includes("/auth/twofactorauth") && response.status === 400) {
+                return await response.json() as E;
+            }
             let extraMessage = "";
             console.log("not okay?:", response);
 
@@ -133,6 +138,10 @@ export class BaseApi {
                 throw new UserNotAuthenticated();
             }
         }
+
+        // if (currentRequest.cookiesNeeded.includes("authCookie") && !this.baseClass.instanceCookie.getAuthCookie()) {
+        //     throw new Error('No Auth cookie was found! Please make sure you are logged in.');
+        // }
 
         if (currentRequest.notImplemented) {
             throw new Error('This request is not implemented yet!');

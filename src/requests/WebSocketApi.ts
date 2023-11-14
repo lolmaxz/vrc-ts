@@ -38,18 +38,15 @@ export class WebSocketClient {
     baseClass: VRChatAPI;
     badLoginDetected = false;
     lastPing: number = Date.now();
-    // EventEmitter: EventEmitter = new EventEmitter();
+    private reconnectAttempts = 0;
+    private reconnecting = false;
 
     constructor(baseClass: VRChatAPI) {
-        // console.log("cookies: " + baseClass.instanceCookie.getAuthCookieKey());
-
         this.ws = new WebSocket(`wss://vrchat.com/?authToken=${baseClass.instanceCookie.getAuthCookieKey()}`, {
             headers: {
                 "user-agent": process.env.USER_AGENT || "ExampleBot/1.0.0"
-                // "cookies": `${baseClass.instanceCookie.formatAll()}`
             }
         });
-        // console.log(this.ws);
 
         this.ws.on('open', this.onOpen.bind(this));
         this.ws.on('message', this.onMessage.bind(this));
@@ -60,25 +57,18 @@ export class WebSocketClient {
             console.log("Unexpected response: ", req);
 
         })
-        this.ws.on("ping", () => {
-            this.lastPingTimestamp = Date.now();
-            // console.log("last ping: ", this.lastPing);
-            // console.log("Current timestamp: ", Date.now());
-            // console.log("Ping interval: ", Date.now() - this.lastPing);
-            
-            
-            
-            console.log('ping' + (this.lastPing ? " ("+(Date.now() - this.lastPing)+"ms interval)" : ""));
-            this.lastPing = Date.now();
-        })
-
+        this.ws.on("ping", this.onPing.bind(this));
+        
         this.baseClass = baseClass;
     }
 
     private onOpen(): void {
         console.log('WebSocket Client Connecting as ' + this.baseClass.username + ' ...');
-        // this.send({ type: 'init' });  // Replace with your initialization message
         this.startHeartbeat();
+
+        // Reset reconnection attempts on a successful connection
+        this.reconnectAttempts = 0;
+        this.reconnecting = false;
     }
 
     private onMessage(data: WebSocket.Data): void {
@@ -198,20 +188,19 @@ export class WebSocketClient {
 
     private onClose(): void {
         console.log('WebSocket Connection Closed');
-        if (!this.badLoginDetected) this.reconnect(); // only if last login were correct, else we stop!
+        if (!this.badLoginDetected && !this.reconnecting) this.reconnect(); // only if last login were correct, else we stop!
     }
 
-    // send(data: object): void {
-    //     this.ws.send(JSON.stringify(data));
-    // }
-
-    /**
-     * 
-     * const messageObject: Record<string, unknown> = JSON.parse(messageString);
-I still get a Unsafe Assigment of an 'any' value error in my ide
-     */
     private reconnect(): void {
+        // Avoid multiple reconnection attempts at the same time
+        if (this.reconnecting) return;
+        this.reconnecting = true;
+        // Exponential backoff for reconnection attempts
+        const reconnectAfterMs = Math.min(10000, (this.reconnectAttempts ** 2) * 1000);
+        console.log(`Reconnecting in ${reconnectAfterMs / 1000} seconds...`);
+
         setTimeout(() => {
+            this.reconnectAttempts++;
             console.log('Reconnecting...');
             this.ws = new WebSocket(`wss://vrchat.com/?authToken=${this.baseClass.instanceCookie.getAuthCookieKey()}`, {
                 headers: {
@@ -223,29 +212,17 @@ I still get a Unsafe Assigment of an 'any' value error in my ide
             this.ws.on('message', this.onMessage.bind(this));
             this.ws.on('error', this.onError.bind(this));
             this.ws.on('close', this.onClose.bind(this));
-            this.ws.on("ping", () => {
-                this.lastPingTimestamp = Date.now();
-                console.log('ping' + (this.lastPing ? " ("+(Date.now() - this.lastPing)+"ms interval)" : ""));
-                this.lastPing = Date.now();
-            })
-        }, 500)
-
+            this.ws.on("ping", this.onPing.bind(this));
+        }, reconnectAfterMs)
     }
 
+    private onPing(): void {
+        this.lastPingTimestamp = Date.now();
+        if (process.env.WEBCLIENT_DEBUG === 'true') console.log('ping' + (this.lastPing ? " (" + (Date.now() - this.lastPing) + "ms interval)" : ""));
+        this.lastPing = Date.now();
+    }
 
     private startHeartbeat(): void {
-        // console.log("started heartbeat");
-
-        // this.heartbeatInterval = setInterval(() => {
-        //     if (!this.pongReceived) {
-        //         if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
-        //         this.ws.close();
-        //     } else {
-        //         this.pongReceived = false;
-        //         this.ws.ping();
-        //     }
-        // }, 25000);  // Send a ping every 25 seconds
-
         this.heartbeatInterval = setInterval(() => {
             if (this.lastPingTimestamp !== null && (Date.now() - this.lastPingTimestamp) > 60000) {
                 // It's been more than 60 seconds since the last ping from the server,
@@ -255,7 +232,7 @@ I still get a Unsafe Assigment of an 'any' value error in my ide
                 }
                 this.ws.close();
             }
-        }, 5000);  // Check the connection every 10 seconds
+        }, 5000);  // Check the connection every 5 seconds
     }
 
     private handleNotification(notification: Notification): void {
@@ -344,88 +321,88 @@ I still get a Unsafe Assigment of an 'any' value error in my ide
         console.log("Group informative: ", notificationv2);
     }
 
-    
+
     private handleUserUpdate(content: UserUpdate) {
         console.log("User update: ", content);
     }
-    
+
     private handleUserLocation(content: UserLocation) {
         console.log("User location: ", content);
     }
-    
+
     private handleFriendOnline(content: FriendOnline) {
         console.log("Friend online: ", content);
     }
-    
+
     private handleFriendActive(content: FriendActive) {
         console.log("Friend active: ", content);
     }
-    
+
     private handleFriendUpdate(content: FriendUpdate) {
         console.log("Friend update: ", content);
     }
-    
+
     private handleFriendLocation(content: FriendLocation) {
         console.log("Friend location: ", content);
     }
-    
+
     private handleFriendOffline(content: FriendOffline) {
         console.log("Friend offline: ", content);
     }
-    
+
     private handleFriendAdd(content: FriendAdd) {
         console.log("Friend add: ", content);
     }
-    
+
     private handleFriendDelete(content: FriendDelete) {
         console.log("Friend delete: ", content);
     }
-    
+
     private handleNotificationV2Update(content: NotificationV2Update) {
         console.log("Notification v2 update: ", content);
     }
-    
+
     private handleNotificationV2Delete(content: NotificationV2Delete) {
         console.log("Notification v2 delete: ", content);
     }
-    
+
     private handleHideNotification(content: HideNotification) {
         console.log("Hide notification: ", content);
     }
-    
+
     private handleResponseNotification(content: ResponseNotification) {
         console.log("Response notification: ", content);
     }
-    
+
     private handleSeeNotification(content: SeeNotification) {
         console.log("See notification: ", content);
     }
-    
+
     private handleClearNotification() {
         console.log("Clear notification");
     }
-    
+
     private handleContentRefresh(content: ContentRefresh) {
         console.log("Content refresh: ", content);
     }
-    
+
     private handleGroupJoin(content: GroupJoined) {
         console.log("Group join: ", content);
-        
+
     }
-    
+
     private handleGroupLeave(content: GroupLeft) {
         console.log("Group leave: ", content);
     }
-    
+
     private handleGroupMemberUpdated(content: GroupMemberUpdated) {
         console.log("Group member updated: ", content);
     }
-    
+
     private handleGroupRoleUpdated(content: GroupRoleUpdated) {
         console.log("Group role updated: ", content);
     }
-    
+
 
     // on(event: VRCAPI.WebSockets.EventType, handlerCallback: (content: unknown) => void) {
     //     this.EventEmitter.on(event, handlerCallback);
