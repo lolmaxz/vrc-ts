@@ -76,7 +76,7 @@ export class TOTPRequired extends Error {
  */
 export class EmailOtpRequired extends Error {
     constructor(message: string) {
-        super(`${C.yellow}[ WARNING ]${C.reset} - Email Otp is Required! - ${message}`); // Pass the message to the Error constructor
+        super(`${C.yellow}[ WARNING ]${C.reset} - Authenfication failed -> Email Otp is Required! - ${message}`); // Pass the message to the Error constructor
     }
 }
 

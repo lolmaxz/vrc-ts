@@ -68,19 +68,25 @@ export class VRChatAPI {
   }
 
   async login() {
-    console.log("Authenticating...");
+    console.log(`Authenticating with username: ${this.username}...`);
 
     if (process.env.USE_COOKIES && process.env.USE_COOKIES === 'true') {
       try {
         await this.instanceCookie.cookiesExist();
         await this.instanceCookie.loadCookies();
         this.cookiesLoaded = true;
+        const validAuth = this.instanceCookie.getAuthCookie();
+        if (!validAuth) {
+          this.cookiesLoaded = false;
+        }
       } catch (error) {
         this.cookiesLoaded = false;
         if (error instanceof CookiesExpired) {
           console.error(`${C.yellow} [WARNING]${C.r} - Cookies are expired, a new session will be created.`);
-        }
-        if (error instanceof CookiesNotFound || error instanceof CookiesUser404) {
+        } else if (error instanceof CookiesNotFound) {
+          this.cookiesLoaded = false;
+        } else if (error instanceof CookiesUser404) {
+          console.warn("Cookies for this user were not found, creating new cookies...");
           this.cookiesLoaded = false;
         } else if (error instanceof Error) {
           console.error("Error loading cookies: ", error.message);
@@ -105,6 +111,8 @@ export class VRChatAPI {
       } else if ('verified' in getCurrentUser && !getCurrentUser.verified) {
         this.isAuthentificated = false;
       } else {
+        console.log("2FA required, attempt to login using 2FA authentication...");
+
         // If we are not logged in then we try to login
         if (getCurrentUser.requiresTwoFactorAuth) {
           if (this.arraysAreEqual(getCurrentUser.requiresTwoFactorAuth, ["emailOtp"])) {
@@ -113,9 +121,14 @@ export class VRChatAPI {
 
             // if after verifying email otp we are verified then we are logged in and we set isAuthentificated to true, otherwise we throw an error
             if (!verify.verified) {
-              // throw new Error("Couldn't get current user!");
-              throw new EmailOtpRequired("Authentication failed! Email Otp authentication didn't work. Check your credentials or code in your .env file.")
+              this.isAuthentificated = false;
+              throw new EmailOtpRequired("\nTIPS: Add/Update your Email code inside the .env file.\nYou might have received the code by Email!")
             }
+
+            // this should always be true normally if authentication with email was successful at this point.
+            if (process.env.EMAIL_2FA_CODE) await this.instanceCookie.setEmailCode(process.env.EMAIL_2FA_CODE)
+            console.log("Email OTP verified! Authentication successful!");
+
 
             this.isAuthentificated = true;
           } else if (this.arraysAreEqual(getCurrentUser.requiresTwoFactorAuth, ["totp", "otp"])) {
@@ -124,8 +137,10 @@ export class VRChatAPI {
 
             // if we can login then we are logged in and we set isAuthentificated to true, otherwise we throw an error
             if (!verify.verified) {
+              this.isAuthentificated = false;
               throw new TOTPRequired("Authentication failed! TOTP authentication didn't work. Check your credentials or your TOTP code/secret in your .env file.")
             }
+            console.log("TOTP verified! Authentication successful!");
             this.isAuthentificated = true;
           }
         }
@@ -138,7 +153,9 @@ export class VRChatAPI {
       }
 
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof EmailOtpRequired || error instanceof TOTPRequired) {
+        console.log(error.message);
+      } else if (error instanceof Error) {
         // check if message is contains 401
         if (error.message.includes("401")) {
           throw new Error("Invalid Username/Email or Password | Missing Credentials");
