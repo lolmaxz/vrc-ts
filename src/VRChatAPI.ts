@@ -126,7 +126,7 @@ export class VRChatAPI {
             }
 
             // this should always be true normally if authentication with email was successful at this point.
-            if (process.env.EMAIL_2FA_CODE) await this.instanceCookie.setEmailCode(process.env.EMAIL_2FA_CODE)
+            if (process.env.EMAIL_2FA_CODE) await this.instanceCookie.addEmailCode();
             console.log("Email OTP verified! Authentication successful!");
 
 
