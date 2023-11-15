@@ -1,38 +1,142 @@
 import WebSocket from 'ws';
 import { VRChatAPI } from '../VRChatAPI';
+import { EventEmitter } from 'events';
+
 
 export enum EventType {
+    /** When a user gets online, undocumented, untested! might be deprecated! */
     User_Online = 'user-online', // ? Unimplemented! Undocumented, untested!
+    /** When a user updated it's information.
+     * - WARNING Implemented by the documentation, untested! Might be deprecated! */
     User_Update = 'user-update', // ! Implemented by the documentation, untested!
-    User_Location = 'user-location', // X
+    /** When a user changes location. This typically only triggers when YOU change worlds, not others. */
+    User_Location = 'user-location',
+    /** When a user gets offline, undocumented, untested! might be deprecated! */
     User_Offline = 'user-offline', // ? Unimplemented! Undocumented, untested!
-    Friend_Online = 'friend-online', // X
-    Friend_Active = 'friend-active', // X
+    /** When a friend gets online. */
+    Friend_Online = 'friend-online',
+    /** When a friend is active. This is usually when they are browsing the website but not online in the game. */
+    Friend_Active = 'friend-active',
+    /** When a friend updated it's information. Implemented by the documentation, untested! Might be deprecated! */
     Friend_Update = 'friend-update', // Can't trigger // ! Implemented by the documentation, untested!
-    Friend_Location = 'friend-location', // X
-    Friend_Offline = 'friend-offline', // X
-    Friend_Add = 'friend-add', // X
-    Friend_Delete = 'friend-delete', // X
-    Notification = 'notification', // X
-    Notification_V2 = 'notification-v2', // X
+    /** When a friend changes location. This is when your friends are online and are changing worlds. */
+    Friend_Location = 'friend-location',
+    /** When a friend gets offline. */
+    Friend_Offline = 'friend-offline',
+    /** When a friend accepts your friend request. */
+    Friend_Add = 'friend-add',
+    /** When a friend removes you from their friends. */
+    Friend_Delete = 'friend-delete',
+    /** When a notification is received. Can be multiple things, friend request and more.*/
+    Notification = 'notification',
+    /** Notification Version 2. Typically only happens when a special type of events happen.
+     * 
+     * Possible events:
+     * - `NotificationV2GroupAnnouncement`
+     *      - A notification that a group has a new announcement.
+     * - `NotificationV2GroupInformative` *(More research needs to be done here)*
+     *     - A notification that a group has a new informative message, can be one of the following:
+     *          - When you are kicked from a group.
+     *          - When you are banned from a group.
+     * - `NotificationV2GroupInvite`
+     *      - A notification that someone from a group invited you to their group.
+     * - `NotificationV2GroupJoinRequest`
+     *      - A notification that someone requested to join your group. Will only show up if you had the manage join request permision in said group.
+     * */
+    Notification_V2 = 'notification-v2',
+    /** Notification Version 2, when a notification object needs to be updated. Implemented by the documentation, untested! Might be deprecated! */
     Notification_V2_Update = 'notification-v2-update', // ! Implemented by the documentation, untested!
-    Notification_V2_Delete = 'notification-v2-delete', // X
+    /** Notification Version 2, when a notification object needs to be deleted. */
+    Notification_V2_Delete = 'notification-v2-delete',
+    /** When a notification is shown, undocumented, untested! might be deprecated! */
     Show_Notification = 'show-notification', // ? Unimplemented! Undocumented, untested!
+    /** When a notification is hidden. Implemented by the documentation, untested! Might be deprecated! */
     Hide_Notification = 'hide-notification', // ! Implemented by the documentation, untested!
+    /** When receiving a notification reponse to another notification. Implemented by the documentation, untested! Might be deprecated! */
     Response_Notification = 'response-notification', // ! Implemented by the documentation, untested!
+    /** When a notification is seen. Implemented by the documentation, untested! Might be deprecated! */
     See_Notification = 'see-notification', // ! Implemented by the documentation, untested!
+    /** When a notification is cleared. Implemented by the documentation, untested! Might be deprecated! */
     Clear_Notification = 'clear-notification', // ! Implemented by the documentation, untested!
-    Content_Refresh = 'content-refresh', // X
+    /** When YOU update information about yourself. Not sure yet what triggers this, more research needs to be done. */
+    Content_Refresh = 'content-refresh',
     // group types (new)
-    Group_Join = 'group-joined', // X
-    Group_Leave = 'group-left', // X
-    Group_Member_Updated = 'group-member-updated', // X
+    /** When a user joins one of your groups. */
+    Group_Join = 'group-joined',
+    /** When a user leaves one of your groups. */
+    Group_Leave = 'group-left',
+    /** When a group member updated any information about them inside a group. */
+    Group_Member_Updated = 'group-member-updated',
+    /** When a group role is updated. Implemented by the documentation, untested! Might be deprecated! */
     Group_Role_Updated = 'group-role-updated', // ! Implemented by the documentation, untested!
-    Error = 'error' // ? Unimplemented! Undocumented, untested!
+    /** When a error happens, undocumented, untested! might be deprecated! */
+    Error = 'error', // ? Unimplemented! Undocumented, untested!
+    // adding special event types that are just type groups for the above
+    /** Listen to all events. */
+    All = 'all',
+    /** Listen to all Friend events. */
+    Friend = 'friend',
+    /** Listen to all User events. */
+    User = 'user',
+    /** Listen to all Group events. */
+    Group = 'group',
+    /** Listen to all Notification V1 events. */
+    Notification_V1_All = 'notification-v1-all',
+    /** Listen to all Notification V2 events. */
+    Notification_V2_All = 'notification-v2-all',
+    /** Listen to all Notification events, both V1 & V2. */
+    Notification_All = 'notification-all',
+    /** When a friend request is received. */
+    Friend_Request = 'friendRequest',
+    /** When a request invite is received. */
+    Request_Invite = 'requestInvite',
+    /** When a invite is received. */
+    Invite = 'invite',
+    /** When a invite response is received. */
+    Invite_Response = 'inviteResponse',
+    /** When a request invite response is received. */
+    Request_Invite_Response = 'requestInviteResponse',
+    /** When a vote to kick is received. */
+    Vote_To_Kick = 'votetokick',
+    /** When a group announcement is received. */
+    Group_Announcement = 'group.announcement',
+    /** When a group invite is received. */
+    Group_Invite = 'group.invite',
+    /** When a group informative is received. */
+    Group_Informative = 'group.informative',
+    /** When a group join request is received. */
+    Group_Join_Request = 'group.joinRequest'
 }
 
-export class WebSocketClient {
-    private ws: WebSocket;
+enum Notification_SubEvent {
+    /** When a friend request is received. */
+    Friend_Request = 'friendRequest',
+    /** When a request invite is received. */
+    Request_Invite = 'requestInvite',
+    /** When a invite is received. */
+    Invite = 'invite',
+    /** When a invite response is received. */
+    Invite_Response = 'inviteResponse',
+    /** When a request invite response is received. */
+    Request_Invite_Response = 'requestInviteResponse',
+    /** When a vote to kick is received. */
+    Vote_To_Kick = 'votetokick'
+}
+
+export type ValidWebSocketEventType = EventType | Notification_SubEvent | NotificationV2TypeEvents;
+
+type WebSocketParameters = {
+    /** The VRChat API instance */
+    vrchatAPI: VRChatAPI;
+    /** An array of events to listen to. If empty or ommited, then it will listen to all events. */
+    eventsToListenTo?: ValidWebSocketEventType[];
+    /** If true, then it will log all events to the console. */
+    logAllEvents?: boolean;
+}
+
+
+export class WebSocketClient extends EventEmitter {
+    public ws: WebSocket;
     private heartbeatInterval: NodeJS.Timeout | null = null;
     public lastPingTimestamp: number | null = null;
     baseClass: VRChatAPI;
@@ -40,13 +144,50 @@ export class WebSocketClient {
     lastPing: number = Date.now();
     private reconnectAttempts = 0;
     private reconnecting = false;
+    private eventsToListenTo: ValidWebSocketEventType[] = [];
+    private logAllEvents= false;
 
-    constructor(baseClass: VRChatAPI) {
-        this.ws = new WebSocket(`wss://vrchat.com/?authToken=${baseClass.instanceCookie.getAuthCookieKey()}`, {
+    /**
+     * 
+     * @param vrchatAPI The VRChat API instance
+     * @param eventsToListenTo An array of events to listen to. If empty or ommited, then it will listen to all events. This will limit the amount of event to emit.
+     * @param logAllEvents If true, then it will log all events to the console.
+     * 
+     * ## Events:
+     * There are sub types as well as normal types if you want a category of events. For example:
+     * - `Notification_V1_All` will listen to all notification v1 events.
+     * - `Notification_V2_All` will listen to all notification v2 events.
+     * - `Notification_All` will listen to all notification events, both v1 & v2.
+     * - `Friend` will listen to all friend events.
+     * - `User` will listen to all user events.
+     * - `Group` will listen to all group events.
+     * - `All` will listen to all events.
+     * 
+     * ### Notification sub events:
+     * - `Friend_Request` will listen to all friend request events.
+     * - `Request_Invite` will listen to all request invite events.
+     * - `Invite` will listen to all invite events.
+     * - `Invite_Response` will listen to all invite response events.
+     * - `Request_Invite_Response` will listen to all request invite response events.
+     * - `Vote_To_Kick` will listen to all vote to kick events.
+     * 
+     * ### Notification V2 sub events:
+     * - `Group_Announcement` will listen to all group announcement events.
+     * - `Group_Informative` will listen to all group informative events.
+     * - `Group_Invite` will listen to all group invite events.
+     * - `Group_Join_Request` will listen to all group join request events.
+     * 
+     * .
+     */
+    constructor ({ vrchatAPI, eventsToListenTo = [], logAllEvents = false }: WebSocketParameters) {
+        super();
+        this.ws = new WebSocket(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
             headers: {
                 "user-agent": process.env.USER_AGENT || "ExampleBot/1.0.0"
             }
         });
+        
+        this.eventsToListenTo = eventsToListenTo;
 
         this.ws.on('open', this.onOpen.bind(this));
         this.ws.on('message', this.onMessage.bind(this));
@@ -58,8 +199,146 @@ export class WebSocketClient {
 
         })
         this.ws.on("ping", this.onPing.bind(this));
-        
-        this.baseClass = baseClass;
+
+        this.baseClass = vrchatAPI;
+        this.logAllEvents = logAllEvents;
+
+        // depending on the event group types, we add all the events of that group to the eventsToListenTo array
+
+        // if we want to listen to all notifications
+        if (this.eventsToListenTo.includes(EventType.Notification_All)) {
+            this.eventsToListenTo.push(EventType.Notification);
+            this.eventsToListenTo.push(EventType.Notification_V2);
+            this.eventsToListenTo.push(EventType.Notification_V2_Update);
+            this.eventsToListenTo.push(EventType.Notification_V2_Delete);
+            this.eventsToListenTo.push(EventType.Hide_Notification);
+            this.eventsToListenTo.push(EventType.Response_Notification);
+            this.eventsToListenTo.push(EventType.See_Notification);
+            this.eventsToListenTo.push(EventType.Clear_Notification);
+        }
+
+        // if we want to listen to all notification v1
+        if (this.eventsToListenTo.includes(EventType.Notification_V1_All)) {
+            this.eventsToListenTo.push(EventType.Notification);
+            this.eventsToListenTo.push(EventType.Hide_Notification);
+            this.eventsToListenTo.push(EventType.Response_Notification);
+            this.eventsToListenTo.push(EventType.See_Notification);
+            this.eventsToListenTo.push(EventType.Clear_Notification);
+        }
+
+        // if we want to listen to all notification v2
+        if (this.eventsToListenTo.includes(EventType.Notification_V2_All)) {
+            this.eventsToListenTo.push(EventType.Notification_V2);
+            this.eventsToListenTo.push(EventType.Notification_V2_Update);
+            this.eventsToListenTo.push(EventType.Notification_V2_Delete);
+
+            // we add the notification sub events
+            this.eventsToListenTo.push(EventType.Group_Announcement);
+            this.eventsToListenTo.push(EventType.Group_Informative);
+            this.eventsToListenTo.push(EventType.Group_Invite);
+            this.eventsToListenTo.push(EventType.Group_Join_Request);
+        }
+
+        // if we want to listen to all users
+        if (this.eventsToListenTo.includes(EventType.User)) {
+            this.eventsToListenTo.push(EventType.User_Online);
+            this.eventsToListenTo.push(EventType.User_Update);
+            this.eventsToListenTo.push(EventType.User_Location);
+            this.eventsToListenTo.push(EventType.User_Offline);
+        }
+
+        // if we want to listen to all friends
+        if (this.eventsToListenTo.includes(EventType.Friend)) {
+            this.eventsToListenTo.push(EventType.Friend_Online);
+            this.eventsToListenTo.push(EventType.Friend_Active);
+            this.eventsToListenTo.push(EventType.Friend_Update);
+            this.eventsToListenTo.push(EventType.Friend_Location);
+            this.eventsToListenTo.push(EventType.Friend_Offline);
+            this.eventsToListenTo.push(EventType.Friend_Add);
+            this.eventsToListenTo.push(EventType.Friend_Delete);
+        }
+
+        // if we want to listen to all groups
+        if (this.eventsToListenTo.includes(EventType.Group)) {
+            this.eventsToListenTo.push(EventType.Group_Join);
+            this.eventsToListenTo.push(EventType.Group_Leave);
+            this.eventsToListenTo.push(EventType.Group_Member_Updated);
+            this.eventsToListenTo.push(EventType.Group_Role_Updated);
+
+            // we add the notification v2 events
+            this.eventsToListenTo.push(EventType.Notification_V2);
+            this.eventsToListenTo.push(EventType.Group_Announcement);
+            this.eventsToListenTo.push(EventType.Group_Informative);
+            this.eventsToListenTo.push(EventType.Group_Invite);
+            this.eventsToListenTo.push(EventType.Group_Join_Request);
+
+        }
+
+        // if we want to listen to all events
+        if (this.eventsToListenTo.includes(EventType.All)) {
+            this.eventsToListenTo.push(EventType.User_Online);
+            this.eventsToListenTo.push(EventType.User_Update);
+            this.eventsToListenTo.push(EventType.User_Location);
+            this.eventsToListenTo.push(EventType.User_Offline);
+            this.eventsToListenTo.push(EventType.Friend_Online);
+            this.eventsToListenTo.push(EventType.Friend_Active);
+            this.eventsToListenTo.push(EventType.Friend_Update);
+            this.eventsToListenTo.push(EventType.Friend_Location);
+            this.eventsToListenTo.push(EventType.Friend_Offline);
+            this.eventsToListenTo.push(EventType.Friend_Add);
+            this.eventsToListenTo.push(EventType.Friend_Delete);
+            this.eventsToListenTo.push(EventType.Notification);
+            this.eventsToListenTo.push(EventType.Notification_V2);
+            this.eventsToListenTo.push(EventType.Notification_V2_Update);
+            this.eventsToListenTo.push(EventType.Notification_V2_Delete);
+            this.eventsToListenTo.push(EventType.Show_Notification);
+            this.eventsToListenTo.push(EventType.Hide_Notification);
+            this.eventsToListenTo.push(EventType.Response_Notification);
+            this.eventsToListenTo.push(EventType.See_Notification);
+            this.eventsToListenTo.push(EventType.Clear_Notification);
+            this.eventsToListenTo.push(EventType.Content_Refresh);
+            this.eventsToListenTo.push(EventType.Group_Join);
+            this.eventsToListenTo.push(EventType.Group_Leave);
+            this.eventsToListenTo.push(EventType.Group_Member_Updated);
+            this.eventsToListenTo.push(EventType.Group_Role_Updated);
+            this.eventsToListenTo.push(EventType.Error);
+
+            // we add the notification sub events
+            this.eventsToListenTo.push(EventType.Friend_Request);
+            this.eventsToListenTo.push(EventType.Request_Invite);
+            this.eventsToListenTo.push(EventType.Invite);
+            this.eventsToListenTo.push(EventType.Invite_Response);
+            this.eventsToListenTo.push(EventType.Request_Invite_Response);
+            this.eventsToListenTo.push(EventType.Vote_To_Kick);
+
+            // we add the notification v2 events
+            this.eventsToListenTo.push(EventType.Group_Announcement);
+            this.eventsToListenTo.push(EventType.Group_Informative);
+            this.eventsToListenTo.push(EventType.Group_Invite);
+            this.eventsToListenTo.push(EventType.Group_Join_Request);
+        }
+
+        // if the user wants to listen to an event that is a sub event of notification, we need to add the notification event to the list
+        if (
+            this.eventsToListenTo.includes(Notification_SubEvent.Friend_Request) ||
+            this.eventsToListenTo.includes(Notification_SubEvent.Invite) ||
+            this.eventsToListenTo.includes(Notification_SubEvent.Invite_Response) ||
+            this.eventsToListenTo.includes(Notification_SubEvent.Request_Invite) ||
+            this.eventsToListenTo.includes(Notification_SubEvent.Request_Invite_Response) ||
+            this.eventsToListenTo.includes(Notification_SubEvent.Vote_To_Kick)
+        ) {
+            this.eventsToListenTo.push(EventType.Notification);
+        }
+
+        // now the same for V2
+        if (
+            this.eventsToListenTo.includes(NotificationV2TypeEvents.Group_Announcement) ||
+            this.eventsToListenTo.includes(NotificationV2TypeEvents.Group_Informative) ||
+            this.eventsToListenTo.includes(NotificationV2TypeEvents.Group_Invite) ||
+            this.eventsToListenTo.includes(NotificationV2TypeEvents.Group_Join_Request)
+        ) {
+            this.eventsToListenTo.push(EventType.Notification_V2);
+        }
     }
 
     private onOpen(): void {
@@ -98,79 +377,106 @@ export class WebSocketClient {
                 return;
             }
 
+            // we make sure we wanted to listen to this event
+            if (this.eventsToListenTo.length > 0 && !this.eventsToListenTo.includes(messageObject.type)) {
+                // console.log("We didn't wanted to listen to this event: ", messageObject.type);
+                return;
+            }
+
             switch (messageObject.type) {
                 case EventType.Notification:
                     this.handleNotification(JSON.parse(messageObject.content) as Notification);
+                    this.emit(EventType.Notification, JSON.parse(messageObject.content) as Notification);
                     break;
                 case EventType.Notification_V2:
                     this.handleNotificationV2(JSON.parse(messageObject.content) as NotificationV2Types);
+                    this.emit(EventType.Notification_V2, JSON.parse(messageObject.content) as NotificationV2Types);
                     break;
                 case EventType.User_Location:
                     this.handleUserLocation(JSON.parse(messageObject.content) as UserLocation);
+                    this.emit(EventType.User_Location, JSON.parse(messageObject.content) as UserLocation);
                     break;
                 case EventType.User_Update:
                     this.handleUserUpdate(JSON.parse(messageObject.content) as UserUpdate);
+                    this.emit(EventType.User_Update, JSON.parse(messageObject.content) as UserUpdate);
                     break;
                 case EventType.Friend_Online:
                     this.handleFriendOnline(JSON.parse(messageObject.content) as FriendOnline);
+                    this.emit(EventType.Friend_Online, JSON.parse(messageObject.content) as FriendOnline);
                     break;
                 case EventType.Friend_Active:
                     this.handleFriendActive(JSON.parse(messageObject.content) as FriendActive);
+                    this.emit(EventType.Friend_Active, JSON.parse(messageObject.content) as FriendActive);
                     break;
                 case EventType.Friend_Update:
                     this.handleFriendUpdate(JSON.parse(messageObject.content) as FriendUpdate);
+                    this.emit(EventType.Friend_Update, JSON.parse(messageObject.content) as FriendUpdate);
                     break;
                 case EventType.Friend_Location:
                     this.handleFriendLocation(JSON.parse(messageObject.content) as FriendLocation);
+                    this.emit(EventType.Friend_Location, JSON.parse(messageObject.content) as FriendLocation);
                     break;
                 case EventType.Friend_Offline:
                     this.handleFriendOffline(JSON.parse(messageObject.content) as FriendOffline);
+                    this.emit(EventType.Friend_Offline, JSON.parse(messageObject.content) as FriendOffline);
                     break;
                 case EventType.Friend_Add:
                     this.handleFriendAdd(JSON.parse(messageObject.content) as FriendAdd);
+                    this.emit(EventType.Friend_Add, JSON.parse(messageObject.content) as FriendAdd);
                     break;
                 case EventType.Friend_Delete:
                     this.handleFriendDelete(JSON.parse(messageObject.content) as FriendDelete);
+                    this.emit(EventType.Friend_Delete, JSON.parse(messageObject.content) as FriendDelete);
                     break;
                 case EventType.Notification_V2_Update:
                     this.handleNotificationV2Update(JSON.parse(messageObject.content) as NotificationV2Update);
+                    this.emit(EventType.Notification_V2_Update, JSON.parse(messageObject.content) as NotificationV2Update);
                     break;
                 case EventType.Notification_V2_Delete:
                     this.handleNotificationV2Delete(JSON.parse(messageObject.content) as NotificationV2Delete);
+                    this.emit(EventType.Notification_V2_Delete, JSON.parse(messageObject.content) as NotificationV2Delete);
                     break;
                 case EventType.Hide_Notification:
-                    this.handleHideNotification(JSON.parse(messageObject.content) as HideNotification);
+                    this.handleHideNotification({notificationId: messageObject.content} as HideNotification);
+                    this.emit(EventType.Hide_Notification, {notificationId: messageObject.content} as HideNotification);
                     break;
                 case EventType.Response_Notification:
                     this.handleResponseNotification(JSON.parse(messageObject.content) as ResponseNotification);
+                    this.emit(EventType.Response_Notification, JSON.parse(messageObject.content) as ResponseNotification);
                     break;
                 case EventType.See_Notification:
-                    this.handleSeeNotification(JSON.parse(messageObject.content) as SeeNotification);
+                    this.handleSeeNotification({notificationId: messageObject.content} as SeeNotification);
+                    this.emit(EventType.See_Notification, {notificationId: messageObject.content} as SeeNotification);
                     break;
                 case EventType.Clear_Notification:
                     this.handleClearNotification();
+                    this.emit(EventType.Clear_Notification);
                     break;
                 case EventType.Content_Refresh:
                     this.handleContentRefresh(JSON.parse(messageObject.content) as ContentRefresh);
+                    this.emit(EventType.Content_Refresh, JSON.parse(messageObject.content) as ContentRefresh);
                     break;
                 case EventType.Group_Join:
                     this.handleGroupJoin(JSON.parse(messageObject.content) as GroupJoined);
+                    this.emit(EventType.Group_Join, JSON.parse(messageObject.content) as GroupJoined);
                     break;
                 case EventType.Group_Leave:
                     this.handleGroupLeave(JSON.parse(messageObject.content) as GroupLeft);
+                    this.emit(EventType.Group_Leave, JSON.parse(messageObject.content) as GroupLeft);
                     break;
                 case EventType.Group_Member_Updated:
                     this.handleGroupMemberUpdated(JSON.parse(messageObject.content) as GroupMemberUpdated);
+                    this.emit(EventType.Group_Member_Updated, JSON.parse(messageObject.content) as GroupMemberUpdated);
                     break;
                 case EventType.Group_Role_Updated:
                     this.handleGroupRoleUpdated(JSON.parse(messageObject.content) as GroupRoleUpdated);
+                    this.emit(EventType.Group_Role_Updated, JSON.parse(messageObject.content) as GroupRoleUpdated);
                     break;
                 default:
                     console.warn(`Unhandled message type: `, messageObject);
+                    this.emit(EventType.Error, messageObject);
                     break;
             }
-
-            // ... other message handling code ...
         } catch (error) {
             console.error(`Failed to parse message: `, error);
         }
@@ -205,7 +511,6 @@ export class WebSocketClient {
             this.ws = new WebSocket(`wss://vrchat.com/?authToken=${this.baseClass.instanceCookie.getAuthCookieKey()}`, {
                 headers: {
                     "user-agent": process.env.USER_AGENT || "ExampleBot/1.0.0",
-                    // "cookies": `${this.baseClass.instanceCookie.formatAll()}`
                 }
             });
             this.ws.on('open', this.onOpen.bind(this));
@@ -236,73 +541,90 @@ export class WebSocketClient {
     }
 
     private handleNotification(notification: Notification): void {
-        const notificationType = notification.type;
+        const notificationType = notification.type as string as Notification_SubEvent;
+        // we make sure we want to listen to that event
+        if (this.eventsToListenTo.length > 0 && !this.eventsToListenTo.includes(notificationType)) {
+            // console.log("We didn't wanted to listen to this event: ", notificationType);
+            return;
+        }
+
+        this.emit(notificationType, notification);
+
 
         switch (notificationType) {
-            case 'friendRequest':
+            case Notification_SubEvent.Friend_Request:
                 this.handleFriendRequest(notification);
                 break;
-            case 'requestInvite':
+            case Notification_SubEvent.Request_Invite:
                 this.handleRequestInvite(notification);
                 break;
-            case 'invite':
+            case Notification_SubEvent.Invite:
                 this.handleInviteNotification(notification);
                 break;
-            case 'inviteResponse':
+            case Notification_SubEvent.Invite_Response:
                 this.handleInviteReponse(notification);
                 break;
-            case 'requestInviteResponse':
+            case Notification_SubEvent.Request_Invite_Response:
                 this.handleRequestInviteResponse(notification);
                 break;
-            case 'votetokick':
+            case Notification_SubEvent.Vote_To_Kick:
                 this.handleVoteToKick(notification);
                 break;
             default:
-                console.warn(`Unhandled notification type: ${notificationType}`);
+                console.warn(`Unhandled notification type: ${notification.type}`);
         }
     }
 
     private handleVoteToKick(notification: Notification) {
-        console.log("Vote to kick: ", notification);
+        if (this.logAllEvents) console.log("Vote to kick: ", notification);
 
     }
 
     private handleRequestInviteResponse(notification: Notification) {
-        console.log("Request invite response: ", notification);
+        if (this.logAllEvents) console.log("Request invite response: ", notification);
 
     }
 
     private handleInviteReponse(notification: Notification) {
-        console.log("Invite response: ", notification);
+        if (this.logAllEvents) console.log("Invite response: ", notification);
     }
 
     private handleInviteNotification(notification: Notification) {
-        console.log("Invite: ", notification);
+        if (this.logAllEvents) console.log("Invite: ", notification);
     }
 
-    private handleFriendRequest(notification: object): void {
-        // ... handle friend request ...
-        console.log("Friend request: ", notification);
-
+    private handleFriendRequest(notification: Notification): void {
+        if (this.logAllEvents) console.log("Friend request: ", notification);
     }
 
-    private handleRequestInvite(notification: object): void {
-        // ... handle request invite ...
-        console.log("Request invite: ", notification);
+    private handleRequestInvite(notification: Notification): void {
+        if (this.logAllEvents) console.log("Request invite: ", notification);
     }
 
     private handleNotificationV2(notificationv2: NotificationV2Types) {
         const notificationType = notificationv2.type;
+        // we make sure we want to listen to that event
+        if (this.eventsToListenTo.length > 0 && !this.eventsToListenTo.includes(notificationType)) {
+            // console.log("We didn't wanted to listen to this event: ", notificationType);
+            return;
+        }
 
         switch (notificationType) {
-            case notificationV2TypeEnum.Group_Announcement:
+            case NotificationV2TypeEvents.Group_Announcement:
                 this.handleGroupAnnouncement(notificationv2 as NotificationV2GroupAnnouncement);
+                this.emit(notificationType, notificationv2 as NotificationV2GroupAnnouncement);
                 break;
-            case notificationV2TypeEnum.Group_Invite:
+            case NotificationV2TypeEvents.Group_Invite:
                 this.handleGroupInvite(notificationv2 as NotificationV2GroupInvite);
+                this.emit(notificationType, notificationv2 as NotificationV2GroupInvite);
                 break;
-            case notificationV2TypeEnum.Group_Informative:
+            case NotificationV2TypeEvents.Group_Informative:
                 this.handleGroupInformative(notificationv2 as NotificationV2GroupInformative);
+                this.emit(notificationType, notificationv2 as NotificationV2GroupInformative);
+                break;
+            case NotificationV2TypeEvents.Group_Join_Request:
+                this.handleGroupJoinRequest(notificationv2 as NotificationV2GroupJoinRequest);
+                this.emit(notificationType, notificationv2 as NotificationV2GroupJoinRequest);
                 break;
             default:
                 console.warn(`Unhandled notification type: ${notificationv2.type}`);
@@ -310,104 +632,101 @@ export class WebSocketClient {
     }
 
     private handleGroupAnnouncement(notificationv2: NotificationV2GroupAnnouncement) {
-        console.log("Group announcement: ", notificationv2);
+        if (this.logAllEvents) console.log("Group announcement: ", notificationv2);
     }
 
     private handleGroupInvite(notificationv2: NotificationV2GroupInvite) {
-        console.log("Group invite: ", notificationv2);
+        if (this.logAllEvents) console.log("Group invite: ", notificationv2);
     }
 
     private handleGroupInformative(notificationv2: NotificationV2GroupInformative) {
-        console.log("Group informative: ", notificationv2);
+        if (this.logAllEvents) console.log("Group informative: ", notificationv2);
     }
 
+    private handleGroupJoinRequest(notificationv2: NotificationV2GroupJoinRequest) {
+        if (this.logAllEvents) console.log("Group join request: ", notificationv2);
+    }
 
     private handleUserUpdate(content: UserUpdate) {
-        console.log("User update: ", content);
+        if (this.logAllEvents) console.log("User update: ", content);
     }
 
     private handleUserLocation(content: UserLocation) {
-        console.log("User location: ", content);
+        if (this.logAllEvents) console.log("User location: ", content);
     }
 
     private handleFriendOnline(content: FriendOnline) {
-        console.log("Friend online: ", content);
+        if (this.logAllEvents) console.log("Friend online: ", content);
     }
 
     private handleFriendActive(content: FriendActive) {
-        console.log("Friend active: ", content);
+        if (this.logAllEvents) console.log("Friend active: ", content);
     }
 
     private handleFriendUpdate(content: FriendUpdate) {
-        console.log("Friend update: ", content);
+        if (this.logAllEvents) console.log("Friend update: ", content);
     }
 
     private handleFriendLocation(content: FriendLocation) {
-        console.log("Friend location: ", content);
+        if (this.logAllEvents) console.log("Friend location: ", content);
     }
 
     private handleFriendOffline(content: FriendOffline) {
-        console.log("Friend offline: ", content);
+        if (this.logAllEvents) console.log("Friend offline: ", content);
     }
 
     private handleFriendAdd(content: FriendAdd) {
-        console.log("Friend add: ", content);
+        if (this.logAllEvents) console.log("Friend add: ", content);
     }
 
     private handleFriendDelete(content: FriendDelete) {
-        console.log("Friend delete: ", content);
+        if (this.logAllEvents) console.log("Friend delete: ", content);
     }
 
     private handleNotificationV2Update(content: NotificationV2Update) {
-        console.log("Notification v2 update: ", content);
+        if (this.logAllEvents) console.log("Notification v2 update: ", content);
     }
 
     private handleNotificationV2Delete(content: NotificationV2Delete) {
-        console.log("Notification v2 delete: ", content);
+        if (this.logAllEvents) console.log("Notification v2 delete: ", content);
     }
 
     private handleHideNotification(content: HideNotification) {
-        console.log("Hide notification: ", content);
+        if (this.logAllEvents) console.log("Hide notification: ", content);
     }
 
     private handleResponseNotification(content: ResponseNotification) {
-        console.log("Response notification: ", content);
+        if (this.logAllEvents) console.log("Response notification: ", content);
     }
 
     private handleSeeNotification(content: SeeNotification) {
-        console.log("See notification: ", content);
+        if (this.logAllEvents) console.log("See notification: ", content);
     }
 
     private handleClearNotification() {
-        console.log("Clear notification");
+        if (this.logAllEvents) console.log("Clear notification");
     }
 
     private handleContentRefresh(content: ContentRefresh) {
-        console.log("Content refresh: ", content);
+        if (this.logAllEvents) console.log("Content refresh: ", content);
     }
 
     private handleGroupJoin(content: GroupJoined) {
-        console.log("Group join: ", content);
+        if (this.logAllEvents) console.log("Group join: ", content);
 
     }
 
     private handleGroupLeave(content: GroupLeft) {
-        console.log("Group leave: ", content);
+        if (this.logAllEvents) console.log("Group leave: ", content);
     }
 
     private handleGroupMemberUpdated(content: GroupMemberUpdated) {
-        console.log("Group member updated: ", content);
+        if (this.logAllEvents) console.log("Group member updated: ", content);
     }
 
     private handleGroupRoleUpdated(content: GroupRoleUpdated) {
-        console.log("Group role updated: ", content);
+        if (this.logAllEvents) console.log("Group role updated: ", content);
     }
-
-
-    // on(event: VRCAPI.WebSockets.EventType, handlerCallback: (content: unknown) => void) {
-    //     this.EventEmitter.on(event, handlerCallback);
-    // }
-
 }
 
 type AllWebSocketEventsTypes =
@@ -443,7 +762,7 @@ type WebSocketError = {
 }
 
 
-enum notificationV2TypeEnum {
+enum NotificationV2TypeEvents {
     Group_Announcement = 'group.announcement',
     Group_Invite = 'group.invite',
     Group_Informative = 'group.informative',
@@ -528,7 +847,7 @@ type NotificationV2ResponseType = {
 type BaseNotificationV2 = {
     id: string;
     version: 2;
-    type: notificationV2TypeEnum;
+    type: NotificationV2TypeEvents;
     category?: CategoryV2Enum;
     isSystem: boolean;
     ignoreDND: boolean;
@@ -718,7 +1037,7 @@ type FriendAddType = {
 
 export type FriendAdd = {
     userId: string;
-    user: VRCAPI.Users.Models.User;
+    user: VRCAPI.Users.Models.UserBase;
 };
 
 type FriendDeleteType = {

@@ -1,9 +1,9 @@
 import { VRChatAPI } from "./VRChatAPI";
 import dotenv from "dotenv";
-import { WebSocketClient } from "./requests/WebSocketApi";
+import { EventType, WebSocketClient, friendRequestNotification } from "./requests/WebSocketApi";
 dotenv.config();
 
-// use an async main function
+// This is an example file to show how to use the API.
 async function main() {
 
   const vrchat = new VRChatAPI();
@@ -13,7 +13,12 @@ async function main() {
   const currentUser = await vrchat.authApi.getCurrentUser();
   console.log("Current user: ", currentUser);
 
-  new WebSocketClient(vrchat);
+  const websocket = new WebSocketClient({vrchatAPI: vrchat, eventsToListenTo: [EventType.All], logAllEvents: true});
+
+
+  websocket.on(EventType.Friend_Request, (eventData: friendRequestNotification) => {
+    console.log("A friend request was received by: " + eventData.senderUsername + " details: ", eventData.details);
+  });
 }
 
 main().then(() => {
