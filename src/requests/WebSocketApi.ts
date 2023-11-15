@@ -118,7 +118,7 @@ type WebSocketParameters = {
 }
 
 export class WebSocketClient extends EventEmitter {
-    public ws: WebSocket;
+    private ws: WebSocket;
     private heartbeatInterval: NodeJS.Timeout | null = null;
     public lastPingTimestamp: number | null = null;
     baseClass: VRChatAPI;
