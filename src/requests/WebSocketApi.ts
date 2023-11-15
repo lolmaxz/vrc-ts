@@ -108,32 +108,14 @@ export enum EventType {
     Group_Join_Request = 'group.joinRequest'
 }
 
-enum Notification_SubEvent {
-    /** When a friend request is received. */
-    Friend_Request = 'friendRequest',
-    /** When a request invite is received. */
-    Request_Invite = 'requestInvite',
-    /** When a invite is received. */
-    Invite = 'invite',
-    /** When a invite response is received. */
-    Invite_Response = 'inviteResponse',
-    /** When a request invite response is received. */
-    Request_Invite_Response = 'requestInviteResponse',
-    /** When a vote to kick is received. */
-    Vote_To_Kick = 'votetokick'
-}
-
-export type ValidWebSocketEventType = EventType | Notification_SubEvent | NotificationV2TypeEvents;
-
 type WebSocketParameters = {
     /** The VRChat API instance */
     vrchatAPI: VRChatAPI;
     /** An array of events to listen to. If empty or ommited, then it will listen to all events. */
-    eventsToListenTo?: ValidWebSocketEventType[];
+    eventsToListenTo?: EventType[];
     /** If true, then it will log all events to the console. */
     logAllEvents?: boolean;
 }
-
 
 export class WebSocketClient extends EventEmitter {
     public ws: WebSocket;
@@ -144,7 +126,7 @@ export class WebSocketClient extends EventEmitter {
     lastPing: number = Date.now();
     private reconnectAttempts = 0;
     private reconnecting = false;
-    private eventsToListenTo: ValidWebSocketEventType[] = [];
+    private eventsToListenTo: EventType[] = [];
     private logAllEvents= false;
 
     /**
@@ -224,6 +206,14 @@ export class WebSocketClient extends EventEmitter {
             this.eventsToListenTo.push(EventType.Response_Notification);
             this.eventsToListenTo.push(EventType.See_Notification);
             this.eventsToListenTo.push(EventType.Clear_Notification);
+
+            // we add the notification sub events
+            this.eventsToListenTo.push(EventType.Friend_Request);
+            this.eventsToListenTo.push(EventType.Request_Invite);
+            this.eventsToListenTo.push(EventType.Invite);
+            this.eventsToListenTo.push(EventType.Invite_Response);
+            this.eventsToListenTo.push(EventType.Request_Invite_Response);
+            this.eventsToListenTo.push(EventType.Vote_To_Kick);
         }
 
         // if we want to listen to all notification v2
@@ -271,7 +261,6 @@ export class WebSocketClient extends EventEmitter {
             this.eventsToListenTo.push(EventType.Group_Informative);
             this.eventsToListenTo.push(EventType.Group_Invite);
             this.eventsToListenTo.push(EventType.Group_Join_Request);
-
         }
 
         // if we want to listen to all events
@@ -320,22 +309,22 @@ export class WebSocketClient extends EventEmitter {
 
         // if the user wants to listen to an event that is a sub event of notification, we need to add the notification event to the list
         if (
-            this.eventsToListenTo.includes(Notification_SubEvent.Friend_Request) ||
-            this.eventsToListenTo.includes(Notification_SubEvent.Invite) ||
-            this.eventsToListenTo.includes(Notification_SubEvent.Invite_Response) ||
-            this.eventsToListenTo.includes(Notification_SubEvent.Request_Invite) ||
-            this.eventsToListenTo.includes(Notification_SubEvent.Request_Invite_Response) ||
-            this.eventsToListenTo.includes(Notification_SubEvent.Vote_To_Kick)
+            this.eventsToListenTo.includes(EventType.Friend_Request) ||
+            this.eventsToListenTo.includes(EventType.Invite) ||
+            this.eventsToListenTo.includes(EventType.Invite_Response) ||
+            this.eventsToListenTo.includes(EventType.Request_Invite) ||
+            this.eventsToListenTo.includes(EventType.Request_Invite_Response) ||
+            this.eventsToListenTo.includes(EventType.Vote_To_Kick)
         ) {
             this.eventsToListenTo.push(EventType.Notification);
         }
 
         // now the same for V2
         if (
-            this.eventsToListenTo.includes(NotificationV2TypeEvents.Group_Announcement) ||
-            this.eventsToListenTo.includes(NotificationV2TypeEvents.Group_Informative) ||
-            this.eventsToListenTo.includes(NotificationV2TypeEvents.Group_Invite) ||
-            this.eventsToListenTo.includes(NotificationV2TypeEvents.Group_Join_Request)
+            this.eventsToListenTo.includes(EventType.Group_Announcement) ||
+            this.eventsToListenTo.includes(EventType.Group_Informative) ||
+            this.eventsToListenTo.includes(EventType.Group_Invite) ||
+            this.eventsToListenTo.includes(EventType.Group_Join_Request)
         ) {
             this.eventsToListenTo.push(EventType.Notification_V2);
         }
@@ -541,7 +530,7 @@ export class WebSocketClient extends EventEmitter {
     }
 
     private handleNotification(notification: Notification): void {
-        const notificationType = notification.type as string as Notification_SubEvent;
+        const notificationType = notification.type as string as EventType;
         // we make sure we want to listen to that event
         if (this.eventsToListenTo.length > 0 && !this.eventsToListenTo.includes(notificationType)) {
             // console.log("We didn't wanted to listen to this event: ", notificationType);
@@ -552,22 +541,22 @@ export class WebSocketClient extends EventEmitter {
 
 
         switch (notificationType) {
-            case Notification_SubEvent.Friend_Request:
+            case EventType.Friend_Request:
                 this.handleFriendRequest(notification);
                 break;
-            case Notification_SubEvent.Request_Invite:
+            case EventType.Request_Invite:
                 this.handleRequestInvite(notification);
                 break;
-            case Notification_SubEvent.Invite:
+            case EventType.Invite:
                 this.handleInviteNotification(notification);
                 break;
-            case Notification_SubEvent.Invite_Response:
+            case EventType.Invite_Response:
                 this.handleInviteReponse(notification);
                 break;
-            case Notification_SubEvent.Request_Invite_Response:
+            case EventType.Request_Invite_Response:
                 this.handleRequestInviteResponse(notification);
                 break;
-            case Notification_SubEvent.Vote_To_Kick:
+            case EventType.Vote_To_Kick:
                 this.handleVoteToKick(notification);
                 break;
             default:
@@ -602,7 +591,7 @@ export class WebSocketClient extends EventEmitter {
     }
 
     private handleNotificationV2(notificationv2: NotificationV2Types) {
-        const notificationType = notificationv2.type;
+        const notificationType = notificationv2.type as string as EventType;
         // we make sure we want to listen to that event
         if (this.eventsToListenTo.length > 0 && !this.eventsToListenTo.includes(notificationType)) {
             // console.log("We didn't wanted to listen to this event: ", notificationType);
@@ -610,19 +599,19 @@ export class WebSocketClient extends EventEmitter {
         }
 
         switch (notificationType) {
-            case NotificationV2TypeEvents.Group_Announcement:
+            case EventType.Group_Announcement:
                 this.handleGroupAnnouncement(notificationv2 as NotificationV2GroupAnnouncement);
                 this.emit(notificationType, notificationv2 as NotificationV2GroupAnnouncement);
                 break;
-            case NotificationV2TypeEvents.Group_Invite:
+            case EventType.Group_Invite:
                 this.handleGroupInvite(notificationv2 as NotificationV2GroupInvite);
                 this.emit(notificationType, notificationv2 as NotificationV2GroupInvite);
                 break;
-            case NotificationV2TypeEvents.Group_Informative:
+            case EventType.Group_Informative:
                 this.handleGroupInformative(notificationv2 as NotificationV2GroupInformative);
                 this.emit(notificationType, notificationv2 as NotificationV2GroupInformative);
                 break;
-            case NotificationV2TypeEvents.Group_Join_Request:
+            case EventType.Group_Join_Request:
                 this.handleGroupJoinRequest(notificationv2 as NotificationV2GroupJoinRequest);
                 this.emit(notificationType, notificationv2 as NotificationV2GroupJoinRequest);
                 break;
