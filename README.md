@@ -11,6 +11,7 @@ A TypeScript wrapper for the VRChat API, simplifying the process of interacting 
 - [Authenticating](#authenticating)
 - [Notes](#notes)
 - [Endpoints Supported](#endpoints)
+- [WebSocket Support](#websocket)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -167,6 +168,50 @@ Here is the full list of endpoints by category that this wrapper does implements
 - `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
 
 ! Marks of an asterics are either not yet implemented or yet to be added. Progress is going fast, come back to see the update.
+
+
+## WebSocket
+
+This code also supports connecting to VRChat's Websocket service and be able to listen to any events in real time. It has a connection auto renewal, if the connection is lost, it will automatically create a new connection.
+
+To be able to use the WebSocket, you can simply do as follow:
+```typescript
+import VRChatAPI from 'vrchat-wrapper-ts';
+import { WebSocketClient } from "./requests/WebSocketApi";
+
+const api = new VRChatAPI();
+
+new WebSocketClient({vrchatAPI: api});
+```
+
+The system ensure you've given the instance of `api` as a parameter so it knows which username and password to use to connect to the websocket.
+
+You also need to have a valid authToken saved from authenticating with the API first before the WebSocket is functional.
+
+### Extra Websocket
+
+To ensure that not all events are always firing, you can specify to the WebSocket constructor which events you actually want to listen to and then redefine the behavior of that event.
+
+Here is an example if we only wanted to listen to incoming __friend request__:
+```typescript
+import VRChatAPI from 'vrchat-wrapper-ts';
+import { EventType, WebSocketClient, friendRequestNotification } from "./requests/WebSocketApi";
+
+const api = new VRChatAPI();
+
+const websocket = new WebSocketClient({vrchatAPI: api, eventsToListenTo: [EventType.All]});
+
+websocket.on(EventType.Friend_Request, (eventData: friendRequestNotification) => {
+    console.log("A friend request was received by: " + eventData.senderUsername);
+  });
+```
+
+> This will print out `A friend request was received by: [USERNAME OF THE SENDER]` anytime a friend request is received.
+
+**EventType** can be multiple events, ranging from notification types to friend information changing, invite detection and way more. Optionally, you can also set another parameter `logAllEvents` to true if you want the console to log any events you are listening to currently when they happen.
+
+__Here is the current list of supported events:__
+- `User_Online`, `User_Update`, `User_Location`, `User_Offline`, `Friend_Online`, `Friend_Active`, `Friend_Update`, `Friend_Location`, `Friend_Offline`, `Friend_Add`, `Friend_Delete`, `Notification`, `Notification_V2`, `Notification_V2_Update`, `Notification_V2_Delete`, `Show_Notification`, `Hide_Notification`, `Response_Notification`, `See_Notification`, `Clear_Notification`, `Content_Refresh`, `Group_Join`, `Group_Leave`, `Group_Member_Updated`, `Group_Role_Updated`, `Error`, `All`, `Friend`, `User`, `Group`, `Notification_V1_All`, `Notification_V2_All`, `Notification_All`, `Friend_Request`, `Request_Invite`, `Invite`, `Invite_Response`, `Request_Invite_Response`, `Vote_To_Kick`, `Group_Announcement`, `Group_Invite`, `Group_Informative`, `Group_Join_Request`
 
 ## Contributing
 
