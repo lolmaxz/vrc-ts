@@ -4,20 +4,21 @@ declare namespace VRCAPI {
     namespace Models {
       /** The CurrentUserPresence object containing detailed information about the currently logged in user's presence. */
       type CurrentUserPresence = {
-        userIcon?: string;
         id?: string;
-        status?: string;
-        world?: string;
-        profilePicOverride?: string;
-        travelingToWorld?: string;
-        platform?: string;
-        instance?: string;
-        currentAvatarTags?: string[];
-        avatarThumbnail?: string;
-        instanceType?: string;
         displayName?: string;
-        groups?: string[];
+        instance?: string;
+        userIcon?: string;
         travelingToInstance?: string;
+        avatarThumbnail?: string;
+        world?: string;
+        currentAvatarTags?: string[];
+        groups?: string[];
+        travelingToWorld?: string;
+        instanceType?: string;
+        status?: string;
+        debugflag?: string; // todo new undocumented attribute !
+        profilePicOverride?: string;
+        platform?: string;
         isRejoining?: string; // todo ? is documented but doesn't get sent anymore
       };
 
@@ -59,6 +60,8 @@ declare namespace VRCAPI {
         googleId?: string; // todo new undocumented
         steamDetails: object; // todo unknown yet, to research more
         oculusId?: string;
+        picoId?: string; // todo new undocumented attribute !
+        viveId?: string; // todo new undocumented attribute !
         hasLoggedInFromClient: boolean;
         homeLocation: string;
         twoFactorAuthEnabled: boolean;
@@ -138,22 +141,45 @@ declare namespace VRCAPI {
 
       /** LimitedUser is a subset of the User object, containing only the fields that are returned by the /users/ endpoint. */
       type LimitedUser = {
+        id: string;
+        displayName: string;
         bio?: string;
+        bioLinks?: string[]; // todo new field undocumented!
         currentAvatarImageUrl: string;
         currentAvatarThumbnailImageUrl: string;
-        developerType: DeveloperType;
-        displayName: string;
-        fallbackAvatar?: string;
-        id: string;
-        isFriend: boolean;
-        last_platform: string;
+        currentAvatarTags: string[]; // todo new undocumented
+        userIcon: string;
         profilePicOverride: string;
+        statusDescription: string;
+        status: UserStatus;
+        last_platform: string;
+        isFriend: boolean;
+        tags: string[];
+        fallbackAvatar?: string;
+        developerType: DeveloperType;
+      };
+
+      type LimitedUserFriend = {
+        id: string;
+        displayName: string;
+        bio?: string;
+        bioLinks?: string[]; // todo new field undocumented!
+        developerType: DeveloperType;
+        currentAvatarImageUrl: string;
+        currentAvatarThumbnailImageUrl: string;
+        currentAvatarTags: string[]; // todo new undocumented
+        userIcon: string;
+        profilePicOverride: string;
+        imageUrl: string; // todo undocumented
+        last_login: string; // todo undocumented
         status: UserStatus;
         statusDescription: string;
-        tags: string[];
-        userIcon: string;
+        last_platform: string;
+        //! fallbackAvatar?: string; This was removed from friend listing
         location?: string;
+        tags: string[];
         friendKey?: string;
+        isFriend: boolean;
       };
 
       /** Base User type for the websocket when identifying a user object */

@@ -18,7 +18,11 @@ declare namespace VRCAPI {
                 version: number; // Min 0, Default: 0
                 organization: string; // Min 1 chars, Default: vrchat
                 previewYoutubeId?: string | null;
-                udonProducts: []; // todo undocumented!
+                /** Product being sold in this world
+                 * 
+                 * Format: prod_d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4
+                 */
+                udonProducts: string[]; // todo undocumented! UDPATE, is a list of product being sold in this world
                 favorites?: number; // Min 0, Default: 0
                 visits: number; // Min 0, Default: 0
                 popularity: number; // Min 0, Default: 0
