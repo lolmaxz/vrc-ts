@@ -11,7 +11,8 @@ declare namespace VRCAPI {
              * This model is primarily used by the /auth/exists endpoint, which in turn is used during registration. 
              */
             type checkUserExistResponse = {
-                userExists: boolean
+                userExists: boolean,
+                nameOk: boolean,
             }
             type verify2FATOTPResponse = {
                 verified: boolean;

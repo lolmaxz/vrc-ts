@@ -111,7 +111,9 @@ declare namespace VRCAPI {
       | 'shortName'
       | 'permissionId'
       | 'playerModerationId'
-      | 'username';
+      | 'username'
+      | 'productId'
+      | 'licenseId';
 
     type subSectionType = {
       path: string;
@@ -161,6 +163,14 @@ declare namespace VRCAPI {
         getCurrentSubscriptions: subSectionType;
         listSubscriptions: subSectionType;
         getLicenseGroup: subSectionType;
+        getProductListing: subSectionType;
+        getOwnSubscription: subSectionType;
+        getTiliaTOS: subSectionType;
+        geOwnPurchases: subSectionType;
+        getOwnTransactions: subSectionType;
+        getTiliaSyncData: subSectionType;
+        getBalance: subSectionType;
+        getLicenses: subSectionType;
       };
       favorites: {
         listFavorites: subSectionType;
@@ -329,7 +339,16 @@ declare namespace VRCAPI {
       | VRCAPI.PlayerModerations.Requests.dataKeysUnModerateUser
       | VRCAPI.Users.Requests.dataKeysUpdateUser
       | VRCAPI.Worlds.Requests.dataKeysCreateWorld
-      | VRCAPI.Worlds.Requests.dataKeysUpdateWorld;
+      | VRCAPI.Worlds.Requests.dataKeysUpdateWorld
+      
+      | VRCAPI.Economy.Requests.GetSteamTransactionRequest
+      | VRCAPI.Economy.Requests.GetLicenseGroupRequest
+      | VRCAPI.Economy.Requests.GetProductListingRequest
+      | VRCAPI.Economy.Requests.GetOwnPurchasesRequest
+      | VRCAPI.Economy.Requests.GetOwnTransactionsRequest
+      | VRCAPI.Economy.Requests.GetTiliaTOSRequest
+      | VRCAPI.Economy.Requests.GetUserBalanceRequest
+      | VRCAPI.Economy.Requests.GetLicenseRequest;
 
     type dataKeys2Fa = {
       code: string;

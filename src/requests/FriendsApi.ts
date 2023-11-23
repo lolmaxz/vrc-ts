@@ -20,7 +20,7 @@ export class FriendsApi extends BaseApi {
         n,
         offset,
         offline = false,
-    }: VRCAPI.Friends.Requests.ListFriendsRequest): Promise<VRCAPI.Users.Models.LimitedUser[]> {
+    }: VRCAPI.Friends.Requests.ListFriendsRequest): Promise<VRCAPI.Users.Models.LimitedUserFriend[]> {
 
         const parameters: URLSearchParams = new URLSearchParams();
 
@@ -36,7 +36,7 @@ export class FriendsApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        return await this.executeRequest<VRCAPI.Users.Models.LimitedUser[]>(paramRequest);
+        return await this.executeRequest<VRCAPI.Users.Models.LimitedUserFriend[]>(paramRequest);
     }
 
     /**
