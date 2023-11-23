@@ -166,7 +166,7 @@ declare namespace VRCAPI {
         getProductListing: subSectionType;
         getOwnSubscription: subSectionType;
         getTiliaTOS: subSectionType;
-        geOwnPurchases: subSectionType;
+        getOwnPurchases: subSectionType;
         getOwnTransactions: subSectionType;
         getTiliaSyncData: subSectionType;
         getBalance: subSectionType;

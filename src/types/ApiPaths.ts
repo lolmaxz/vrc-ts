@@ -30,7 +30,7 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         getProductListing: { path: "/listing/{productId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["productId"] },
         getOwnSubscription: { path: "/auth/user/subscription", method: "GET", cookiesNeeded: ["authCookie"] },
         getTiliaTOS: { path: "/user/{userId}/tilia/tos", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"], requiresData:true },
-        geOwnPurchases: { path: "/economy/purchases", method: "GET", cookiesNeeded: ["authCookie"] },
+        getOwnPurchases: { path: "/economy/purchases", method: "GET", cookiesNeeded: ["authCookie"] },
         getOwnTransactions: { path: "/economy/transactions", method: "GET", cookiesNeeded: ["authCookie"] },
         getTiliaSyncData: { path: "/tilia/sync", method: "PUT", cookiesNeeded: ["authCookie"] },
         getBalance: { path: "/user/{userId}/balance", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
