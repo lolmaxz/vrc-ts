@@ -120,7 +120,7 @@ export class EconomyApi extends BaseApi {
      * @param {VRCAPI.Economy.Requests.GetOwnPurchasesRequest} param0 - The request parameters.
      * @returns {Promise<VRCAPI.Economy.Models.Purchase[]>} - Returns a Promise with the response from the API.
      */
-    public async geOwnPurchases({
+    public async getOwnPurchases({
         buyerId,
         mostRecent,
         getAll,
@@ -137,8 +137,8 @@ export class EconomyApi extends BaseApi {
 
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
-            currentRequest: ApiPaths.economy.geOwnPurchases,
-            pathFormated: ApiPaths.economy.geOwnPurchases.path,
+            currentRequest: ApiPaths.economy.getOwnPurchases,
+            pathFormated: ApiPaths.economy.getOwnPurchases.path,
             queryOptions: queryOptions,
         };
 
