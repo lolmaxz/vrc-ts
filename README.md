@@ -118,6 +118,10 @@ Here is the full list of endpoints by category that this wrapper does implements
 **Avatars API** :
 
 - `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`
+
+  **Economy API** : (including the new creator economy endpoints)
+
+  - `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`, `getProductListing`, `getOwnSubscription`, `getTiliaTOS`, `getOwnPurchases`, `getOwnTransactions`, `getTiliaSyncData`, `getBalance`, `getLicenses`
     
 **Favorites API** :
 
