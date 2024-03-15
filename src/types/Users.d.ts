@@ -39,16 +39,17 @@ declare namespace VRCAPI {
         obfuscatedPendingEmail: string;
         emailVerified: boolean;
         hasBirthday: boolean;
-        hideContentFilterSettings: boolean; // todo new undocumented
+        hideContentFilterSettings?: boolean;
         unsubscribe: boolean;
         statusHistory: string[];
         statusFirstTime: boolean;
         friends: string[];
         friendGroupNames: string[];
-        userLanguage?: unknown; // todo undocumented
+        userLanguage?: string;
+        userLanguageCode?: string; // new
         currentAvatarImageUrl: string;
         currentAvatarThumbnailImageUrl: string;
-        currentAvatarTags: string[]; // todo new undocumented
+        currentAvatarTags?: string[];
         currentAvatar: string;
         currentAvatarAssetUrl: string;
         fallbackAvatar?: string;
@@ -57,11 +58,11 @@ declare namespace VRCAPI {
         acceptedTOSVersion: number;
         acceptedPrivacyVersion?: number;
         steamId?: string;
-        googleId?: string; // todo new undocumented
+        googleId?: string;
         steamDetails: object; // todo unknown yet, to research more
         oculusId?: string;
-        picoId?: string; // todo new undocumented attribute !
-        viveId?: string; // todo new undocumented attribute !
+        picoId?: string;
+        viveId?: string;
         hasLoggedInFromClient: boolean;
         homeLocation: string;
         twoFactorAuthEnabled: boolean;
@@ -145,11 +146,11 @@ declare namespace VRCAPI {
         displayName: string;
         bio?: string;
         bioLinks?: string[]; // todo new field undocumented!
-        currentAvatarImageUrl: string;
-        currentAvatarThumbnailImageUrl: string;
-        currentAvatarTags: string[]; // todo new undocumented
-        userIcon: string;
-        profilePicOverride: string;
+        currentAvatarImageUrl?: string;
+        currentAvatarThumbnailImageUrl?: string;
+        currentAvatarTags?: string[]; // todo new undocumented
+        userIcon?: string;
+        profilePicOverride?: string;
         statusDescription: string;
         status: UserStatus;
         last_platform: string;
@@ -340,6 +341,9 @@ declare namespace VRCAPI {
 
       /** Information required to get a user's group requests. */
       type getUserGroupRequestsOptions = UserId
+
+      /** Information required to get a user's represented group */
+      type getUserRepresentedGroupOptions = UserId;
     }
   }
 }

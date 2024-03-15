@@ -32,6 +32,7 @@ declare namespace VRCAPI {
                 INVITE = 'invite',
                 INVITE_RESPONSE = 'inviteResponse',
                 REQUEST_INVITE = 'requestInvite',
+                MESSAGE = 'message',
                 REQUEST_INVITE_RESPONSE = 'requestInviteResponse',
                 VOTE_TO_KICK = 'votetokick'
             }

@@ -35,13 +35,49 @@ declare namespace VRCAPI {
         roles?: GroupRole[];
       };
 
+      type LimitedGroup = {
+        id: string;
+        name: string;
+        shortCode: string;
+        discriminator: string;
+        description: string;
+        iconId?: string;
+        iconUrl?: string;
+        bannerUrl?: string;
+        bannerId?: string;
+        ownerId: string;
+        memberCount: number;
+        tags?: Generics.AllTags[];
+        createdAt?: string; // assuming date-time is a string in ISO format
+        membershipStatus?: GroupMembershipStatus;
+        galleries: GroupGallery[];
+        isSearchable: boolean;
+      };
+      
+      type RepresentedGroup = {
+        name: string;
+        shortCode: string;
+        discriminator: string;
+        description: string;
+        iconId?: string;
+        iconUrl?: string;
+        bannerUrl?: string;
+        bannerId?: string;
+        privacy: GroupPrivacy;
+        ownerId: string;
+        memberCount: number;
+        groupId: string;
+        memberVisibility: GroupUserVisibility;
+        isRepresenting: boolean;
+      };
+
       type GroupAudit = {
         results: {
           id: string;
           created_at: string;
           groupId: string;
           actorId: string;
-          actorDisplayname: string;
+          actorDisplayName: string;
           targetId: string;
           eventType: string
           description: string
@@ -317,6 +353,9 @@ declare namespace VRCAPI {
         displayName: string
         thumbnailUrl: string
         iconUrl: string
+        profilePicOverride: string
+        currentAvatarThumbnailImageUrl: string
+        currentAvatarTags: string[]
       }
 
       type GroupMember = {
@@ -580,6 +619,27 @@ declare namespace VRCAPI {
         description?: string;
       }
 
+      type Sort = {
+        /** The sort order of the information. Must be one of the following: `ascending`, `descending`. Defaults to `descending` if omitted. *[OPTIONAL]*. */
+        sort?: GroupMemberSearchSort;
+      }
+
+      type groupMemberSort = {
+        /** The sort order of the information. Must be one of the following: `ascending`, `descending`. Defaults to `descending` if omitted. *[OPTIONAL]*. */
+        sort?: GroupMemberSearchSort;
+      }
+
+      
+      enum GroupMemberSearchSort {
+        JoinedAt_Asc = "joinedAt:asc",
+        JoinedAt_Desc = "joinedAt:desc",
+      }
+      
+      type SearchGroupRequest = Quantity & Offset & {
+        /** The search query to search for groups. Can be either a Group shortCode or a Group Name. **[REQUIRED]**. */
+        query: string;
+      }
+
       type BasicGroupData = Description & {
         /** The short code of the group. Must be between 3 and 6 characters. **[REQUIRED]**. */
         shortCode?: string;
@@ -750,7 +810,7 @@ declare namespace VRCAPI {
       type leaveGroupRequest = GroupId;
 
       /** Information Required to request to get a group's members. */
-      type listGroupMembersRequest = GroupId & Quantity & Offset;
+      type listGroupMembersRequest = GroupId & Quantity & Offset & groupMemberSort;
 
       /** Information Required to request to get a group's member. */
       type getGroupMemberRequest = GroupId & UserId;

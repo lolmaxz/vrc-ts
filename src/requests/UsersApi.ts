@@ -134,6 +134,18 @@ export class UsersApi extends BaseApi {
         return await this.executeRequest<VRCAPI.Groups.Models.Group[]>(paramRequest);
     }
 
+    /**
+     * Return a RepresentedGroup object for the user's current group that they are representing.
+     */
+    public async getUserRepresentedGroup({ userId }: VRCAPI.Users.Requests.getUserRepresentedGroupOptions): Promise<VRCAPI.Groups.Models.RepresentedGroup> {
+
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.users.getUserRepresentedGroup,
+            pathFormated: ApiPaths.users.getUserRepresentedGroup.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<VRCAPI.Groups.Models.RepresentedGroup>(paramRequest);
+    }
 }
 
 export type VRCRankResult = {

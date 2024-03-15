@@ -102,7 +102,8 @@ export class AvatarsApi extends BaseApi {
         imageUrl,
         releaseStatus,
         version,
-        unityPackageUrl
+        unityPackageUrl,
+        unityVersion
     }: VRCAPI.Avatars.Requests.createAvatarOption): Promise<VRCAPI.Avatars.Models.Avatar> {
 
         const body: VRCAPI.Avatars.Requests.createAvatarOption = {
@@ -116,6 +117,7 @@ export class AvatarsApi extends BaseApi {
         if (releaseStatus) body.releaseStatus = releaseStatus;
         if (version) body.version = version;
         if (unityPackageUrl) body.unityPackageUrl = unityPackageUrl;
+        if (unityVersion) body.unityVersion = unityVersion;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.avatars.createAvatar,
@@ -154,7 +156,8 @@ export class AvatarsApi extends BaseApi {
         imageUrl,
         releaseStatus,
         version,
-        unityPackageUrl
+        unityPackageUrl,
+        unityVersion
     }: VRCAPI.Avatars.Requests.updateAvatarOption): Promise<VRCAPI.Avatars.Models.Avatar> {
 
         const body: VRCAPI.Avatars.Requests.dataKeysUpdateAvatar = {};
@@ -168,6 +171,7 @@ export class AvatarsApi extends BaseApi {
         if (releaseStatus) body.releaseStatus = releaseStatus;
         if (version) body.version = version;
         if (unityPackageUrl) body.unityPackageUrl = unityPackageUrl;
+        if (unityVersion) body.unityVersion = unityVersion;
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.avatars.updateAvatar,

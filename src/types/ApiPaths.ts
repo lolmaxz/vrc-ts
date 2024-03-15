@@ -66,6 +66,7 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         unfriend: { path: "/auth/user/friends/{userId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
     },
     groups: {
+        searchGroups: { path: "/groups", method: "GET", cookiesNeeded: ["authCookie"] },
         createGroup: { path: "/groups", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
         getGroupById: { path: "/groups/{groupId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"] },
         updateGroup: { path: "/groups/{groupId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"] },
@@ -160,6 +161,7 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         updateUserInfo: { path: "/users/{userId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId"] },
         getUserGroups: { path: "/users/{userId}/groups", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getUserGroupRequests: { path: "/users/{userId}/groups/requested", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
+        getUserRepresentedGroup: { path: "/users/{userId}/groups/represented", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
     },
 
     worlds: {

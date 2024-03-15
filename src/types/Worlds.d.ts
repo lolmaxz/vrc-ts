@@ -22,7 +22,7 @@ declare namespace VRCAPI {
                  * 
                  * Format: prod_d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4
                  */
-                udonProducts: string[]; // todo undocumented! UDPATE, is a list of product being sold in this world
+                udonProducts?: string[]; // new
                 favorites?: number; // Min 0, Default: 0
                 visits: number; // Min 0, Default: 0
                 popularity: number; // Min 0, Default: 0
@@ -77,12 +77,12 @@ declare namespace VRCAPI {
                 authorName: string;
                 releaseStatus: ReleaseStatus;
                 capacity: number;
-                recommendedCapacity: number;
+                recommendedCapacity?: number;
                 imageUrl: string;
                 thumbnailImageUrl: string;
                 organization: string; // most likely to only be 'vrchat'
                 previewYoutubeId?: string;
-                udonProducts: unknown[];
+                udonProducts?: string[];
                 favorites: number;
                 popularity: number;
                 heat: number;
@@ -165,6 +165,7 @@ declare namespace VRCAPI {
                 releaseStatus?: VRCAPI.Worlds.Models.ReleaseStatus;
                 tags?: string[];
                 unityPackageUrl?: string;
+                /** The unity version of the world. Example: "2022.3.6f1" Min. 1 character */
                 unityVersion?: string;
             };
 
@@ -205,6 +206,7 @@ declare namespace VRCAPI {
                 releaseStatus?: VRCAPI.Worlds.Models.ReleaseStatus;
                 tags?: string[];
                 unityPackageUrl?: string;
+                 /** The unity version of the world. Example: "2022.3.6f1" Min. 1 character */
                 unityVersion?: string;
             };
 
