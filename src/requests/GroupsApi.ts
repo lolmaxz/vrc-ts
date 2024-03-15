@@ -15,6 +15,34 @@ export class GroupsApi extends BaseApi {
     }
 
     /**
+     * Returns a list of Groups.
+     * @param param0 The parameters for the request.
+     * @returns A list of Groups.
+     */
+    public async searchGroups({
+        n,
+        offset,
+        query
+    }: VRCAPI.Groups.Requests.SearchGroupRequest): Promise<VRCAPI.Groups.Models.LimitedGroup[]> {
+        const parameters: URLSearchParams = new URLSearchParams();
+
+        if (n) {
+            if (!(n >= 1 && n <= 100)) throw new BadRequestParameter('n must be between 1 and 100!');
+            parameters.append('n', n.toString());
+        }
+
+        if (offset && offset >= 0) parameters.append('offset', offset.toString());
+        if (query) parameters.append('query', query);
+
+        const paramRequest: VRCAPI.Generics.executeRequestType = {
+            currentRequest: ApiPaths.groups.searchGroups,
+            pathFormated: ApiPaths.groups.searchGroups.path,
+            queryOptions: parameters,
+        };
+
+        return await this.executeRequest<VRCAPI.Groups.Models.LimitedGroup[]>(paramRequest);
+    }
+    /**
      * Creates a Group and returns a Group object. Requires VRC+ Subscription.
      * 
      * **YOU MUST HAVE VRC+ SUBSCRIPTION TO USE THIS METHOD!**
@@ -629,7 +657,8 @@ export class GroupsApi extends BaseApi {
     public async listGroupMembers({
         groupId,
         n,
-        offset
+        offset,
+        sort
     }: VRCAPI.Groups.Requests.listGroupMembersRequest): Promise<VRCAPI.Groups.Models.GroupMember[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
@@ -637,6 +666,7 @@ export class GroupsApi extends BaseApi {
 
         parameters.append('n', n?.toString() || '60');
         if (offset && offset >= 0) parameters.append('offset', offset.toString());
+        if (sort) parameters.append('sort', sort);
 
         const paramRequest: VRCAPI.Generics.executeRequestType = {
             currentRequest: ApiPaths.groups.listGroupMembers,

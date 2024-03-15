@@ -202,6 +202,7 @@ declare namespace VRCAPI {
         unfriend: subSectionType;
       };
       groups: {
+        searchGroups: subSectionType;
         createGroup: subSectionType;
         getGroupById: subSectionType;
         updateGroup: subSectionType;
@@ -291,6 +292,7 @@ declare namespace VRCAPI {
         updateUserInfo: subSectionType
         getUserGroups: subSectionType
         getUserGroupRequests: subSectionType
+        getUserRepresentedGroup: subSectionType
       };
       worlds: {
         searchAllWorlds: subSectionType;
@@ -317,6 +319,7 @@ declare namespace VRCAPI {
       | VRCAPI.Files.Requests.dataKeysCreateFile
       | VRCAPI.Files.Requests.dataKeysCreateFileVersion
       | VRCAPI.Files.Requests.dataKeysFinishFileDataUpload
+      | VRCAPI.Groups.Requests.SearchGroupRequest
       | VRCAPI.Groups.Requests.CreateGroupRequest
       | VRCAPI.Groups.Requests.dataKeysUpdateGroup
       | VRCAPI.Groups.Requests.dataKeysCreateGroupAnnouncement

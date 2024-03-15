@@ -11,6 +11,8 @@ declare namespace VRCAPI {
                 created_at?: string; // date-time
                 pluginUrl?: string;
                 pluginUrlObject?: object;
+                impostorUrl?: string; // ! to test
+                scanStatus?: string; // ! to test
                 unitySortNumber?: number; // Min 0
             };
 

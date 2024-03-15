@@ -146,6 +146,8 @@ declare namespace VRCAPI {
                 version?: number;
                 /** Unity package of the avatar. */
                 unityPackageUrl?: string;
+                /** The Unity version. Example: "2022.3.6f1". Min 1 character */
+                unityVersion?: string; //todo Added this
             }
 
             /** Request options for getting an avatar. */
@@ -179,6 +181,8 @@ declare namespace VRCAPI {
                 version?: number;
                 /** Unity package of the avatar. */
                 unityPackageUrl?: string;
+                /** The Unity version. Example: "2022.3.6f1". Min 1 character */
+                unityVersion?: string; //todo Added this
               }
 
             /** Request options for updating an avatar. */
