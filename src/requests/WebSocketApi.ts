@@ -1,7 +1,10 @@
 import WebSocket from 'ws';
 import { VRChatAPI } from '../VRChatAPI';
 import { EventEmitter } from 'events';
-
+import { NotificationBase, NotificationTypes } from '../types/Notifications';
+import { UserBase, UserUpdateWebSocket } from '../types/Users';
+import { BaseWorld } from '../types/Worlds';
+import { BaseMyMember, GroupPermissionEnum } from '../types/Groups';
 
 export enum EventType {
     /** When a user gets online, undocumented, untested! might be deprecated! */
@@ -30,7 +33,7 @@ export enum EventType {
     /** When a notification is received. Can be multiple things, friend request and more.*/
     Notification = 'notification',
     /** Notification Version 2. Typically only happens when a special type of events happen.
-     * 
+     *
      * Possible events:
      * - `NotificationV2GroupAnnouncement`
      *      - A notification that a group has a new announcement.
@@ -105,7 +108,7 @@ export enum EventType {
     /** When a group informative is received. */
     Group_Informative = 'group.informative',
     /** When a group join request is received. */
-    Group_Join_Request = 'group.joinRequest'
+    Group_Join_Request = 'group.joinRequest',
 }
 
 type WebSocketParameters = {
@@ -115,7 +118,7 @@ type WebSocketParameters = {
     eventsToListenTo?: EventType[];
     /** If true, then it will log all events to the console. */
     logAllEvents?: boolean;
-}
+};
 
 export class WebSocketClient extends EventEmitter {
     private ws: WebSocket;
@@ -127,14 +130,14 @@ export class WebSocketClient extends EventEmitter {
     private reconnectAttempts = 0;
     private reconnecting = false;
     private eventsToListenTo: EventType[] = [];
-    private logAllEvents= false;
+    private logAllEvents = false;
 
     /**
-     * 
+     *
      * @param vrchatAPI The VRChat API instance
      * @param eventsToListenTo An array of events to listen to. If empty or ommited, then it will listen to all events. This will limit the amount of event to emit.
      * @param logAllEvents If true, then it will log all events to the console.
-     * 
+     *
      * ## Events:
      * There are sub types as well as normal types if you want a category of events. For example:
      * - `Notification_V1_All` will listen to all notification v1 events.
@@ -144,7 +147,7 @@ export class WebSocketClient extends EventEmitter {
      * - `User` will listen to all user events.
      * - `Group` will listen to all group events.
      * - `All` will listen to all events.
-     * 
+     *
      * ### Notification sub events:
      * - `Friend_Request` will listen to all friend request events.
      * - `Request_Invite` will listen to all request invite events.
@@ -152,35 +155,34 @@ export class WebSocketClient extends EventEmitter {
      * - `Invite_Response` will listen to all invite response events.
      * - `Request_Invite_Response` will listen to all request invite response events.
      * - `Vote_To_Kick` will listen to all vote to kick events.
-     * 
+     *
      * ### Notification V2 sub events:
      * - `Group_Announcement` will listen to all group announcement events.
      * - `Group_Informative` will listen to all group informative events.
      * - `Group_Invite` will listen to all group invite events.
      * - `Group_Join_Request` will listen to all group join request events.
-     * 
+     *
      * .
      */
-    constructor ({ vrchatAPI, eventsToListenTo = [], logAllEvents = false }: WebSocketParameters) {
+    constructor({ vrchatAPI, eventsToListenTo = [], logAllEvents = false }: WebSocketParameters) {
         super();
         this.ws = new WebSocket(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
             headers: {
-                "user-agent": process.env.USER_AGENT || "ExampleBot/1.0.0"
-            }
+                'user-agent': process.env.USER_AGENT || 'ExampleBot/1.0.0',
+            },
         });
-        
+
         this.eventsToListenTo = eventsToListenTo;
 
         this.ws.on('open', this.onOpen.bind(this));
         this.ws.on('message', this.onMessage.bind(this));
         this.ws.on('error', this.onError.bind(this));
         this.ws.on('close', this.onClose.bind(this));
-        this.ws.on("unexpected-response", (req, res) => {
-            console.log("Unexpected response: ", res);
-            console.log("Unexpected response: ", req);
-
-        })
-        this.ws.on("ping", this.onPing.bind(this));
+        this.ws.on('unexpected-response', (req, res) => {
+            console.log('Unexpected response: ', res);
+            console.log('Unexpected response: ', req);
+        });
+        this.ws.on('ping', this.onPing.bind(this));
 
         this.baseClass = vrchatAPI;
         this.logAllEvents = logAllEvents;
@@ -341,7 +343,7 @@ export class WebSocketClient extends EventEmitter {
 
     private onMessage(data: WebSocket.Data): void {
         // Handle incoming message
-        if (process.env.WEBCLIENT_DEBUG === 'true') console.log("Received message RAW: ", data);
+        if (process.env.WEBCLIENT_DEBUG === 'true') console.log('Received message RAW: ', data);
 
         // we stop if the data isn't a string or a buffer
         if (!(data instanceof Buffer)) {
@@ -350,7 +352,7 @@ export class WebSocketClient extends EventEmitter {
         }
 
         const parsedMessage = JSON.parse(data.toString('utf8')) as AllWebSocketEventsTypes;
-        if (process.env.WEBCLIENT_DEBUG === 'true') console.log("Buffer Message after parsing: ", parsedMessage);
+        if (process.env.WEBCLIENT_DEBUG === 'true') console.log('Buffer Message after parsing: ', parsedMessage);
 
         if (typeof parsedMessage === 'object' && 'err' in parsedMessage) {
             this.badRequestDisconect();
@@ -419,23 +421,34 @@ export class WebSocketClient extends EventEmitter {
                     break;
                 case EventType.Notification_V2_Update:
                     this.handleNotificationV2Update(JSON.parse(messageObject.content) as NotificationV2Update);
-                    this.emit(EventType.Notification_V2_Update, JSON.parse(messageObject.content) as NotificationV2Update);
+                    this.emit(
+                        EventType.Notification_V2_Update,
+                        JSON.parse(messageObject.content) as NotificationV2Update
+                    );
                     break;
                 case EventType.Notification_V2_Delete:
                     this.handleNotificationV2Delete(JSON.parse(messageObject.content) as NotificationV2Delete);
-                    this.emit(EventType.Notification_V2_Delete, JSON.parse(messageObject.content) as NotificationV2Delete);
+                    this.emit(
+                        EventType.Notification_V2_Delete,
+                        JSON.parse(messageObject.content) as NotificationV2Delete
+                    );
                     break;
                 case EventType.Hide_Notification:
-                    this.handleHideNotification({notificationId: messageObject.content} as HideNotification);
-                    this.emit(EventType.Hide_Notification, {notificationId: messageObject.content} as HideNotification);
+                    this.handleHideNotification({ notificationId: messageObject.content } as HideNotification);
+                    this.emit(EventType.Hide_Notification, {
+                        notificationId: messageObject.content,
+                    } as HideNotification);
                     break;
                 case EventType.Response_Notification:
                     this.handleResponseNotification(JSON.parse(messageObject.content) as ResponseNotification);
-                    this.emit(EventType.Response_Notification, JSON.parse(messageObject.content) as ResponseNotification);
+                    this.emit(
+                        EventType.Response_Notification,
+                        JSON.parse(messageObject.content) as ResponseNotification
+                    );
                     break;
                 case EventType.See_Notification:
-                    this.handleSeeNotification({notificationId: messageObject.content} as SeeNotification);
-                    this.emit(EventType.See_Notification, {notificationId: messageObject.content} as SeeNotification);
+                    this.handleSeeNotification({ notificationId: messageObject.content } as SeeNotification);
+                    this.emit(EventType.See_Notification, { notificationId: messageObject.content } as SeeNotification);
                     break;
                 case EventType.Clear_Notification:
                     this.handleClearNotification();
@@ -491,7 +504,7 @@ export class WebSocketClient extends EventEmitter {
         if (this.reconnecting) return;
         this.reconnecting = true;
         // Exponential backoff for reconnection attempts
-        const reconnectAfterMs = Math.min(10000, (this.reconnectAttempts ** 2) * 1000);
+        const reconnectAfterMs = Math.min(10000, this.reconnectAttempts ** 2 * 1000);
         console.log(`Reconnecting in ${reconnectAfterMs / 1000} seconds...`);
 
         setTimeout(() => {
@@ -499,26 +512,27 @@ export class WebSocketClient extends EventEmitter {
             console.log('Reconnecting...');
             this.ws = new WebSocket(`wss://vrchat.com/?authToken=${this.baseClass.instanceCookie.getAuthCookieKey()}`, {
                 headers: {
-                    "user-agent": process.env.USER_AGENT || "ExampleBot/1.0.0",
-                }
+                    'user-agent': process.env.USER_AGENT || 'ExampleBot/1.0.0',
+                },
             });
             this.ws.on('open', this.onOpen.bind(this));
             this.ws.on('message', this.onMessage.bind(this));
             this.ws.on('error', this.onError.bind(this));
             this.ws.on('close', this.onClose.bind(this));
-            this.ws.on("ping", this.onPing.bind(this));
-        }, reconnectAfterMs)
+            this.ws.on('ping', this.onPing.bind(this));
+        }, reconnectAfterMs);
     }
 
     private onPing(): void {
         this.lastPingTimestamp = Date.now();
-        if (process.env.WEBCLIENT_DEBUG === 'true') console.log('ping' + (this.lastPing ? " (" + (Date.now() - this.lastPing) + "ms interval)" : ""));
+        if (process.env.WEBCLIENT_DEBUG === 'true')
+            console.log('ping' + (this.lastPing ? ' (' + (Date.now() - this.lastPing) + 'ms interval)' : ''));
         this.lastPing = Date.now();
     }
 
     private startHeartbeat(): void {
         this.heartbeatInterval = setInterval(() => {
-            if (this.lastPingTimestamp !== null && (Date.now() - this.lastPingTimestamp) > 60000) {
+            if (this.lastPingTimestamp !== null && Date.now() - this.lastPingTimestamp > 60000) {
                 // It's been more than 60 seconds since the last ping from the server,
                 // so assume the connection is dead and attempt to reconnect.
                 if (this.heartbeatInterval) {
@@ -526,7 +540,7 @@ export class WebSocketClient extends EventEmitter {
                 }
                 this.ws.close();
             }
-        }, 5000);  // Check the connection every 5 seconds
+        }, 5000); // Check the connection every 5 seconds
     }
 
     private handleNotification(notification: Notification): void {
@@ -538,7 +552,6 @@ export class WebSocketClient extends EventEmitter {
         }
 
         this.emit(notificationType, notification);
-
 
         switch (notificationType) {
             case EventType.Friend_Request:
@@ -565,29 +578,27 @@ export class WebSocketClient extends EventEmitter {
     }
 
     private handleVoteToKick(notification: Notification) {
-        if (this.logAllEvents) console.log("Vote to kick: ", notification);
-
+        if (this.logAllEvents) console.log('Vote to kick: ', notification);
     }
 
     private handleRequestInviteResponse(notification: Notification) {
-        if (this.logAllEvents) console.log("Request invite response: ", notification);
-
+        if (this.logAllEvents) console.log('Request invite response: ', notification);
     }
 
     private handleInviteReponse(notification: Notification) {
-        if (this.logAllEvents) console.log("Invite response: ", notification);
+        if (this.logAllEvents) console.log('Invite response: ', notification);
     }
 
     private handleInviteNotification(notification: Notification) {
-        if (this.logAllEvents) console.log("Invite: ", notification);
+        if (this.logAllEvents) console.log('Invite: ', notification);
     }
 
     private handleFriendRequest(notification: Notification): void {
-        if (this.logAllEvents) console.log("Friend request: ", notification);
+        if (this.logAllEvents) console.log('Friend request: ', notification);
     }
 
     private handleRequestInvite(notification: Notification): void {
-        if (this.logAllEvents) console.log("Request invite: ", notification);
+        if (this.logAllEvents) console.log('Request invite: ', notification);
     }
 
     private handleNotificationV2(notificationv2: NotificationV2Types) {
@@ -621,100 +632,99 @@ export class WebSocketClient extends EventEmitter {
     }
 
     private handleGroupAnnouncement(notificationv2: NotificationV2GroupAnnouncement) {
-        if (this.logAllEvents) console.log("Group announcement: ", notificationv2);
+        if (this.logAllEvents) console.log('Group announcement: ', notificationv2);
     }
 
     private handleGroupInvite(notificationv2: NotificationV2GroupInvite) {
-        if (this.logAllEvents) console.log("Group invite: ", notificationv2);
+        if (this.logAllEvents) console.log('Group invite: ', notificationv2);
     }
 
     private handleGroupInformative(notificationv2: NotificationV2GroupInformative) {
-        if (this.logAllEvents) console.log("Group informative: ", notificationv2);
+        if (this.logAllEvents) console.log('Group informative: ', notificationv2);
     }
 
     private handleGroupJoinRequest(notificationv2: NotificationV2GroupJoinRequest) {
-        if (this.logAllEvents) console.log("Group join request: ", notificationv2);
+        if (this.logAllEvents) console.log('Group join request: ', notificationv2);
     }
 
     private handleUserUpdate(content: UserUpdate) {
-        if (this.logAllEvents) console.log("User update: ", content);
+        if (this.logAllEvents) console.log('User update: ', content);
     }
 
     private handleUserLocation(content: UserLocation) {
-        if (this.logAllEvents) console.log("User location: ", content);
+        if (this.logAllEvents) console.log('User location: ', content);
     }
 
     private handleFriendOnline(content: FriendOnline) {
-        if (this.logAllEvents) console.log("Friend online: ", content);
+        if (this.logAllEvents) console.log('Friend online: ', content);
     }
 
     private handleFriendActive(content: FriendActive) {
-        if (this.logAllEvents) console.log("Friend active: ", content);
+        if (this.logAllEvents) console.log('Friend active: ', content);
     }
 
     private handleFriendUpdate(content: FriendUpdate) {
-        if (this.logAllEvents) console.log("Friend update: ", content);
+        if (this.logAllEvents) console.log('Friend update: ', content);
     }
 
     private handleFriendLocation(content: FriendLocation) {
-        if (this.logAllEvents) console.log("Friend location: ", content);
+        if (this.logAllEvents) console.log('Friend location: ', content);
     }
 
     private handleFriendOffline(content: FriendOffline) {
-        if (this.logAllEvents) console.log("Friend offline: ", content);
+        if (this.logAllEvents) console.log('Friend offline: ', content);
     }
 
     private handleFriendAdd(content: FriendAdd) {
-        if (this.logAllEvents) console.log("Friend add: ", content);
+        if (this.logAllEvents) console.log('Friend add: ', content);
     }
 
     private handleFriendDelete(content: FriendDelete) {
-        if (this.logAllEvents) console.log("Friend delete: ", content);
+        if (this.logAllEvents) console.log('Friend delete: ', content);
     }
 
     private handleNotificationV2Update(content: NotificationV2Update) {
-        if (this.logAllEvents) console.log("Notification v2 update: ", content);
+        if (this.logAllEvents) console.log('Notification v2 update: ', content);
     }
 
     private handleNotificationV2Delete(content: NotificationV2Delete) {
-        if (this.logAllEvents) console.log("Notification v2 delete: ", content);
+        if (this.logAllEvents) console.log('Notification v2 delete: ', content);
     }
 
     private handleHideNotification(content: HideNotification) {
-        if (this.logAllEvents) console.log("Hide notification: ", content);
+        if (this.logAllEvents) console.log('Hide notification: ', content);
     }
 
     private handleResponseNotification(content: ResponseNotification) {
-        if (this.logAllEvents) console.log("Response notification: ", content);
+        if (this.logAllEvents) console.log('Response notification: ', content);
     }
 
     private handleSeeNotification(content: SeeNotification) {
-        if (this.logAllEvents) console.log("See notification: ", content);
+        if (this.logAllEvents) console.log('See notification: ', content);
     }
 
     private handleClearNotification() {
-        if (this.logAllEvents) console.log("Clear notification");
+        if (this.logAllEvents) console.log('Clear notification');
     }
 
     private handleContentRefresh(content: ContentRefresh) {
-        if (this.logAllEvents) console.log("Content refresh: ", content);
+        if (this.logAllEvents) console.log('Content refresh: ', content);
     }
 
     private handleGroupJoin(content: GroupJoined) {
-        if (this.logAllEvents) console.log("Group join: ", content);
-
+        if (this.logAllEvents) console.log('Group join: ', content);
     }
 
     private handleGroupLeave(content: GroupLeft) {
-        if (this.logAllEvents) console.log("Group leave: ", content);
+        if (this.logAllEvents) console.log('Group leave: ', content);
     }
 
     private handleGroupMemberUpdated(content: GroupMemberUpdated) {
-        if (this.logAllEvents) console.log("Group member updated: ", content);
+        if (this.logAllEvents) console.log('Group member updated: ', content);
     }
 
     private handleGroupRoleUpdated(content: GroupRoleUpdated) {
-        if (this.logAllEvents) console.log("Group role updated: ", content);
+        if (this.logAllEvents) console.log('Group role updated: ', content);
     }
 }
 
@@ -748,14 +758,13 @@ type WebSocketError = {
     err?: string;
     authToken?: string;
     ip?: string;
-}
-
+};
 
 enum NotificationV2TypeEvents {
     Group_Announcement = 'group.announcement',
     Group_Invite = 'group.invite',
     Group_Informative = 'group.informative',
-    Group_Join_Request = 'group.joinRequest'
+    Group_Join_Request = 'group.joinRequest',
 }
 
 enum CategoryV2Enum {
@@ -768,22 +777,22 @@ enum NotificationV2ResponseTypeEnum {
     Block = 'block',
     Unsubcribe = 'unsubscribe',
     Delete = 'delete',
-    Reject = 'reject'
+    Reject = 'reject',
 }
 
 type NotificationType = {
     type: EventType.Notification;
     content: string;
-}
+};
 
-export type Notification = VRCAPI.Notifications.Models.NotificationBase & {
+export type Notification = NotificationBase & {
     details: object; // This is a object already parsed
-}
+};
 
 type ResponseNotificationType = {
     type: EventType.Response_Notification;
     content: string;
-}
+};
 
 export type ResponseNotification = {
     /** example: not_00000000-0000-0000-000000000000 */
@@ -792,38 +801,38 @@ export type ResponseNotification = {
     receiverId: string;
     /** example: not_00000000-0000-0000-000000000000 */
     responseId: string;
-}
+};
 
 type SeeNotificationType = {
     type: EventType.See_Notification;
     /** The Id of the notification to mark as seen */
     content: string;
-}
+};
 
 export type SeeNotification = {
     notificationId: string;
-}
+};
 
 // hide notification type
 type HideNotificationType = {
     type: EventType.Hide_Notification;
     /** Will be a friend request ID */
     content: string;
-}
+};
 
 type HideNotification = {
     /** The Id of the notification to hide */
     notificationId: string;
-}
+};
 
 type ClearNotificationType = {
     type: EventType.Clear_Notification;
-}
+};
 
 type NotificationV2Type = {
     type: EventType.Notification_V2;
     content: string;
-}
+};
 
 type NotificationV2ResponseType = {
     type: NotificationV2ResponseTypeEnum;
@@ -831,7 +840,7 @@ type NotificationV2ResponseType = {
     icon: string;
     text: string;
     textKey: string;
-}
+};
 
 type BaseNotificationV2 = {
     id: string;
@@ -855,105 +864,108 @@ type BaseNotificationV2 = {
     responses?: NotificationV2ResponseType[];
     expiresIn?: string;
     expiryAfterSeen?: number;
-    requireSeen?: boolean
+    requireSeen?: boolean;
     seen?: boolean;
     canDelete?: boolean;
     created_at: string;
     updated_at: string;
-}
+};
 
 export type NotificationV2GroupInvite = BaseNotificationV2 & {
     data: {
         groupName: string;
         manageruserDisplayName: string;
-    }
-}
+    };
+};
 
 export type NotificationV2GroupInformative = BaseNotificationV2 & {
     data: object;
-}
+};
 
 export type NotificationV2GroupAnnouncement = BaseNotificationV2 & {
     data: {
         groupName: string;
         announcementTitle: string;
-    }
-}
+    };
+};
 
 export type NotificationV2GroupJoinRequest = BaseNotificationV2 & {
     data: {
         userDisplayName: string;
         groupName: string;
-    }
-}
+    };
+};
 
-export type NotificationV2Types = NotificationV2GroupAnnouncement | NotificationV2GroupInformative | NotificationV2GroupInvite | NotificationV2GroupJoinRequest;
+export type NotificationV2Types =
+    | NotificationV2GroupAnnouncement
+    | NotificationV2GroupInformative
+    | NotificationV2GroupInvite
+    | NotificationV2GroupJoinRequest;
 
 type NotificationV2DeleteType = {
     type: EventType.Notification_V2_Delete;
     content: string;
-}
+};
 
 export type NotificationV2Delete = {
     ids: string[];
     version: 2;
-}
+};
 
 type UserLocationType = {
     type: EventType.User_Location;
     content: string;
-}
+};
 
 export type UserLocation = {
     userId: string;
     location: string;
     instance: string;
     worldId: string;
-    user: VRCAPI.Users.Models.UserBase;
-    world: VRCAPI.Worlds.Models.BaseWorld;
-}
+    user: UserBase;
+    world: BaseWorld;
+};
 
 type ContentRefreshType = {
     type: EventType.Content_Refresh;
     content: string;
-}
+};
 
 enum ContentTypeRefreshed {
     Gallery = 'gallery',
     Icon = 'icon',
     Emoji = 'emoji',
     World = 'world',
-    Avatar = 'avatar'
+    Avatar = 'avatar',
 }
 
 enum ActionTypeRefreshed {
     Created = 'created',
     Updated = 'updated',
-    Deleted = 'deleted'
+    Deleted = 'deleted',
 }
 
 export type ContentRefresh = {
-    contentType: ContentTypeRefreshed,
-    actionType: ActionTypeRefreshed,
-}
-
+    contentType: ContentTypeRefreshed;
+    actionType: ActionTypeRefreshed;
+};
 
 // All notification types here
 
 export type friendRequestNotification = {
     id: string;
-    type: VRCAPI.Notifications.Models.NotificationType.FRIEND_REQUEST;
+    type: NotificationTypes.FRIEND_REQUEST;
     senderUserId: string;
     senderUsername?: string; // Deprecated, but still included as it might be present
     receiverUserId?: string;
     message: string;
     details: object; // might just be empty!
     created_at: string;
-}
+};
 
 export type InviteNotification = {
     id: string;
-    type: VRCAPI.Notifications.Models.NotificationType.INVITE;
+    type: NotificationTypes.INVITE;
     senderUserId: string;
     senderUsername?: string; // Deprecated, but still included as it might be present
     receiverUserId?: string;
@@ -965,7 +977,7 @@ export type InviteNotification = {
         worldName: string;
     };
     created_at: string;
-}
+};
 
 export type InviteResponseNotification = null; // todo to fill out this type
 
@@ -974,7 +986,7 @@ export type InviteResponseNotification = null; // todo to fill out this type
 type FriendLocationType = {
     type: EventType.Friend_Location;
     content: string;
-}
+};
 
 export type FriendLocation = {
     userId: string;
@@ -982,24 +994,24 @@ export type FriendLocation = {
     travelingToLocation: string;
     worldId: string;
     canRequestInvite: boolean;
-    user: VRCAPI.Users.Models.UserBase;
-    world: VRCAPI.Worlds.Models.BaseWorld;
-}
+    user: UserBase;
+    world: BaseWorld;
+};
 
 type FriendActiveType = {
     type: EventType.Friend_Active;
     content: string;
-}
+};
 
 export type FriendActive = {
     userId: string;
-    user: VRCAPI.Users.Models.UserBase;
-}
+    user: UserBase;
+};
 
 type FriendOnlineType = {
     type: EventType.Friend_Online;
     content: string;
-}
+};
 
 export type FriendOnline = {
     userId: string;
@@ -1007,17 +1019,17 @@ export type FriendOnline = {
     travelingToLocation: string;
     worldId: string;
     canRequestInvite: boolean;
-    user: VRCAPI.Users.Models.UserBase;
-}
+    user: UserBase;
+};
 
 type FriendOfflineType = {
     type: EventType.Friend_Offline;
     content: string;
-}
+};
 
 export type FriendOffline = {
     userId: string;
-}
+};
 
 type FriendAddType = {
     type: EventType.Friend_Add;
@@ -1026,51 +1038,51 @@ type FriendAddType = {
 
 export type FriendAdd = {
     userId: string;
-    user: VRCAPI.Users.Models.UserBase;
+    user: UserBase;
 };
 
 type FriendDeleteType = {
     type: EventType.Friend_Delete;
     content: string;
-}
+};
 
 export type FriendDelete = {
     userId: string;
-}
+};
 
 type GroupLeftType = {
     type: EventType.Group_Leave;
     content: string;
-}
+};
 
 export type GroupLeft = {
     groupId: string;
-}
+};
 
 type GroupJoinedType = {
     type: EventType.Group_Join;
     content: string;
-}
+};
 
 export type GroupJoined = {
     groupId: string;
-}
+};
 
 type GroupMemberUpdatedType = {
     type: EventType.Group_Member_Updated;
     content: string;
-}
+};
 
 export type GroupMemberUpdated = {
-    member: VRCAPI.Groups.Models.BaseMyMember
-}
+    member: BaseMyMember;
+};
 
 // THOSE ARE BASED ON DOCUMENTATION AND MIGHT HAVE CHANGED OR NOT BE IMPLEMENTED OR REMOVED! BECAREFUL WITH THOSE IF YOU RECEIVE THEM!
 
 type GroupRoleUpdatedType = {
     type: EventType.Group_Role_Updated;
     content: string;
-}
+};
 
 // ! all field s are optional as this type couldn't be tested!
 export type GroupRoleUpdated = {
@@ -1080,43 +1092,43 @@ export type GroupRoleUpdated = {
         name?: string;
         description?: string;
         isSelfAssignable?: boolean;
-        permissions?: VRCAPI.Groups.Models.GroupPermissionEnum[];
+        permissions?: GroupPermissionEnum[];
         isManagementRole?: boolean;
         requiresTwoFactor?: boolean;
         requiresPurchase?: boolean;
         order?: number;
         createdAt?: string; // assuming date-time is a string in ISO format
         updatedAt?: string; // assuming date-time is a string in ISO format
-    }
-}
+    };
+};
 
 type UserUpdateType = {
     type: EventType.User_Update;
     content: string;
-}
+};
 
 export type UserUpdate = {
     userId: string;
-    user: VRCAPI.Users.Models.UserUpdateWebSocket;
-}
+    user: UserUpdateWebSocket;
+};
 
 type FriendUpdateType = {
     type: EventType.Friend_Update;
     content: string;
-}
+};
 
 export type FriendUpdate = {
     userId: string;
-    user: VRCAPI.Users.Models.UserUpdateWebSocket;
-}
+    user: UserUpdateWebSocket;
+};
 
 type NotificationV2UpdateType = {
     type: EventType.Notification_V2_Update;
     content: string;
-}
+};
 
 export type NotificationV2Update = {
     id: string;
     version: 2;
     updates: object; // can be nultiple things to update from another notification.
-}
+};

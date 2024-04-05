@@ -1,5 +1,6 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { RequestError, UserNotAuthenticated } from '../errors';
+import { API, VRCRequest, executeRequestType, headerOptions } from '../types/Generics';
 
 /**
  * This class is used to handle the base API requests. This class should not be used directly.
@@ -22,15 +23,14 @@ export class BaseApi {
         currentRequest,
         pathFormated,
         queryOptions,
-        body
-    }: VRCAPI.Generics.executeRequestType): Promise<E> {
-
+        body,
+    }: executeRequestType): Promise<E> {
         // we make sure everything is valid first
         this.checkValidData({
             currentRequest,
             pathFormated,
             queryOptions,
-            body
+            body,
         });
 
         // if all query parameters are present in the query params variable then we can replace them with our parameter from the template
@@ -41,11 +41,10 @@ export class BaseApi {
             url.search = queryOptions.toString();
         }
 
-
         // check headers
-        const headers: VRCAPI.Generics.headerOptions = {
+        const headers: headerOptions = {
             'User-Agent': this.baseClass.headerAgent, // we set the User_Agent header
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json',
         };
 
         if (!currentRequest.cookiesNeeded.includes('none')) {
@@ -64,7 +63,10 @@ export class BaseApi {
                 headers.cookie += `${authCookie} `;
             }
 
-            if (currentRequest.cookiesNeeded.includes('twoFactorAuth') && this.baseClass.instanceCookie.getTwoFactorAuthCookie()) {
+            if (
+                currentRequest.cookiesNeeded.includes('twoFactorAuth') &&
+                this.baseClass.instanceCookie.getTwoFactorAuthCookie()
+            ) {
                 const twoFactorAuth = this.baseClass.instanceCookie.getTwoFactorAuthCookie();
 
                 if (!twoFactorAuth) {
@@ -77,7 +79,7 @@ export class BaseApi {
 
         headers.cookie?.trim();
 
-        const options: VRCAPI.Generics.VRCRequest = {
+        const options: VRCRequest = {
             method: currentRequest.method,
             headers: headers,
         };
@@ -85,29 +87,35 @@ export class BaseApi {
         if (body && currentRequest.requiresData) {
             options.body = JSON.stringify(body);
         }
-        const response: VRCAPI.Generics.API<E, VRCAPI.Generics.RequestError> = await fetch(url, options);
+        const response: API<E, RequestError> = await fetch(url, options);
 
         if (process.env.DEBUG === 'true') {
-            console.log("#1 url: ", url);
-            console.log("#2 options: ", options);
-            console.log("#3 response: ", response);
+            console.log('#1 url: ', url);
+            console.log('#2 options: ', options);
+            console.log('#3 response: ', response);
         }
 
         if (!response.ok) {
-            if (pathFormated.includes("/auth/twofactorauth") && response.status === 400) {
-                return await response.json() as E;
+            if (pathFormated.includes('/auth/twofactorauth') && response.status === 400) {
+                return (await response.json()) as E;
             }
-            let extraMessage = "";
-            console.log("not okay?:", response);
+            let extraMessage = '';
+            console.log('not okay?:', response);
 
             const reponseTry = await response.json();
             console.log(reponseTry);
 
-            if (reponseTry.error.message) {
-                extraMessage = reponseTry.error.message;
+            if ('error' in reponseTry) {
+                const error = reponseTry.error as object;
+                if ('message' in error) {
+                    const extraMessageReceived = error.message as string;
+                    if (extraMessageReceived) {
+                        extraMessage = error.message as string;
+                    }
+                }
             }
 
-            throw new RequestError(response.status, response.statusText + " | Extra message: " + extraMessage);
+            throw new RequestError(response.status, response.statusText + ' | Extra message: ' + extraMessage);
         }
 
         // we get the set-cookies if there is any (way more optimized solution)
@@ -119,22 +127,16 @@ export class BaseApi {
 
         const result = await response.json();
         if (process.env.DEBUG === 'true') {
-            console.log("RESULTS: ", result);
+            console.log('RESULTS: ', result);
         }
 
-        return result
+        return result;
     }
 
-    checkValidData({
-        currentRequest,
-        pathFormated,
-        queryOptions,
-        body
-    }: VRCAPI.Generics.executeRequestType) {
-
+    checkValidData({ currentRequest, pathFormated, queryOptions, body }: executeRequestType) {
         // if the base class is not authenticated then we need to throw an error unless it's a 2FA authentication process!
         if (!this.baseClass.isAuthentificated) {
-            if (!pathFormated.includes("/auth/twofactorauth") && !pathFormated.includes("/auth/user")) {
+            if (!pathFormated.includes('/auth/twofactorauth') && !pathFormated.includes('/auth/user')) {
                 throw new UserNotAuthenticated();
             }
         }
@@ -159,7 +161,12 @@ export class BaseApi {
         }
 
         // if we need data but no data was given then we need to throw an error
-        if ((queryOptions && queryOptions.size <= 0) && (currentRequest.requiredQueryParams && currentRequest.requiredQueryParams.length > 0)) {
+        if (
+            queryOptions &&
+            queryOptions.size <= 0 &&
+            currentRequest.requiredQueryParams &&
+            currentRequest.requiredQueryParams.length > 0
+        ) {
             throw new Error('No query parameters were provided!');
         }
 
