@@ -143,7 +143,7 @@ Here is the full list of endpoints by category that this wrapper does implements
 
 **Groups API** :
 
--   `searchGroups`, `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `getGroupAnnouncement`🔴, `createGroupAnnouncement`🔴, `deleteGroupAnnouncement`🔴, `createGroupPost`🆕, `getGroupPosts`🆕, `deleteGroupPost`🆕, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`
+-   `searchGroups`, `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, ~~`getGroupAnnouncement`~~, ~~`createGroupAnnouncement`~~, ~~`deleteGroupAnnouncement`~~, `createGroupPost`🆕, `getGroupPosts`🆕, `deleteGroupPost`🆕, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`
 
 **Invites API** :
 
@@ -178,6 +178,7 @@ Here is the full list of endpoints by category that this wrapper does implements
 -   `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
 
 ! Marks of an asterics are either not yet implemented or yet to be added. Progress is going fast, come back to see the update.
+! Crossed Endpoints are deprecated and aren't used by VRChat anymore or will soon stop to be.
 
 ## WebSocket
 
