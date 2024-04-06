@@ -1,4 +1,6 @@
-export const ApiPaths: VRCAPI.Generics.APIPaths = {
+import { APIPaths } from "./Generics";
+
+export const ApiPaths: APIPaths = {
     apiBasePath: "https://api.vrchat.cloud/api/1",
     auth: {
         userExist: { path: "/auth/exists", method: "GET", cookiesNeeded: ["none"] },
@@ -71,9 +73,12 @@ export const ApiPaths: VRCAPI.Generics.APIPaths = {
         getGroupById: { path: "/groups/{groupId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"] },
         updateGroup: { path: "/groups/{groupId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"] },
         deleteGroup: { path: "/groups/{groupId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"] },
-        getGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"] },
-        createGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"] },
-        deleteGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
+        getGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"], deprecated: true},
+        createGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"], deprecated: true  },
+        deleteGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"], deprecated: true },
+        createGroupPost: { path: "/groups/{groupId}/posts", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"] },
+        getGroupPosts: { path: "/groups/{groupId}/posts", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"] },
+        deleteGroupPost: { path: "/groups/{groupId}/posts/{postId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "postId"] },
         getGroupAuditLogs: { path: "/groups/{groupId}/auditLogs", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
         getGroupBans: { path: "/groups/{groupId}/bans", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
         banGroupMember: { path: "/groups/{groupId}/bans", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"]  },

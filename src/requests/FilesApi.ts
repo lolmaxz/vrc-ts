@@ -1,6 +1,8 @@
-import { VRChatAPI } from "../VRChatAPI";
-import { ApiPaths } from "../types/ApiPaths";
-import { BaseApi } from "./BaseApi";
+import { VRChatAPI } from '../VRChatAPI';
+import { ApiPaths } from '../types/ApiPaths';
+import { BaseApi } from './BaseApi';
+import * as File from '../types/Files';
+import { RequestSuccess, executeRequestType } from '../types/Generics';
 
 /**
  * This class is used to make requests to the Files API.
@@ -13,16 +15,10 @@ export class FilesApi extends BaseApi {
         this.baseClass = baseClass;
     }
 
-
     /**
      * Returns a list of files
      */
-    public async listFiles({
-        tag,
-        n,
-        offset
-    }: VRCAPI.Files.Requests.ListFilesRequest): Promise<VRCAPI.Files.Models.File[]> {
-
+    public async listFiles({ tag, n, offset }: File.ListFilesRequest): Promise<File.File[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
         if (tag) {
@@ -40,25 +36,19 @@ export class FilesApi extends BaseApi {
             parameters.append('offset', offset.toString());
         }
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.listFiles,
             pathFormated: ApiPaths.files.listFiles.path,
             queryOptions: parameters,
         };
 
-        return await this.executeRequest<VRCAPI.Files.Models.File[]>(paramRequest);
+        return await this.executeRequest<File.File[]>(paramRequest);
     }
 
     /**
      * Creates a new File object
      */
-    public async createFile({
-        name,
-        mimeType,
-        extension,
-        tags
-    }: VRCAPI.Files.Requests.CreateFileRequest): Promise<VRCAPI.Files.Models.File> {
-
+    public async createFile({ name, mimeType, extension, tags }: File.CreateFileRequest): Promise<File.File> {
         const parameters: URLSearchParams = new URLSearchParams();
 
         if (name) {
@@ -66,10 +56,8 @@ export class FilesApi extends BaseApi {
             parameters.append('name', name);
         }
 
-
         if (mimeType.length < 1) throw new Error('MimeType must be at least 1 character long!');
         parameters.append('mimeType', mimeType);
-
 
         if (extension) {
             if (extension.length < 1) throw new Error('Extension must be at least 1 character long!');
@@ -81,28 +69,25 @@ export class FilesApi extends BaseApi {
             parameters.append('tags', tags.toString());
         }
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.createFile,
             pathFormated: ApiPaths.files.createFile.path,
             queryOptions: parameters,
         };
 
-        return await this.executeRequest<VRCAPI.Files.Models.File>(paramRequest);
+        return await this.executeRequest<File.File>(paramRequest);
     }
 
     /**
      * Shows general information about the "File" object. Each File can have several "Version"'s, and each Version can have multiple real files or "Data" blobs.
      */
-    public async showFile({
-        fileId
-    }: VRCAPI.Files.Requests.ShowFileRequest): Promise<VRCAPI.Files.Models.File> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async showFile({ fileId }: File.ShowFileRequest): Promise<File.File> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.showFile,
             pathFormated: ApiPaths.files.showFile.path.replace('{fileId}', fileId),
         };
 
-        return await this.executeRequest<VRCAPI.Files.Models.File>(paramRequest);
+        return await this.executeRequest<File.File>(paramRequest);
     }
 
     /**
@@ -113,11 +98,9 @@ export class FilesApi extends BaseApi {
         signatureMd5,
         signatureSizeInBytes,
         fileMd5,
-        fileSizeInBytes
-    }: VRCAPI.Files.Requests.CreateFileVersionRequest): Promise<VRCAPI.Files.Models.File> {
-
+        fileSizeInBytes,
+    }: File.CreateFileVersionRequest): Promise<File.File> {
         const parameters: URLSearchParams = new URLSearchParams();
-
 
         if (signatureMd5.length < 1) throw new Error('SignatureMd5 must be at least 1 character long!');
         parameters.append('signatureMd5', signatureMd5);
@@ -135,64 +118,57 @@ export class FilesApi extends BaseApi {
             parameters.append('fileSizeInBytes', fileSizeInBytes.toString());
         }
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.createFileVersion,
             pathFormated: ApiPaths.files.createFileVersion.path.replace('{fileId}', fileId),
             queryOptions: parameters,
         };
 
-        return await this.executeRequest<VRCAPI.Files.Models.File>(paramRequest);
+        return await this.executeRequest<File.File>(paramRequest);
     }
 
     /**
      * Deletes a File object.
      */
-    public async deleteFile({
-        fileId
-    }: VRCAPI.Files.Requests.FileId): Promise<VRCAPI.Generics.RequestSuccess> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async deleteFile({ fileId }: File.FileId): Promise<RequestSuccess> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.deleteFile,
             pathFormated: ApiPaths.files.deleteFile.path.replace('{fileId}', fileId),
         };
 
-        return await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
+        return await this.executeRequest<RequestSuccess>(paramRequest);
     }
 
     /**
-    * Downloads the file with the provided version number.
-    *
-    * **Version Note:** Version 0 is always when the file was created. The real data is usually always located in version 1 and up.
-    *
-    * **Extension Note:** Files are not guaranteed to have a file extensions. UnityPackage files tends to have it, images through this endpoint do not. You are responsible for appending file extension from the `extension` field when neccesary.
-    */
-    public async downloadFileVersion({
-        fileId,
-        versionId
-    }: VRCAPI.Files.Requests.DownloadFileVersionRequest): Promise<VRCAPI.Files.Models.File> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+     * Downloads the file with the provided version number.
+     *
+     * **Version Note:** Version 0 is always when the file was created. The real data is usually always located in version 1 and up.
+     *
+     * **Extension Note:** Files are not guaranteed to have a file extensions. UnityPackage files tends to have it, images through this endpoint do not. You are responsible for appending file extension from the `extension` field when neccesary.
+     */
+    public async downloadFileVersion({ fileId, versionId }: File.DownloadFileVersionRequest): Promise<File.File> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.downloadFileVersion,
-            pathFormated: ApiPaths.files.downloadFileVersion.path.replace('{fileId}', fileId).replace('{versionId}', versionId),
+            pathFormated: ApiPaths.files.downloadFileVersion.path
+                .replace('{fileId}', fileId)
+                .replace('{versionId}', versionId),
         };
 
-        return await this.executeRequest<VRCAPI.Files.Models.File>(paramRequest);
+        return await this.executeRequest<File.File>(paramRequest);
     }
 
     /**
      * Delete a specific version of a file. You can only delete the latest version.
      */
-    public async deleteFileVersion({
-        fileId,
-        versionId
-    }: VRCAPI.Files.Requests.DownloadFileVersionRequest): Promise<VRCAPI.Generics.RequestSuccess> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async deleteFileVersion({ fileId, versionId }: File.DownloadFileVersionRequest): Promise<RequestSuccess> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.deleteFileVersion,
-            pathFormated: ApiPaths.files.deleteFileVersion.path.replace('{fileId}', fileId).replace('{versionId}', versionId),
+            pathFormated: ApiPaths.files.deleteFileVersion.path
+                .replace('{fileId}', fileId)
+                .replace('{versionId}', versionId),
         };
 
-        return await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
+        return await this.executeRequest<RequestSuccess>(paramRequest);
     }
 
     /**
@@ -202,22 +178,24 @@ export class FilesApi extends BaseApi {
         fileId,
         versionId,
         fileType,
-        etags
-    }: VRCAPI.Files.Requests.FinishFileDataUploadRequest): Promise<VRCAPI.Files.Models.File> {
-
-        const body: VRCAPI.Files.Requests.dataKeysFinishFileDataUpload = {
+        etags,
+    }: File.FinishFileDataUploadRequest): Promise<File.File> {
+        const body: File.dataKeysFinishFileDataUpload = {
             etags,
             nextPartNumber: '0',
-            maxParts: '0'
-        }
+            maxParts: '0',
+        };
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.finishFileDataUpload,
-            pathFormated: ApiPaths.files.finishFileDataUpload.path.replace('{fileId}', fileId).replace('{versionId}', versionId).replace('{fileType}', fileType),
+            pathFormated: ApiPaths.files.finishFileDataUpload.path
+                .replace('{fileId}', fileId)
+                .replace('{versionId}', versionId)
+                .replace('{fileType}', fileType),
             body,
         };
 
-        return await this.executeRequest<VRCAPI.Files.Models.File>(paramRequest);
+        return await this.executeRequest<File.File>(paramRequest);
     }
 
     /**
@@ -228,15 +206,17 @@ export class FilesApi extends BaseApi {
     public async startFileDataUpload({
         fileId,
         versionId,
-        fileType
-    }: VRCAPI.Files.Requests.StartFileDataUploadRequest): Promise<VRCAPI.Files.Models.File> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        fileType,
+    }: File.StartFileDataUploadRequest): Promise<File.File> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.startFileDataUpload,
-            pathFormated: ApiPaths.files.startFileDataUpload.path.replace('{fileId}', fileId).replace('{versionId}', versionId).replace("fileType", fileType),
+            pathFormated: ApiPaths.files.startFileDataUpload.path
+                .replace('{fileId}', fileId)
+                .replace('{versionId}', versionId)
+                .replace('fileType', fileType),
         };
 
-        return await this.executeRequest<VRCAPI.Files.Models.File>(paramRequest);
+        return await this.executeRequest<File.File>(paramRequest);
     }
 
     /**
@@ -245,14 +225,16 @@ export class FilesApi extends BaseApi {
     public async checkFileDataUploadStatus({
         fileId,
         versionId,
-        fileType
-    }: VRCAPI.Files.Requests.CheckFileDataUploadStatus): Promise<VRCAPI.Files.Models.CurrentFileVersionStatus> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        fileType,
+    }: File.CheckFileDataUploadStatus): Promise<File.CurrentFileVersionStatus> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.files.checkFileDataUploadStatus,
-            pathFormated: ApiPaths.files.checkFileDataUploadStatus.path.replace('{fileId}', fileId).replace('{versionId}', versionId).replace('{fileType}', fileType),
+            pathFormated: ApiPaths.files.checkFileDataUploadStatus.path
+                .replace('{fileId}', fileId)
+                .replace('{versionId}', versionId)
+                .replace('{fileType}', fileType),
         };
 
-        return await this.executeRequest<VRCAPI.Files.Models.CurrentFileVersionStatus>(paramRequest);
+        return await this.executeRequest<File.CurrentFileVersionStatus>(paramRequest);
     }
 }

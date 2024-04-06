@@ -1,6 +1,9 @@
-import { VRChatAPI } from "../VRChatAPI";
-import { ApiPaths } from "../types/ApiPaths";
-import { BaseApi } from "./BaseApi";
+import { VRChatAPI } from '../VRChatAPI';
+import { ApiPaths } from '../types/ApiPaths';
+import { BaseApi } from './BaseApi';
+import * as Avi from '../types/Avatars';
+import { executeRequestType } from '../types/Generics';
+import { CurrentUser } from '../types/Users';
 
 /**
  * This class is used to make requests to the Avatars API.
@@ -16,42 +19,37 @@ export class AvatarsApi extends BaseApi {
     /**
      * Get the current avatar for the user. This will return an error for any other user than the one logged in.
      */
-    public async getOwnAvatar({
-        userId,
-    }: VRCAPI.Avatars.Requests.getOwnAvatarOption): Promise<VRCAPI.Avatars.Models.Avatar> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async getOwnAvatar({ userId }: Avi.getOwnAvatarOption): Promise<Avi.Avatar> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.getOwnAvatar,
             pathFormated: ApiPaths.avatars.getOwnAvatar.path.replace('{userId}', userId),
         };
 
-        return await this.executeRequest<VRCAPI.Avatars.Models.Avatar>(paramRequest);
+        return await this.executeRequest<Avi.Avatar>(paramRequest);
     }
 
     /**
      * Search and list avatars by query filters. You can only search your own or featured avatars.
-     * 
+     *
      * It is not possible as a normal user to search other peoples avatars.
-     * 
+     *
      * todo: the parameter releaseStatus is required to be sent
      */
     public async searchAvatars({
         featured = false,
         sort,
-        user = "me",
+        user = 'me',
         n,
         order,
         offset,
         tags,
         noTags,
-        releaseStatus = VRCAPI.Avatars.Models.ReleaseStatus.All,
+        releaseStatus = Avi.ReleaseStatus.All,
         maxUnityVersion,
         minUnityVersion,
-        platform
-    }: VRCAPI.Avatars.Requests.searchAvatarsOption): Promise<VRCAPI.Avatars.Models.Avatar[]> {
-
+        platform,
+    }: Avi.searchAvatarsOption): Promise<Avi.Avatar[]> {
         const parameters: URLSearchParams = new URLSearchParams();
-
 
         parameters.append('featured', featured.toString());
         parameters.append('user', user);
@@ -82,12 +80,12 @@ export class AvatarsApi extends BaseApi {
         if (minUnityVersion) parameters.append('minUnityVersion', minUnityVersion);
         if (platform) parameters.append('platform', platform);
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.searchAvatars,
             pathFormated: ApiPaths.avatars.searchAvatars.path,
         };
 
-        return await this.executeRequest<VRCAPI.Avatars.Models.Avatar[]>(paramRequest);
+        return await this.executeRequest<Avi.Avatar[]>(paramRequest);
     }
 
     /**
@@ -103,13 +101,12 @@ export class AvatarsApi extends BaseApi {
         releaseStatus,
         version,
         unityPackageUrl,
-        unityVersion
-    }: VRCAPI.Avatars.Requests.createAvatarOption): Promise<VRCAPI.Avatars.Models.Avatar> {
-
-        const body: VRCAPI.Avatars.Requests.createAvatarOption = {
+        unityVersion,
+    }: Avi.createAvatarOption): Promise<Avi.Avatar> {
+        const body: Avi.createAvatarOption = {
             name: name,
             imageUrl: imageUrl,
-        }
+        };
         if (assetUrl) body.assetUrl = assetUrl;
         if (id) body.id = id;
         if (description) body.description = description;
@@ -119,28 +116,25 @@ export class AvatarsApi extends BaseApi {
         if (unityPackageUrl) body.unityPackageUrl = unityPackageUrl;
         if (unityVersion) body.unityVersion = unityVersion;
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.createAvatar,
             pathFormated: ApiPaths.avatars.createAvatar.path,
-            body: body
+            body: body,
         };
 
-        return await this.executeRequest<VRCAPI.Avatars.Models.Avatar>(paramRequest);
+        return await this.executeRequest<Avi.Avatar>(paramRequest);
     }
 
     /**
      * Get information about a specific Avatar.
      */
-    public async getAvatar({
-        avatarId,
-    }: VRCAPI.Avatars.Requests.getAvatarOption): Promise<VRCAPI.Avatars.Models.Avatar> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async getAvatar({ avatarId }: Avi.getAvatarOption): Promise<Avi.Avatar> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.getAvatar,
             pathFormated: ApiPaths.avatars.getAvatar.path.replace('{avatarId}', avatarId),
         };
 
-        return await this.executeRequest<VRCAPI.Avatars.Models.Avatar>(paramRequest);
+        return await this.executeRequest<Avi.Avatar>(paramRequest);
     }
 
     /**
@@ -157,10 +151,9 @@ export class AvatarsApi extends BaseApi {
         releaseStatus,
         version,
         unityPackageUrl,
-        unityVersion
-    }: VRCAPI.Avatars.Requests.updateAvatarOption): Promise<VRCAPI.Avatars.Models.Avatar> {
-
-        const body: VRCAPI.Avatars.Requests.dataKeysUpdateAvatar = {};
+        unityVersion,
+    }: Avi.updateAvatarOption): Promise<Avi.Avatar> {
+        const body: Avi.dataKeysUpdateAvatar = {};
 
         if (assetUrl) body.assetUrl = assetUrl;
         if (id) body.id = id;
@@ -173,58 +166,49 @@ export class AvatarsApi extends BaseApi {
         if (unityPackageUrl) body.unityPackageUrl = unityPackageUrl;
         if (unityVersion) body.unityVersion = unityVersion;
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.updateAvatar,
             pathFormated: ApiPaths.avatars.updateAvatar.path.replace('{avatarId}', avatarId),
-            body: body
+            body: body,
         };
 
-        return this.executeRequest<VRCAPI.Avatars.Models.Avatar>(paramRequest);
+        return this.executeRequest<Avi.Avatar>(paramRequest);
     }
 
     /**
      * Delete an avatar. Notice an avatar is never fully "deleted", only its ReleaseStatus is set to "hidden" and the linked Files are deleted. The AvatarID is permanently reserved.
      */
-    public async deleteAvatar({
-        avatarId,
-    }: VRCAPI.Avatars.Requests.deleteAvatarOption): Promise<VRCAPI.Avatars.Models.Avatar> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async deleteAvatar({ avatarId }: Avi.deleteAvatarOption): Promise<Avi.Avatar> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.deleteAvatar,
             pathFormated: ApiPaths.avatars.deleteAvatar.path.replace('{avatarId}', avatarId),
         };
 
-        return await this.executeRequest<VRCAPI.Avatars.Models.Avatar>(paramRequest);
+        return await this.executeRequest<Avi.Avatar>(paramRequest);
     }
 
     /**
      * Switches into that avatar.
      */
-    public async selectAvatar({
-        avatarId,
-    }: VRCAPI.Avatars.Requests.selectAvatarOption): Promise<VRCAPI.Users.Models.CurrentUser> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async selectAvatar({ avatarId }: Avi.selectAvatarOption): Promise<CurrentUser> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.selectAvatar,
             pathFormated: ApiPaths.avatars.selectAvatar.path.replace('{avatarId}', avatarId),
         };
 
-        return await this.executeRequest<VRCAPI.Users.Models.CurrentUser>(paramRequest);
+        return await this.executeRequest<CurrentUser>(paramRequest);
     }
 
     /**
      * Switches into that avatar as your fallback avatar.
      */
-    public async selectFallbackAvatar({
-        avatarId,
-    }: VRCAPI.Avatars.Requests.selectFallbackAvatarOption): Promise<VRCAPI.Users.Models.CurrentUser> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async selectFallbackAvatar({ avatarId }: Avi.selectFallbackAvatarOption): Promise<CurrentUser> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.selectFallbackAvatar,
             pathFormated: ApiPaths.avatars.selectFallbackAvatar.path.replace('{avatarId}', avatarId),
         };
 
-        return await this.executeRequest<VRCAPI.Users.Models.CurrentUser>(paramRequest);
+        return await this.executeRequest<CurrentUser>(paramRequest);
     }
 
     /**
@@ -242,9 +226,8 @@ export class AvatarsApi extends BaseApi {
         maxUnityVersion,
         minUnityVersion,
         platform,
-        userId
-    }: VRCAPI.Avatars.Requests.listFavoritedAvatarsOption): Promise<VRCAPI.Avatars.Models.Avatar[]> {
-
+        userId,
+    }: Avi.listFavoritedAvatarsOption): Promise<Avi.Avatar[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
         if (n) {
@@ -271,12 +254,11 @@ export class AvatarsApi extends BaseApi {
         if (platform) parameters.append('platform', platform);
         if (userId) parameters.append('user', userId);
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.listFavoritedAvatars,
             pathFormated: ApiPaths.avatars.listFavoritedAvatars.path,
         };
 
-        return await this.executeRequest<VRCAPI.Avatars.Models.Avatar[]>(paramRequest);
+        return await this.executeRequest<Avi.Avatar[]>(paramRequest);
     }
-
 }

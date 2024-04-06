@@ -1,7 +1,9 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { VRCRanks, VRCRanksName } from '../types/UsersEnums';
 import { BaseApi } from './BaseApi';
+import * as User from '../types/Users';
+import { AllTags, executeRequestType } from '../types/Generics';
+import { Group, RepresentedGroup } from '../types/Groups';
 
 export class UsersApi extends BaseApi {
     baseClass: VRChatAPI;
@@ -11,14 +13,7 @@ export class UsersApi extends BaseApi {
         this.baseClass = baseClass;
     }
 
-    async searchAllUsers({
-        search,
-        offset,
-        n,
-    }: VRCAPI.Users.Requests.SearchAllUsersRequest): Promise<
-        VRCAPI.Users.Models.LimitedUser[]
-    > {
-
+    async searchAllUsers({ search, offset, n }: User.SearchAllUsersRequest): Promise<User.LimitedUser[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
         if (n) {
@@ -36,13 +31,13 @@ export class UsersApi extends BaseApi {
 
         parameters.append('search', search);
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.users.searchAllUsers,
             pathFormated: ApiPaths.users.searchAllUsers.path,
             queryOptions: parameters,
         };
 
-        return await this.executeRequest<VRCAPI.Users.Models.LimitedUser[]>(paramRequest);
+        return await this.executeRequest<User.LimitedUser[]>(paramRequest);
     }
 
     /**
@@ -50,14 +45,13 @@ export class UsersApi extends BaseApi {
      * @param userId The id of the user to get information about.
      * @returns the information about the user. If the user is not found then it will return undefined.
      */
-    async getUserById({ userId }: VRCAPI.Users.Requests.getUserByIdRequest): Promise<VRCAPI.Users.Models.User> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    async getUserById({ userId }: User.getUserByIdRequest): Promise<User.User> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.users.getUserbyID,
             pathFormated: ApiPaths.users.getUserbyID.path.replace('{userId}', userId),
         };
 
-        return await this.executeRequest<VRCAPI.Users.Models.User>(paramRequest);
+        return await this.executeRequest<User.User>(paramRequest);
     }
 
     /**
@@ -73,10 +67,9 @@ export class UsersApi extends BaseApi {
         statusDescription,
         bio,
         bioLinks,
-        userIcon
-    }: VRCAPI.Users.Requests.updateUserByIdRequest): Promise<VRCAPI.Users.Models.CurrentUser> {
-
-        const body: VRCAPI.Users.Requests.dataKeysUpdateUser = {};
+        userIcon,
+    }: User.updateUserByIdRequest): Promise<User.CurrentUser> {
+        const body: User.dataKeysUpdateUser = {};
 
         if (email) body.email = email;
         if (birthday) body.birthday = birthday;
@@ -96,14 +89,13 @@ export class UsersApi extends BaseApi {
             body.bio = bio;
         }
 
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.users.updateUserInfo,
             pathFormated: ApiPaths.users.updateUserInfo.path.replace('{userId}', userId),
-            body: body
+            body: body,
         };
 
-        return await this.executeRequest<VRCAPI.Users.Models.CurrentUser>(paramRequest);
+        return await this.executeRequest<User.CurrentUser>(paramRequest);
     }
 
     /**
@@ -111,66 +103,63 @@ export class UsersApi extends BaseApi {
      * @param userId The id of the user to get information about.
      * @returns The information about the user. If the user is not found then it will return undefined.
      */
-    async getUserGroups({ userId }: VRCAPI.Users.Requests.getUserGroupsByUserIdRequest): Promise<VRCAPI.Groups.Models.Group[]> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    async getUserGroups({ userId }: User.getUserGroupsByUserIdRequest): Promise<Group[]> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.users.getUserGroups,
-            pathFormated: ApiPaths.users.getUserGroups.path.replace('{userId}', userId)
+            pathFormated: ApiPaths.users.getUserGroups.path.replace('{userId}', userId),
         };
 
-        return await this.executeRequest<VRCAPI.Groups.Models.Group[]>(paramRequest);
+        return await this.executeRequest<Group[]>(paramRequest);
     }
 
     /**
      * Returns a list of Groups the user has requested to be invited into.
      */
-    public async getUserGroupRequests({ userId }: VRCAPI.Users.Requests.getUserGroupRequestsOptions): Promise<VRCAPI.Groups.Models.Group[]> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async getUserGroupRequests({ userId }: User.getUserGroupRequestsOptions): Promise<Group[]> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.users.getUserGroupRequests,
             pathFormated: ApiPaths.users.getUserGroupRequests.path.replace('{userId}', userId),
         };
 
-        return await this.executeRequest<VRCAPI.Groups.Models.Group[]>(paramRequest);
+        return await this.executeRequest<Group[]>(paramRequest);
     }
 
     /**
      * Return a RepresentedGroup object for the user's current group that they are representing.
      */
-    public async getUserRepresentedGroup({ userId }: VRCAPI.Users.Requests.getUserRepresentedGroupOptions): Promise<VRCAPI.Groups.Models.RepresentedGroup> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async getUserRepresentedGroup({ userId }: User.getUserRepresentedGroupOptions): Promise<RepresentedGroup> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.users.getUserRepresentedGroup,
             pathFormated: ApiPaths.users.getUserRepresentedGroup.path.replace('{userId}', userId),
         };
 
-        return await this.executeRequest<VRCAPI.Groups.Models.RepresentedGroup>(paramRequest);
+        return await this.executeRequest<RepresentedGroup>(paramRequest);
     }
 }
 
 export type VRCRankResult = {
     isTroll: boolean;
-    rank: VRCRanks;
+    rank: User.VRCRanks;
     rankName: string;
-}
+};
 
 /**
  * This function is used to get the rank tag and tag name of a User/current User. Returns the highest rank tag of the user found.
  * @param user The User or CurrentUser object to get the rank tag from.
  * @returns {VRCRankResult} An object with the rank tag, the rank name and if the user is a troll. If the user has no rank tag, the rank will be set to Visitor.
- * 
+ *
  * *Complete rewrite of this part, now way more optimized.*
  */
-export function getVRCRankTags(user: VRCAPI.Users.Models.User | VRCAPI.Users.Models.CurrentUser): VRCRankResult {
+export function getVRCRankTags(user: User.User | User.CurrentUser): VRCRankResult {
     // the highest vrcrank we can find in the user's tag is the rank of the user we should return
     // Determine if the user is a troll
-    const isTroll = user.tags.includes(VRCRanks.Nuisance) || user.tags.includes("system_probable_troll");
+    const isTroll = user.tags.includes(User.VRCRanks.Nuisance) || user.tags.includes('system_probable_troll');
 
     // Determine the user's rank
-    let rank = VRCRanks.Visitor; // Default to Visitor if no other rank is found
-    for (const key in VRCRanks) {
-        if (user.tags.includes(VRCRanks[key as keyof typeof VRCRanks] as VRCAPI.Generics.AllTags)) {
-            rank = VRCRanks[key as keyof typeof VRCRanks];
+    let rank = User.VRCRanks.Visitor; // Default to Visitor if no other rank is found
+    for (const key in User.VRCRanks) {
+        if (user.tags.includes(User.VRCRanks[key as keyof typeof User.VRCRanks] as AllTags)) {
+            rank = User.VRCRanks[key as keyof typeof User.VRCRanks];
             break;
         }
     }
@@ -178,7 +167,7 @@ export function getVRCRankTags(user: VRCAPI.Users.Models.User | VRCAPI.Users.Mod
     return {
         isTroll,
         rank,
-        rankName: VRCRanksName[rank],
+        rankName: User.VRCRanksName[rank],
     };
 }
 
@@ -187,7 +176,6 @@ export function getVRCRankTags(user: VRCAPI.Users.Models.User | VRCAPI.Users.Mod
  * @param user The User object to check if it is a VRChat User with a current VRC+ subscription.
  * @returns `true` if the user is a VRChat User with a current VRC+ subscription, `false` otherwise.
  */
-export function isVRCPlusSubcriber(user: VRCAPI.Users.Models.User): boolean {
-    return user.tags.includes("system_supporter");
+export function isVRCPlusSubcriber(user: User.User): boolean {
+    return user.tags.includes('system_supporter');
 }
-

@@ -1,6 +1,8 @@
-import { VRChatAPI } from "../VRChatAPI";
-import { ApiPaths } from "../types/ApiPaths";
-import { BaseApi } from "./BaseApi";
+import { VRChatAPI } from '../VRChatAPI';
+import { ApiPaths } from '../types/ApiPaths';
+import { BaseApi } from './BaseApi';
+import * as Notif from '../types/Notifications';
+import { RequestSuccess, executeRequestType } from '../types/Generics';
 
 /**
  * This class is used to make requests to the Notifications API.
@@ -13,7 +15,6 @@ export class NotificationsApi extends BaseApi {
         this.baseClass = baseClass;
     }
 
-
     /**
      * Retrieve all of the current user's notifications.
      */
@@ -22,9 +23,8 @@ export class NotificationsApi extends BaseApi {
         n,
         after,
         offset,
-        hidden
-    }: VRCAPI.Notifications.Requests.ListNotificationsRequest): Promise<VRCAPI.Notifications.Models.Notification[]> {
-
+        hidden,
+    }: Notif.ListNotificationsRequest): Promise<Notif.Notification[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
         if (n) {
@@ -47,70 +47,65 @@ export class NotificationsApi extends BaseApi {
 
         parameters.append('type', type);
 
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.notifications.listNotifications,
             pathFormated: ApiPaths.notifications.listNotifications.path,
             queryOptions: parameters,
         };
 
-        return await this.executeRequest<VRCAPI.Notifications.Models.Notification[]>(paramRequest);
+        return await this.executeRequest<Notif.Notification[]>(paramRequest);
     }
 
     /**
      * Accept a friend request by notification `frq_` ID. Friend requests can be found using the NotificationsAPI `listNotifications` by filtering of type `friendRequest`. // todo to recheck
      */
-    public async acceptFriendRequest({
-        notificationId
-    }: VRCAPI.Notifications.Requests.AcceptFriendRequestRequest): Promise<VRCAPI.Generics.RequestSuccess> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async acceptFriendRequest({ notificationId }: Notif.AcceptFriendRequestRequest): Promise<RequestSuccess> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.notifications.acceptFriendRequest,
             pathFormated: ApiPaths.notifications.acceptFriendRequest.path.replace('{notificationId}', notificationId),
         };
 
-        return await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
+        return await this.executeRequest<RequestSuccess>(paramRequest);
     }
 
     /**
      * Mark a notification as seen.
      */
     public async markNotificationAsRead({
-        notificationId
-    }: VRCAPI.Notifications.Requests.MarkNotificationAsReadRequest): Promise<VRCAPI.Notifications.Models.Notification> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+        notificationId,
+    }: Notif.MarkNotificationAsReadRequest): Promise<Notif.Notification> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.notifications.markNotificationAsRead,
-            pathFormated: ApiPaths.notifications.markNotificationAsRead.path.replace('{notificationId}', notificationId),
+            pathFormated: ApiPaths.notifications.markNotificationAsRead.path.replace(
+                '{notificationId}',
+                notificationId
+            ),
         };
 
-        return await this.executeRequest<VRCAPI.Notifications.Models.Notification>(paramRequest);
+        return await this.executeRequest<Notif.Notification>(paramRequest);
     }
 
     /**
      * Delete a notification.
      */
-    public async deleteNotification({
-        notificationId
-    }: VRCAPI.Notifications.Requests.DeleteNotificationRequest): Promise<VRCAPI.Notifications.Models.Notification> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async deleteNotification({ notificationId }: Notif.DeleteNotificationRequest): Promise<Notif.Notification> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.notifications.deleteNotification,
             pathFormated: ApiPaths.notifications.deleteNotification.path.replace('{notificationId}', notificationId),
         };
 
-        return await this.executeRequest<VRCAPI.Notifications.Models.Notification>(paramRequest);
+        return await this.executeRequest<Notif.Notification>(paramRequest);
     }
 
     /**
      * Clear **all** notifications.
      */
-    public async clearAllNotifications(): Promise<VRCAPI.Generics.RequestSuccess> {
-
-        const paramRequest: VRCAPI.Generics.executeRequestType = {
+    public async clearAllNotifications(): Promise<RequestSuccess> {
+        const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.notifications.clearAllNotifications,
             pathFormated: ApiPaths.notifications.clearAllNotifications.path,
         };
 
-        return await this.executeRequest<VRCAPI.Generics.RequestSuccess>(paramRequest);
+        return await this.executeRequest<RequestSuccess>(paramRequest);
     }
 }
