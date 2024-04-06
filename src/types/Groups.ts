@@ -11,12 +11,12 @@ export type Group = {
     iconUrl?: string;
     bannerUrl?: string;
     bannerId?: string;
-    lastPostCreatedAt?: string; // TODO undocumented yet!
+    lastPostCreatedAt?: string; // assuming date-time is a string in ISO format
     privacy: GroupPrivacy;
     ownerId: string;
     rules?: string;
     links?: string[];
-    languages?: string[];
+    languages?: languageTagsShort[]; // only languages short tags
     memberCount: number;
     memberCountSyncedAt?: string; // assuming date-time is a string in ISO format
     isVerified?: boolean;
@@ -24,12 +24,13 @@ export type Group = {
     tags?: AllTags[];
     galleries?: GroupGallery[];
     createdAt?: string; // assuming date-time is a string in ISO format
-    initialRoleIds?: string[]; // TODO undocumented yet!
-    updatedAt?: string; // assuming date-time is a string in ISO format // TODO undocumented yet!
+    initialRoleIds?: string[]; // TODO undocumented yet! Seems to not be present anymore?
+    updatedAt?: string; // assuming date-time is a string in ISO format
     onlineMemberCount?: number;
     membershipStatus?: GroupMembershipStatus;
     myMember?: MyMember;
     roles?: GroupRole[];
+    badges?: string[]; // new attribute
 };
 
 export type LimitedGroup = {
@@ -76,9 +77,9 @@ export type GroupAudit = {
         actorId: string;
         actorDisplayName: string;
         targetId: string;
-        eventType: string;
+        eventType: GroupAuditLogEventType;
         description: string;
-        data:
+        data?:
             | GroupAuditLogDataPostCreated
             | GroupAuditLogDataPostDeleted
             | GroupAuditLogDataRoleCreate
@@ -90,7 +91,8 @@ export type GroupAudit = {
             | GroupAuditLogDataGroupUpdate
             | GroupAuditLogGalleryCreate
             | GroupAuditLogGalleryUpdate
-            | GroupAuditLogGalleryDelete;
+            | GroupAuditLogGalleryDelete
+            | GroupAuditLogDataGroupInstanceCreate;
     }[];
     totalCount: number;
     hasNext: boolean;
@@ -141,6 +143,7 @@ export enum GroupAuditLogEventType {
     // Invite events
     Group_Invite_Create = 'group.invite.create',
     // Group Request events
+    Group_Request_Create = 'group.request.create',
     Group_Request_Deny = 'group.request.reject',
     Group_Request_Deny_Block = 'group.request.block',
     // Gallery events
@@ -158,6 +161,7 @@ export type GroupAuditLogDataPostCreated = {
     authorId?: string;
     sendNotification?: boolean;
     roleIds?: string[];
+    visibility: GroupPostVisibilityType;
 };
 
 export type GroupAuditLogDataPostDeleted = {
@@ -171,6 +175,7 @@ export type GroupAuditLogDataPostDeleted = {
     roleIds?: string[];
     createdAt: string;
     updatedAt: string;
+    visibility: GroupPostVisibilityType;
 };
 
 export type GroupAuditLogDataRoleCreate = {
@@ -309,6 +314,11 @@ export type GroupAuditLogGalleryDelete = {
     updatedAt: string;
 };
 
+export type GroupAuditLogDataGroupInstanceCreate = {
+    groupAccessType: string; // 'member'
+    roleIds?: string[];
+};
+
 export type GroupAnnouncement = {
     id: string;
     groupId: string;
@@ -393,6 +403,10 @@ export type GroupRole = {
     order: number;
     createdAt: string; // assuming date-time is a string in ISO format
     updatedAt: string; // assuming date-time is a string in ISO format
+    /** The default role is the role that is assigned to all members by default. If set to true, this role will be given to any members that join the VRChat Group */
+    defaultRole: boolean; //! new attribute
+    /** The role that will be assigned to new members when they join the VRChat Group */
+    isAddedOnJoin: boolean; //! new attribute
 };
 
 export type GroupGallery = {
@@ -422,11 +436,12 @@ export type GroupGalleryImage = {
 };
 
 export type GroupPermission = {
-    name: string;
+    allowedToAdd: boolean;
+    dependsOn: GroupPermissionEnum[];
     displayName: string;
     help: string;
     isManagementPermission: boolean;
-    allowedToAdd: boolean;
+    name: string;
 };
 
 export enum GroupMembershipStatus {
@@ -954,6 +969,8 @@ export type dataKeysCreateGroupRole = ReqName &
         isSelfAssignable?: boolean;
         /** The permissions of the role. *[OPTIONAL]*.*/
         permissions?: GroupPermissionEnum[];
+        /** If this role requires to be purchased. *[OPTIONAL]* Default to false. Only if you are a VRChat creator.*/
+        requiresPurchase?: boolean;
     };
 /** Information Required to request to create a group role. */
 export type createGroupRoleRequest = GroupId & dataKeysCreateGroupRole;

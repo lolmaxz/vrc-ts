@@ -1033,14 +1033,18 @@ export class GroupsApi extends BaseApi {
     /**
      * Deletes a Group Role by ID and returns the remaining roles.
      * @param deleteGroupRoleRequest - { groupId, groupRoleId }
-     * @returns
+     * @returns {Group.GroupRole[]} The GroupRole object of the remaining roles.
      */
     public async deleteGroupRole({ groupId, groupRoleId }: Group.deleteGroupRoleRequest): Promise<Group.GroupRole[]> {
+        const parameters: URLSearchParams = new URLSearchParams();
+        parameters.append('confirm', 'true');
+
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.deleteGroupRole,
             pathFormated: ApiPaths.groups.deleteGroupRole.path
                 .replace('{groupId}', groupId)
                 .replace('{groupRoleId}', groupRoleId),
+            queryOptions: parameters, // fixed this parameter that was missing
         };
 
         return await this.executeRequest<Group.GroupRole[]>(paramRequest);
