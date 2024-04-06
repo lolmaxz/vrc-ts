@@ -2,6 +2,7 @@ import { APIPaths } from "./Generics";
 
 export const ApiPaths: APIPaths = {
     apiBasePath: "https://api.vrchat.cloud/api/1",
+    apiBasePath2: "https://vrchat.com/api/1",
     auth: {
         userExist: { path: "/auth/exists", method: "GET", cookiesNeeded: ["none"] },
         getCurrentUserInfo: { path: "/auth/user", method: "GET", cookiesNeeded: ["authCookie", "authorization", "twoFactorAuth"] },
@@ -121,10 +122,11 @@ export const ApiPaths: APIPaths = {
     },
     instances: {
         getInstance: { path: "/instances/{worldId}:{instanceId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
-        getInstanceShortName: { path: "/instances/{worldId}:{instanceId}/shortName", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
+        getInstanceShortName: { path: "/instances/{instanceId}/shortName", method: "GET", cookiesNeeded: ["authCookie", "twoFactorAuth"], requiredQueryParams: ["instanceId"], secondPath: true },
         sendSelfInvite: { path: "/instances/{worldId}:{instanceId}/invite", method: "POST", deprecated:true, cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
         getInstanceByShortName: { path: "/instances/s/{shortName}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["shortName"] },
-        createInstance: { path: "/instances", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
+        createNormalInstance: { path: "/instances/{instanceId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["instanceId"] },
+        createGroupInstance: { path: "/instances", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, secondPath: true},
     },
 
     notifications: {

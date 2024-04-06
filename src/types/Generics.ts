@@ -26,7 +26,7 @@ import {
     dataKeysUpdateGroupMember,
     dataKeysUpdateGroupRole,
 } from './Groups';
-import { CreateRegularInstanceRequest } from './Instances';
+import { CreateRegularInstanceRequest, dataKeysCreateGroupInstance } from './Instances';
 import {
     dataKeysInviteResponse,
     dataKeysRequestInvite,
@@ -158,6 +158,7 @@ export type subSectionType = {
     deprecated?: boolean;
     requiresData?: boolean;
     notImplemented?: boolean;
+    secondPath?: boolean;
 };
 
 export type subSectionPath = {
@@ -166,6 +167,7 @@ export type subSectionPath = {
 
 export type APIPaths = {
     apiBasePath: string;
+    apiBasePath2: string;
     auth: {
         userExist: subSectionType;
         getCurrentUserInfo: subSectionType;
@@ -288,7 +290,8 @@ export type APIPaths = {
         getInstanceShortName: subSectionType;
         sendSelfInvite: subSectionType;
         getInstanceByShortName: subSectionType;
-        createInstance: subSectionType;
+        createNormalInstance: subSectionType;
+        createGroupInstance: subSectionType;
     };
     notifications: {
         listNotifications: subSectionType;
@@ -382,7 +385,8 @@ export type dataSetKeys =
     | GetOwnTransactionsRequest
     | GetTiliaTOSRequest
     | GetUserBalanceRequest
-    | GetLicenseRequest;
+    | GetLicenseRequest
+    | dataKeysCreateGroupInstance;
 
 export type dataKeys2Fa = {
     code: string;

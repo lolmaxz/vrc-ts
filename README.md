@@ -151,7 +151,7 @@ Here is the full list of endpoints by category that this wrapper does implements
 
 **Instances API** :
 
--   `getInstance`, `getInstanceShortName`, `sendSelfInvite`, `getInstanceByShortName`, `createInstance`
+-   `getInstance`, `getInstanceShortName`, `sendSelfInvite`, `getInstanceByShortName`, ~~`createInstance`~~, `createNormalInstance`🆕, `createGroupInstance`🆕
 
 **Notifications API** :
 
@@ -179,6 +179,7 @@ Here is the full list of endpoints by category that this wrapper does implements
 
 ! Marks of an asterics are either not yet implemented or yet to be added. Progress is going fast, come back to see the update.
 ! Crossed Endpoints are deprecated and aren't used by VRChat anymore or will soon stop to be.
+! Instance creation have two separate endpoints now! One for regular instance and one for group instance. For regular instance you can also just create the instance ID without touching the API. Function is called `generateNormalInstanceIdOnly()` in the `instanceApi`.
 
 ## WebSocket
 

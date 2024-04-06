@@ -34,7 +34,12 @@ export class BaseApi {
         });
 
         // if all query parameters are present in the query params variable then we can replace them with our parameter from the template
-        const currentPath = this.baseClass.basePath + pathFormated;
+        let currentPath = '';
+        if (currentRequest.secondPath) {
+            currentPath = this.baseClass.basePath2 + pathFormated;
+        } else {
+            currentPath = this.baseClass.basePath + pathFormated;
+        }
         const url: URL = new URL(currentPath);
 
         if (queryOptions && queryOptions.toString()) {

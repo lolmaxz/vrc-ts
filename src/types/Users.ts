@@ -58,6 +58,7 @@ export type CurrentUser = {
     acceptedPrivacyVersion?: number;
     steamId?: string;
     googleId?: string;
+    googleDetails: object; // todo unknown yet, to research more
     steamDetails: object; // todo unknown yet, to research more
     oculusId?: string;
     picoId?: string;
@@ -90,6 +91,7 @@ export type currentUserOrTwoFactorType = twoFactorAuthResponseType | CurrentUser
 export type PastDisplayName = {
     displayName: string;
     updated_at: string;
+    reverted: boolean; // new
 };
 
 /** Typically "Deletion requested" or "Deletion canceled". Other messages like "Deletion completed" may exist, but are these are not possible to see as a regular user.

@@ -150,7 +150,7 @@ export type VRCRankResult = {
  *
  * *Complete rewrite of this part, now way more optimized.*
  */
-export function getVRCRankTags(user: User.User | User.CurrentUser): VRCRankResult {
+export function getVRCRankTags(user: User.User | User.CurrentUser | User.LimitedUser): VRCRankResult {
     // the highest vrcrank we can find in the user's tag is the rank of the user we should return
     // Determine if the user is a troll
     const isTroll = user.tags.includes(User.VRCRanks.Nuisance) || user.tags.includes('system_probable_troll');
