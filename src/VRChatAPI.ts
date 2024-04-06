@@ -33,6 +33,7 @@ export class VRChatAPI {
     public static ApiBaseUrl: string = 'https://api.vrchat.cloud/api/1';
     headerAgent: string = process.env.USER_AGENT || 'ExampleApp/1.0.0 Email@example.com';
     basePath: string = ApiPaths.apiBasePath;
+    basePath2: string = ApiPaths.apiBasePath;
     cookiesLoaded = false;
 
     authApi: AuthApi = new AuthApi(this);

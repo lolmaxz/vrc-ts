@@ -18,11 +18,14 @@ export class InvitesApi extends BaseApi {
 
     /**
      * Sends an invite to a user. Returns the Notification of type `invite` that was sent.
+     * @param userId The user ID to send the invite to. This is the ID of the user you want to invite. It CANNOT be your own user ID. Use `inviteMyselfToInstance` instead.
+     * @param instanceId The instance ID of the instance you want to invite the user to. If you use an Instance Object, you can get the `instance id`` attribute from the object, NOT the ID attribute.
+     * @param messageSlot The slot number of the message. This is a number between 1 and 11. If you don't provide this, it will default to 1.
      */
     public async inviteUser({
         userId,
         instanceId,
-        messageSlot,
+        messageSlot = 1,
     }: Inv.InviteUserRequest): Promise<Notif.SentNotification> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.invites.inviteUser,

@@ -35,9 +35,10 @@ export type Instance = {
      */
     canRequestInvite: boolean;
     permanent: boolean; // todo research more
-    groupAccessType: string; // todo research more
+    groupAccessType?: string; // todo research more
     strict: boolean; // todo research more
-    nonce: string; // todo research more
+    /** Required to generate an instance that isn't public */
+    nonce: string;
     users?: string[]; // todo research more
     hidden?: string; // hidden field is only present if InstanceType is hidden aka "Friends+", and is instance creator. // TODO research more
     friends?: string; //friends field is only present if InstanceType is friends aka "Friends", and is instance creator. // TODO research more
@@ -93,24 +94,54 @@ export enum InstanceRegionType {
 export enum GroupAccessType {
     Group_Public = 'public',
     Group_Plus = 'plus',
-    Group_Members = 'member',
+    Group_Members = 'members',
 }
 
 //! --- Requests --- !//
 
 export type CreateRegularInstanceRequest = {
     worldId: string;
-    ownerId?: string;
     region: InstanceRegionType;
+    instanceCode?: number | string;
+} & (PublicType | Friends_Invite_Type);
+
+export type PublicType = {
+    instanceType: InstanceAccessNormalType.Public;
+    ownerId?: string;
 };
+
+export type Friends_Invite_Type = {
+    instanceType:
+        | InstanceAccessNormalType.Friends
+        | InstanceAccessNormalType.Invite
+        | InstanceAccessNormalType.Invite_Plus
+        | InstanceAccessNormalType.Friends_Plus;
+    /** Only required if the instance isn't of type 'Public' */
+    ownerId: string;
+};
+
+type NonEmptyArray<T> = [T, ...T[]];
 
 export type CreateGroupInstanceRequest = {
     worldId: string;
-    groupAccessType: string;
-    ownerId?: string;
+    groupAccessType: GroupAccessType;
+    /** The GROUP ID of the group you want to create an instance for. */
+    groupId: string;
     region: InstanceRegionType;
+    roleIds: NonEmptyArray<string>;
     queueEnabled?: boolean;
-    roleIds?: string[];
+    instanceCode?: number | string;
+};
+
+export type dataKeysCreateGroupInstance = {
+    groupAccessType: GroupAccessType;
+    ownerId: string;
+    queueEnabled: boolean;
+    region: InstanceRegionType;
+    roleIds: NonEmptyArray<string>;
+    type: 'group';
+    worldId: string;
+    instanceCode: number | string;
 };
 
 /** The Required Parameters to get an instance. */
@@ -121,7 +152,6 @@ export type GetInstanceRequest = {
 
 /** The Required Parameters to get an instance's short name. */
 export type GetInstanceShortNameRequest = {
-    worldId: string;
     instanceId: string;
 };
 
@@ -135,3 +165,11 @@ export type SendSelfInviteRequest = {
 export type GetInstanceByShortName = {
     shortName: string;
 };
+
+export enum InstanceAccessNormalType {
+    Public,
+    Friends_Plus,
+    Friends,
+    Invite,
+    Invite_Plus,
+}
