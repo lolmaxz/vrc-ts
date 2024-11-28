@@ -17,7 +17,7 @@ import { SystemApi } from './requests/SystemApi';
 import { UsersApi } from './requests/UsersApi';
 import { WorldsApi } from './requests/WorldsApi';
 import { ApiPaths } from './types/ApiPaths';
-import { currentUserOrTwoFactorType } from './types/Users';
+import { CurrentUser, currentUserOrTwoFactorType } from './types/Users';
 
 /**
  * This class is used to authenticate the user and get the current user information.
@@ -35,6 +35,7 @@ export class VRChatAPI {
     basePath: string = ApiPaths.apiBasePath;
     basePath2: string = ApiPaths.apiBasePath;
     cookiesLoaded = false;
+    currentUser: CurrentUser | null = null;
 
     authApi: AuthApi = new AuthApi(this);
     avatarApi: AvatarsApi = new AvatarsApi(this);
@@ -65,7 +66,6 @@ export class VRChatAPI {
         }
 
         this.isAuthentificated = false;
-        this.instanceCookie = new cookiesHandler(this.username);
         this.instanceCookie = new cookiesHandler(this.username);
     }
 
@@ -108,10 +108,12 @@ export class VRChatAPI {
 
             if ('displayName' in getCurrentUser) {
                 this.isAuthentificated = true;
+                this.currentUser = getCurrentUser;
                 console.log(`${C.green}Logged in as: ${C.r}`, getCurrentUser.displayName);
                 return;
             } else if ('verified' in getCurrentUser && !getCurrentUser.verified) {
                 this.isAuthentificated = false;
+                this.currentUser = null;
             } else {
                 console.log('2FA required, attempt to login using 2FA authentication...');
 
@@ -124,6 +126,10 @@ export class VRChatAPI {
                         // if after verifying email otp we are verified then we are logged in and we set isAuthentificated to true, otherwise we throw an error
                         if (!verify.verified) {
                             this.isAuthentificated = false;
+                            this.currentUser = null;
+                            console.log(
+                                '2FA emailOtp required, attempt to login using 2FA email Otp authentication...'
+                            );
                             throw new EmailOtpRequired(
                                 '\nTIPS: Add/Update your Email code inside the .env file.\nYou might have received the code by Email!'
                             );
@@ -141,6 +147,7 @@ export class VRChatAPI {
                         // if we can login then we are logged in and we set isAuthentificated to true, otherwise we throw an error
                         if (!verify.verified) {
                             this.isAuthentificated = false;
+                            this.currentUser = null;
                             throw new TOTPRequired(
                                 "Authentication failed! TOTP authentication didn't work. Check your credentials or your TOTP code/secret in your .env file."
                             );
@@ -153,12 +160,15 @@ export class VRChatAPI {
 
             if (this.isAuthentificated) {
                 const currentUser = await this.authApi.getCurrentUser();
+                this.currentUser = currentUser;
                 console.log(`${C.green}Logged in as: ${C.r}`, currentUser.displayName);
                 return;
             }
         } catch (error) {
-            if (error instanceof EmailOtpRequired || error instanceof TOTPRequired) {
-                console.log(error.message);
+            if (error instanceof EmailOtpRequired) {
+                throw new EmailOtpRequired(error.message);
+            } else if (error instanceof TOTPRequired) {
+                throw new TOTPRequired(error.message);
             } else if (error instanceof Error) {
                 // check if message is contains 401
                 if (error.message.includes('401')) {

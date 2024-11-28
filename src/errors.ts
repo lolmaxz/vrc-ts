@@ -98,10 +98,7 @@ export class RequestError extends Error {
  */
 export class UserNotAuthenticated extends Error {
     constructor(message?: string) {
-        super(
-            message &&
-            `${C.yellow}[ WARNING ]${C.reset} - User is not authenticated yet!`,
-        );
+        super(message && `${C.yellow}[ WARNING ]${C.reset} - User is not authenticated yet!`);
     }
 }
 
@@ -111,6 +108,6 @@ export class UserNotAuthenticated extends Error {
  */
 export class BadRequestParameter extends Error {
     constructor(message?: string) {
-        super(message && `${C.yellow}[ WARNING ]${C.reset} - Bad request parameter: ${message}`,);
+        super(message && `${C.yellow}[ WARNING ]${C.reset} - Bad request parameter: ${message}`);
     }
 }

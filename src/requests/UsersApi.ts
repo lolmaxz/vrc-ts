@@ -1,9 +1,9 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
-import * as User from '../types/Users';
 import { AllTags, executeRequestType } from '../types/Generics';
 import { Group, RepresentedGroup } from '../types/Groups';
+import * as User from '../types/Users';
+import { BaseApi } from './BaseApi';
 
 export class UsersApi extends BaseApi {
     baseClass: VRChatAPI;
@@ -103,7 +103,13 @@ export class UsersApi extends BaseApi {
      * @param userId The id of the user to get information about.
      * @returns The information about the user. If the user is not found then it will return undefined.
      */
-    async getUserGroups({ userId }: User.getUserGroupsByUserIdRequest): Promise<Group[]> {
+    async getUserGroups({ userId }: User.getUserGroupsByUserIdRequest = {}): Promise<Group[]> {
+        if (!userId && !this.baseClass.currentUser) {
+            throw new Error('No user ID was provided and no user is logged in!');
+        }
+        if (!userId && this.baseClass.currentUser) userId = this.baseClass.currentUser.id;
+
+        if (!userId) throw new Error('No user ID was provided!');
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.users.getUserGroups,
             pathFormated: ApiPaths.users.getUserGroups.path.replace('{userId}', userId),

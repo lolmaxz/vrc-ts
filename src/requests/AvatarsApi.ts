@@ -1,9 +1,9 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
 import * as Avi from '../types/Avatars';
 import { executeRequestType } from '../types/Generics';
 import { CurrentUser } from '../types/Users';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the Avatars API.

@@ -1,9 +1,9 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
-import * as Wrld from '../types/Worlds';
 import { executeRequestType } from '../types/Generics';
 import { Instance } from '../types/Instances';
+import * as Wrld from '../types/Worlds';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the Worlds API.

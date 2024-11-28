@@ -1,9 +1,9 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { BadRequestParameter } from '../errors';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
-import * as Group from '../types/Groups';
 import { RequestSuccess, executeRequestType } from '../types/Generics';
+import * as Group from '../types/Groups';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the Groups API.
@@ -776,16 +776,13 @@ export class GroupsApi extends BaseApi {
      * @param getGroupMemberRequest - { groupId, userId }
      * @returns
      */
-    public async getGroupMember({
-        groupId,
-        userId,
-    }: Group.getGroupMemberRequest): Promise<Group.GroupMemberLimitedUser> {
+    public async getGroupMember({ groupId, userId }: Group.getGroupMemberRequest): Promise<Group.GroupMember> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupMember,
             pathFormated: ApiPaths.groups.getGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId),
         };
 
-        return await this.executeRequest<Group.GroupMemberLimitedUser>(paramRequest);
+        return await this.executeRequest<Group.GroupMember>(paramRequest);
     }
 
     /**

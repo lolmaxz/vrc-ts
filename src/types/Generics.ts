@@ -13,7 +13,6 @@ import { dataKeysFavoriteTypes } from './Favorites';
 import { dataKeysCreateFile, dataKeysCreateFileVersion, dataKeysFinishFileDataUpload } from './Files';
 import {
     createGroupRequest,
-    searchGroupRequest,
     dataKeysAddGroupGalleryImage,
     dataKeysCreateGroupAnnouncement,
     dataKeysCreateGroupInvite,
@@ -25,6 +24,7 @@ import {
     dataKeysUpdateGroup,
     dataKeysUpdateGroupMember,
     dataKeysUpdateGroupRole,
+    searchGroupRequest,
 } from './Groups';
 import { CreateRegularInstanceRequest, dataKeysCreateGroupInstance } from './Instances';
 import {
@@ -99,16 +99,16 @@ export type RequestError = {
 };
 
 export interface APIResponse<T> extends Omit<Response, 'ok' | 'json'> {
-    ok: true;
+    ok: boolean;
     json(): Promise<T>;
 }
 
 export interface APIErrorResponse<E> extends Omit<Response, 'ok' | 'json'> {
-    ok: false;
+    ok: boolean;
     json(): Promise<E>;
 }
 
-export type API<T, E> = APIResponse<T> | APIErrorResponse<E>;
+export type API<T, E> = APIResponse<T> | (APIErrorResponse<E> | APIErrorResponse<unknown>);
 
 export type QueryParamsList = { name: string; value: string }[];
 

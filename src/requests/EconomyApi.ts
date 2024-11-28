@@ -1,8 +1,8 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
 import * as Eco from '../types/Economy';
 import { executeRequestType } from '../types/Generics';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the Favorites API.

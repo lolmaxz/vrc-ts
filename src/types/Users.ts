@@ -73,6 +73,9 @@ export type CurrentUser = {
     developerType: DeveloperType;
     last_login: string;
     last_platform: string;
+    ageVerificationStatus: AgeVerificationStatus | string;
+    ageVerified: boolean;
+    isAdult: boolean;
     allowAvatarCopying: boolean;
     status: UserStatus;
     date_joined: string;
@@ -83,7 +86,14 @@ export type CurrentUser = {
     activeFriends?: string[];
     presence?: CurrentUserPresence;
     offlineFriends?: string[];
+    isBoopingEnabled: boolean;
 };
+
+export enum AgeVerificationStatus {
+    Hidden = 'hidden',
+    Age_Verified = 'age_verified', //! PLACEHOLDER
+    Verified_18_Plus = 'verified_18_plus', //! PLACEHOLDER
+}
 
 export type currentUserOrTwoFactorType = twoFactorAuthResponseType | CurrentUser;
 
@@ -206,6 +216,7 @@ export type UserBase = {
     last_platform: string;
     status: UserStatus;
     allowAvatarCopying: boolean;
+    ageVerificationStatus: AgeVerificationStatus;
     tags: AllTags[];
 };
 
@@ -292,6 +303,10 @@ export type UserId = {
     /** The user's ID needed to perform this action.*/
     userId: string;
 };
+export type OptionalUserId = {
+    /** The user's ID needed to perform this action.*/
+    userId?: string;
+};
 /** Search All Users Options */
 export type SearchAllUsersRequest = {
     /** Searches by displayName. Will return empty array if search query is empty or missing. Min 0 characters*/
@@ -347,7 +362,7 @@ export type updateUserByIdRequest = dataKeysUpdateUser &
     };
 
 /** Information required to get a user's groups. */
-export type getUserGroupsByUserIdRequest = UserId;
+export type getUserGroupsByUserIdRequest = OptionalUserId;
 
 /** Information required to get a user's group requests. */
 export type getUserGroupRequestsOptions = UserId;

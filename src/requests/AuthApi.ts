@@ -1,3 +1,4 @@
+import totp from 'totp-generator';
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
 import {
@@ -10,7 +11,6 @@ import {
 import { RequestSuccess, dataKeys2Fa, executeRequestType } from '../types/Generics';
 import { CurrentUser } from '../types/Users';
 import { BaseApi } from './BaseApi';
-import totp from 'totp-generator';
 
 export class AuthApi extends BaseApi {
     baseClass: VRChatAPI;

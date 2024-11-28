@@ -78,6 +78,7 @@ web_modules/
 .env.test.local
 .env.production.local
 .env.local
+.env.test
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -134,3 +135,19 @@ dist
 cookies.json
 ./cookies_*.json
 cookies_*.json
+
+/node_modules
+
+# Ignore test-related files
+/coverage.data
+/coverage/
+
+# Build files
+/dist
+
+tests/*
+jest.config.js
+jest.setup.js
+fixup.bat
+
+**./*.test.*

@@ -1,8 +1,8 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
-import * as Perm from '../types/Permissions';
 import { executeRequestType } from '../types/Generics';
+import * as Perm from '../types/Permissions';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the Permissions API.
