@@ -119,7 +119,7 @@ type WebSocketParameters = {
     logAllEvents?: boolean;
 };
 
-export class WebSocketClient extends WebSocket {
+export class VRCWebSocket extends WebSocket {
     private heartbeatInterval: NodeJS.Timeout | null = null;
     public lastPingTimestamp: number | null = null;
     private baseClass: VRChatAPI;
