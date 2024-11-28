@@ -1,6 +1,6 @@
 {
     "name": "vrc-ts",
-    "version": "1.0.2",
+    "version": "1.0.2.1",
     "description": "A Complete VRChat Wrapper in TypeScript",
     "type": "module",
     "main": "./dist/index.cjs",
