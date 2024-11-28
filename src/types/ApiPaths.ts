@@ -1,4 +1,4 @@
-import { APIPaths } from "./Generics";
+import { APIPaths } from "./Generics.js";
 
 export const ApiPaths: APIPaths = {
     apiBasePath: "https://api.vrchat.cloud/api/1",

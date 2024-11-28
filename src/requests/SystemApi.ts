@@ -1,8 +1,8 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
-import * as Sys from '../types/System';
 import { executeRequestType } from '../types/Generics';
+import * as Sys from '../types/System';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the System API.

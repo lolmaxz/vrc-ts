@@ -1,10 +1,9 @@
 import WebSocket from 'ws';
-import { VRChatAPI } from '../VRChatAPI';
-import { EventEmitter } from 'events';
+import { BaseMyMember, GroupPermissionEnum } from '../types/Groups';
 import { NotificationBase, NotificationTypes } from '../types/Notifications';
 import { UserBase, UserUpdateWebSocket } from '../types/Users';
 import { BaseWorld } from '../types/Worlds';
-import { BaseMyMember, GroupPermissionEnum } from '../types/Groups';
+import { VRChatAPI } from '../VRChatAPI';
 
 export enum EventType {
     /** When a user gets online, undocumented, untested! might be deprecated! */
@@ -120,11 +119,10 @@ type WebSocketParameters = {
     logAllEvents?: boolean;
 };
 
-export class WebSocketClient extends EventEmitter {
-    private ws: WebSocket;
+export class WebSocketClient extends WebSocket {
     private heartbeatInterval: NodeJS.Timeout | null = null;
     public lastPingTimestamp: number | null = null;
-    baseClass: VRChatAPI;
+    private baseClass: VRChatAPI;
     badLoginDetected = false;
     lastPing: number = Date.now();
     private reconnectAttempts = 0;
@@ -165,24 +163,29 @@ export class WebSocketClient extends EventEmitter {
      * .
      */
     constructor({ vrchatAPI, eventsToListenTo = [], logAllEvents = false }: WebSocketParameters) {
-        super();
-        this.ws = new WebSocket(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
+        super(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
             headers: {
                 'user-agent': process.env.USER_AGENT || 'ExampleBot/1.0.0',
             },
         });
 
+        // this.ws = new WebSocket(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
+        //     headers: {
+        //         'user-agent': process.env.USER_AGENT || 'ExampleBot/1.0.0',
+        //     },
+        // });
+
         this.eventsToListenTo = eventsToListenTo;
 
-        this.ws.on('open', this.onOpen.bind(this));
-        this.ws.on('message', this.onMessage.bind(this));
-        this.ws.on('error', this.onError.bind(this));
-        this.ws.on('close', this.onClose.bind(this));
-        this.ws.on('unexpected-response', (req, res) => {
+        super.on('open', this.onOpen.bind(this));
+        super.on('message', this.onMessage.bind(this));
+        super.on('error', this.onError.bind(this));
+        super.on('close', this.onClose.bind(this));
+        super.on('unexpected-response', (req, res) => {
             console.log('Unexpected response: ', res);
             console.log('Unexpected response: ', req);
         });
-        this.ws.on('ping', this.onPing.bind(this));
+        super.on('ping', this.onPing.bind(this));
 
         this.baseClass = vrchatAPI;
         this.logAllEvents = logAllEvents;
@@ -487,7 +490,7 @@ export class WebSocketClient extends EventEmitter {
     private badRequestDisconect() {
         console.error('Bad request from WebSocket, error: ');
         this.badLoginDetected = true;
-        this.ws.close(); // we close the connection if the login is bad!
+        super.close(); // we close the connection if the login is bad!
     }
 
     private onError(error: Error): void {
@@ -510,16 +513,12 @@ export class WebSocketClient extends EventEmitter {
         setTimeout(() => {
             this.reconnectAttempts++;
             console.log('Reconnecting...');
-            this.ws = new WebSocket(`wss://vrchat.com/?authToken=${this.baseClass.instanceCookie.getAuthCookieKey()}`, {
-                headers: {
-                    'user-agent': process.env.USER_AGENT || 'ExampleBot/1.0.0',
-                },
-            });
-            this.ws.on('open', this.onOpen.bind(this));
-            this.ws.on('message', this.onMessage.bind(this));
-            this.ws.on('error', this.onError.bind(this));
-            this.ws.on('close', this.onClose.bind(this));
-            this.ws.on('ping', this.onPing.bind(this));
+            super.resume();
+            super.on('open', this.onOpen.bind(this));
+            super.on('message', this.onMessage.bind(this));
+            super.on('error', this.onError.bind(this));
+            super.on('close', this.onClose.bind(this));
+            super.on('ping', this.onPing.bind(this));
         }, reconnectAfterMs);
     }
 
@@ -538,7 +537,7 @@ export class WebSocketClient extends EventEmitter {
                 if (this.heartbeatInterval) {
                     clearInterval(this.heartbeatInterval);
                 }
-                this.ws.close();
+                super.close();
             }
         }, 5000); // Check the connection every 5 seconds
     }

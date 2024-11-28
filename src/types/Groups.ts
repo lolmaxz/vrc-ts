@@ -31,6 +31,7 @@ export type Group = {
     myMember?: MyMember;
     roles?: GroupRole[];
     badges?: string[]; // new attribute
+    isRepresenting?: boolean; // new attribute
 };
 
 export type LimitedGroup = {

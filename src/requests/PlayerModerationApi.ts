@@ -1,8 +1,8 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
-import * as PlayerMod from '../types/PlayerModeration';
 import { RequestSuccess, executeRequestType } from '../types/Generics';
+import * as PlayerMod from '../types/PlayerModeration';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the PlayerModeration API.

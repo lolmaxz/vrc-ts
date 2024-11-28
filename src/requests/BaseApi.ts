@@ -107,7 +107,7 @@ export class BaseApi {
             let extraMessage = '';
             console.log('not okay?:', response);
 
-            const reponseTry = await response.json();
+            const reponseTry = (await response.json()) as RequestError;
             console.log(reponseTry);
 
             if ('error' in reponseTry) {
@@ -130,7 +130,7 @@ export class BaseApi {
             await this.baseClass.instanceCookie.addCookiesFromStrings(cookies);
         }
 
-        const result = await response.json();
+        const result = (await response.json()) as E;
         if (process.env.DEBUG === 'true') {
             console.log('RESULTS: ', result);
         }

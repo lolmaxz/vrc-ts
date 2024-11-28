@@ -1,9 +1,9 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
-import * as Notif from '../types/Notifications';
-import * as Inv from '../types/Invites';
 import { executeRequestType } from '../types/Generics';
+import * as Inv from '../types/Invites';
+import * as Notif from '../types/Notifications';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the Invites API.

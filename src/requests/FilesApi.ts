@@ -1,8 +1,8 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { BaseApi } from './BaseApi';
 import * as File from '../types/Files';
 import { RequestSuccess, executeRequestType } from '../types/Generics';
+import { BaseApi } from './BaseApi';
 
 /**
  * This class is used to make requests to the Files API.
