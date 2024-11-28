@@ -59,5 +59,24 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/lolmaxz/vrchat-wrapper-ts.git"
-    }
+    },
+    "homepage": "https://github.com/lolmaxz/vrchat-wrapper-ts.git",
+    "bugs": {
+        "url": "https://github.com/lolmaxz/vrchat-wrapper-ts/issues",
+        "email": "lolmaxz@theedenapis.com"
+    },
+    "funding": [
+        {
+            "type": "individual",
+            "url": "https://www.paypal.com/donate?hosted_button_id=D5ZR8GWXVY7Q2"
+        },
+        {
+            "type": "patreon",
+            "url": "https://www.patreon.com/theedenapis"
+        },
+        {
+            "type": "BuyMeACoffee",
+            "url": "https://www.buymeacoffee.com/theedenapis"
+        }
+    ]
 }
