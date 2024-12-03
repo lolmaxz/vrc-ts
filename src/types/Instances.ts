@@ -1,5 +1,8 @@
 //! --- Instances --- !//
 
+import { InstanceIdType } from './Generics';
+import { World } from './Worlds';
+
 export type Instance = {
     id: string;
     location: string; // the full ID of the instance + world
@@ -27,7 +30,7 @@ export type Instance = {
     secureName: string; // The short code to access the instance (for short link to share outside vrchat website, only the code part, not the full link!)
     shortName?: string | null; // todo research more. for now we only know that this can be null
     world: unknown; // todo this will be a world type when it's completed
-    clientNumber: 'unknown'; // todo research more. for now we only know that this can be a string or "unknown"
+    clientNumber: 'unknown'; // todo research more. for now we only know that this can be a string or "unknown" (Deprecated apparently?)
     photonRegion: InstanceRegionType; // The region of the instance
     region: InstanceRegionType; // The region of the instance
     /**
@@ -96,6 +99,21 @@ export enum GroupAccessType {
     Group_Plus = 'plus',
     Group_Members = 'members',
 }
+
+/**
+ * ## A Group Instance Object
+ */
+export type GroupInstance = {
+    instanceId: InstanceIdType;
+    location: string;
+    world: World;
+    memberCount: number;
+};
+
+export type UserGroupInstances = {
+    fetchedAt: string;
+    instances: GroupInstance[];
+};
 
 //! --- Requests --- !//
 

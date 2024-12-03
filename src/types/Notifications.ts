@@ -1,5 +1,8 @@
 //! --- Notifications --- !//
 
+import { NotificationV2ResponseTypeEnum } from 'requests/VRCWebSocketApi';
+import { GroupIdType, UserIdType } from './Generics';
+
 export type NotificationBase = {
     id: string;
     senderUserId: string;
@@ -56,4 +59,19 @@ export type MarkNotificationAsReadRequest = {
 
 export type DeleteNotificationRequest = {
     notificationId: string;
+};
+
+export type dataKeysRespondToNotificationRequest = {
+    responseType: NotificationV2ResponseTypeEnum;
+    responseData: string; // Should be a GroupId or UserId
+};
+
+/** The data for requesting to respond to an invite. */
+export type RespondToNotificationRequest = {
+    /** The notification id of the invite to respond to. */
+    notificationId: string;
+    /** The response type to the notification. */
+    responseType: NotificationV2ResponseTypeEnum;
+    groupId?: GroupIdType;
+    userId?: UserIdType;
 };

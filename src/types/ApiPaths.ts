@@ -1,4 +1,4 @@
-import { APIPaths } from "./Generics.js";
+import { APIPaths } from "./Generics";
 
 export const ApiPaths: APIPaths = {
     apiBasePath: "https://api.vrchat.cloud/api/1",
@@ -15,7 +15,7 @@ export const ApiPaths: APIPaths = {
     },
     avatars: {
         getOwnAvatar: { path: "/users/{userId}/avatar", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
-        searchAvatars: { path: "/avatars", method: "GET", cookiesNeeded: ["authCookie"] },
+        searchAvatars: { path: "/avatars", method: "GET", cookiesNeeded: [] },
         createAvatar: { path: "/avatars", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
         getAvatar: { path: "/avatars/{avatarId}", method: "GET", cookiesNeeded: ["authCookie"] },
         updateAvatar: { path: "/avatars/{avatarId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true },
@@ -31,12 +31,14 @@ export const ApiPaths: APIPaths = {
         listSubscriptions: { path: "/subscriptions", method: "GET", cookiesNeeded: ["authCookie"] },
         getLicenseGroup: { path: "/licenseGroups/{licenseGroupId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["licenseGroupId"] },
         getProductListing: { path: "/listing/{productId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["productId"] },
-        getOwnSubscription: { path: "/auth/user/subscription", method: "GET", cookiesNeeded: ["authCookie"] },
+        getUserProductListings: { path: "/user/{userId}/listings", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] }, // ! TODO - TO TEST
+        listTokenBundles: { path: "/tokenBundles", method: "GET", cookiesNeeded: ["authCookie"] }, // ! TODO - TO TEST
+        getTiliaStatus: { path: "/tilia/status", method: "GET", cookiesNeeded: ["authCookie"] }, // ! TODO - TO TEST
         getTiliaTOS: { path: "/user/{userId}/tilia/tos", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"], requiresData:true },
+        getBalance: { path: "/user/{userId}/balance", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getOwnPurchases: { path: "/economy/purchases", method: "GET", cookiesNeeded: ["authCookie"] },
         getOwnTransactions: { path: "/economy/transactions", method: "GET", cookiesNeeded: ["authCookie"] },
         getTiliaSyncData: { path: "/tilia/sync", method: "PUT", cookiesNeeded: ["authCookie"] },
-        getBalance: { path: "/user/{userId}/balance", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getLicenses: { path: "/licenses/{licenseId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["licenseId"] },
     },
     favorites: {
@@ -48,18 +50,22 @@ export const ApiPaths: APIPaths = {
         showFavoriteGroup: { path: "/favorite/group/{favoriteGroupType}/{favoriteGroupName}/{userId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId", "favoriteGroupType", "favoriteGroupName"] },
         updateFavoriteGroup: { path: "/favorite/group/{favoriteGroupType}/{favoriteGroupName}/{userId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId", "favoriteGroupType", "favoriteGroupName"]},
         clearFavoriteGroup: { path: "/favorite/group/{favoriteGroupType}/{favoriteGroupName}/{userId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId", "favoriteGroupType", "favoriteGroupName"] },
+        getFavoriteLimits: { path: "/auth/user/favoritelimits", method: "GET", cookiesNeeded: ["authCookie"] },
     },
     files: {
         listFiles: { path: "/files", method: "GET", cookiesNeeded: ["authCookie"] },
         createFile: { path: "/file", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },      
         showFile: { path: "/file/{fileId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId"] },
-        createFileVersion: { path: "/file/{fileId}", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true,requiredQueryParams: ["fileId"] },
         deleteFile: { path: "/file/{fileId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId"] },
+        createFileVersion: { path: "/file/{fileId}", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true,requiredQueryParams: ["fileId"] },
         downloadFileVersion: { path: "/file/{fileId}/{versionId}", method: "GET", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["fileId", "versionId"] },
         deleteFileVersion: { path: "/file/{fileId}/{versionId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId", "versionId"] },
         finishFileDataUpload: { path: "/file/{fileId}/{versionId}/{fileType}/finish", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId", "versionId", "fileType"] },
         startFileDataUpload: { path: "/file/{fileId}/{versionId}/{fileType}/start", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId", "versionId", "fileType"]},
         checkFileDataUploadStatus: { path: "/file/{fileId}/{versionId}/{fileType}/status", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId", "versionId", "fileType"] },
+        getFileVersionAnalysis: { path: "/analysis/{fileId}/{versionId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId", "versionId"] }, // ! TODO - TO TEST
+        getFileVersionAnalysisSecurity: { path: "/analysis/{fileId}/{versionId}/security", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId", "versionId"] }, // ! TODO - TO TEST
+        getFileVersionAnalysisStandard: { path: "/analysis/{fileId}/{versionId}/standard", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["fileId", "versionId"] }, // ! TODO - TO TEST
     },
     friends: {
         listFriends: { path: "/auth/user/friends", method: "GET", cookiesNeeded: ["authCookie"] },
@@ -77,9 +83,6 @@ export const ApiPaths: APIPaths = {
         getGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"], deprecated: true},
         createGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"], deprecated: true  },
         deleteGroupAnnouncement: { path: "/groups/{groupId}/announcement", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"], deprecated: true },
-        createGroupPost: { path: "/groups/{groupId}/posts", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"] },
-        getGroupPosts: { path: "/groups/{groupId}/posts", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"] },
-        deleteGroupPost: { path: "/groups/{groupId}/posts/{postId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "postId"] },
         getGroupAuditLogs: { path: "/groups/{groupId}/auditLogs", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
         getGroupBans: { path: "/groups/{groupId}/bans", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
         banGroupMember: { path: "/groups/{groupId}/bans", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"]  },
@@ -90,6 +93,7 @@ export const ApiPaths: APIPaths = {
         deleteGroupGallery: { path: "/groups/{groupId}/galleries/{groupGalleryId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "groupGalleryId"] },
         addGroupGalleryImage: { path: "/groups/{groupId}/galleries/{groupGalleryId}/images", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId", "groupGalleryId"]},
         deleteGroupGalleryImage: { path: "/groups/{groupId}/galleries/{groupGalleryId}/images/{groupGalleryImageId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "groupGalleryId", "groupGalleryImageId"] },
+        getGroupInstances: { path: "/groups/{groupId}/instances", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"] }, // ! TODO - TO TEST
         getGroupInvitesSent: { path: "/groups/{groupId}/invites", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
         inviteUserToGroup: { path: "/groups/{groupId}/invites", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"]  },
         deleteUserInvite: { path: "/groups/{groupId}/invites/{userId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "userId"]  },
@@ -102,6 +106,10 @@ export const ApiPaths: APIPaths = {
         addRoleToGroupMember: { path: "/groups/{groupId}/members/{userId}/roles/{groupRoleId}", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "userId", "groupRoleId"] },
         removeRoleFromGroupMember: { path: "/groups/{groupId}/members/{userId}/roles/{groupRoleId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "userId", "groupRoleId"] },
         listGroupPermissions: { path: "/groups/{groupId}/permissions", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
+        getGroupPosts: { path: "/groups/{groupId}/posts", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"] },
+        createGroupPost: { path: "/groups/{groupId}/posts", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"] },
+        deleteGroupPost: { path: "/groups/{groupId}/posts/{postId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "postId"] },
+        editGroupPost: { path: "/groups/{groupId}/posts/{notificationId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId", "notificationId"] },
         getGroupJoinRequests: { path: "/groups/{groupId}/requests", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
         cancelGroupJoinRequest: { path: "/groups/{groupId}/requests", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
         respondGroupJoinrequest: { path: "/groups/{groupId}/requests/{userId}", requiresData: true, method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "userId"] },
@@ -114,7 +122,7 @@ export const ApiPaths: APIPaths = {
         inviteUser: { path: "/invite/{userId}", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId"] },
         inviteMyselfToInstance: { path: "/invite/myself/to/{worldId}:{instanceId}", method: "POST", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
         requestInvite: { path: "/requestInvite/{userId}", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId"] },
-        respondInvite: { path: "/invite/{notificationId}/response", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["notificationId"] },
+        respondInvite: { path: "/invite/{notificationId}/respond", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["notificationId"] },
         listInviteMessages: { path: "/message/{userId}/{messageType}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId", "messageType"] },
         getInviteMessage: { path: "/message/{userId}/{messageType}/{slot}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId", "messageType", "slot"] },
         updateInviteMessage: { path: "/message/{userId}/{messageType}/{slot}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId", "messageType", "slot"]},
@@ -128,20 +136,23 @@ export const ApiPaths: APIPaths = {
         createNormalInstance: { path: "/instances/{instanceId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["instanceId"] },
         createGroupInstance: { path: "/instances", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, secondPath: true},
     },
-
+    jams: { // ! TODO - TO TEST 
+        getJamsList: { path: "/jams", method: "GET", cookiesNeeded: ["authCookie"] }, // ! TODO - TO TEST
+        getJamInfo: { path: "/jams/{jamId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["jamId"] }, // ! TODO - TO TEST
+        getJamSubmissions: { path: "/jams/{jamId}/submissions", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["jamId"] }, // ! TODO - TO TEST
+    },
     notifications: {
         listNotifications: { path: "/auth/user/notifications", method: "GET", cookiesNeeded: ["authCookie"] },
         acceptFriendRequest: { path: "/auth/user/notifications/{notificationId}/accept", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["notificationId"] },
         markNotificationAsRead: { path: "/auth/user/notifications/{notificationId}/see", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["notificationId"] },
         deleteNotification: { path: "/auth/user/notifications/{notificationId}/hide", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["notificationId"] },
         clearAllNotifications: { path: "/auth/user/notifications/clear", method: "PUT", cookiesNeeded: ["authCookie"] },
+        respondToNotification: { path: "/notifications/{notificationId}/respond", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["notificationId"] }, // ! TODO - TO TEST
     },
-
     permissions: {
         getAssignedPermissions: { path: "/auth/permissions", method: "GET", cookiesNeeded: ["authCookie"] },
         getPermission: { path: "/permissions/{permissionId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["permissionId"] },
     },
-
     playermoderations: {
         searchPlayerModerations: { path: "/auth/user/playermoderations", method: "GET", cookiesNeeded: ["authCookie"] },
         moderateUser: { path: "/auth/user/playermoderations", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
@@ -150,7 +161,6 @@ export const ApiPaths: APIPaths = {
         deletePlayerModeration: { path: "/auth/user/playermoderations/{playerModerationId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["playerModerationId"] },
         unmoderateUser: { path: "/auth/user/unplayermoderate", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true },
     },
-
     system: {
         fetchAPIConfig: { path: "/config", method: "GET", cookiesNeeded: ["none"] },
         showInformationNotices: { path: "/infoPush", method: "GET", cookiesNeeded: ["none"], notImplemented: true },
@@ -160,19 +170,21 @@ export const ApiPaths: APIPaths = {
         currentOnlineUsers: { path: "/visits", method: "GET", cookiesNeeded: ["none"] },
         currentSystemTime: { path: "/time", method: "GET", cookiesNeeded: ["none"] },
     },
-
     users: {
         searchAllUsers: { path: "/users", method: "GET", cookiesNeeded: ["authCookie"] },
-        getUserbyUsername: { path: "/users/{username}/name", method: "GET", deprecated: true, cookiesNeeded: ["authCookie"], requiredQueryParams: ["username"] },
         getUserbyID: { path: "/users/{userId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         updateUserInfo: { path: "/users/{userId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId"] },
         getUserGroups: { path: "/users/{userId}/groups", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getUserGroupRequests: { path: "/users/{userId}/groups/requested", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getUserRepresentedGroup: { path: "/users/{userId}/groups/represented", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
+        getUserFeedback: { path: "/users/{userId}/feedback", method: "GET", cookiesNeeded: ["authCookie"], deprecated: true, requiredQueryParams: ["userId"] }, // ! TODO - TO TEST
+        getAllUserNotes: { path: "/userNotes", method: "GET", cookiesNeeded: ["authCookie"]}, // ! TODO - TO TEST
+        updateUserNote: { path: "/userNotes", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true}, // ! TODO - TO TEST
+        getAUserNote: { path: "/userNotes/{noteId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["noteId"] }, // ! TODO - TO TEST
+        getUserGroupInstances: { path: "/users/{userId}/instances/groups", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] }, // ! TODO - TO TEST
     },
-
     worlds: {
-        searchAllWorlds: { path: "/worlds", method: "GET", cookiesNeeded: ["authCookie"] },
+        searchAllWorlds: { path: "/worlds", method: "GET", cookiesNeeded: [] },
         createWorld: { path: "/worlds", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
         listActiveWorlds: { path: "/worlds/active", method: "GET", cookiesNeeded: ["authCookie"] },
         listFavoritedWorlds: { path: "/worlds/favorites", method: "GET", cookiesNeeded: ["authCookie"] },

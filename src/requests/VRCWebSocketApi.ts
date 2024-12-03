@@ -181,6 +181,7 @@ export class VRCWebSocket extends WebSocket {
         super.on('message', this.onMessage.bind(this));
         super.on('error', this.onError.bind(this));
         super.on('close', this.onClose.bind(this));
+        super.on('terminate', this.onTerminate.bind(this));
         super.on('unexpected-response', (req, res) => {
             console.log('Unexpected response: ', res);
             console.log('Unexpected response: ', req);
@@ -379,8 +380,8 @@ export class VRCWebSocket extends WebSocket {
 
             switch (messageObject.type) {
                 case EventType.Notification:
-                    this.handleNotification(JSON.parse(messageObject.content) as Notification);
-                    this.emit(EventType.Notification, JSON.parse(messageObject.content) as Notification);
+                    this.handleNotification(JSON.parse(messageObject.content) as NotificationWS);
+                    this.emit(EventType.Notification, JSON.parse(messageObject.content) as NotificationWS);
                     break;
                 case EventType.Notification_V2:
                     this.handleNotificationV2(JSON.parse(messageObject.content) as NotificationV2Types);
@@ -502,6 +503,18 @@ export class VRCWebSocket extends WebSocket {
         if (!this.badLoginDetected && !this.reconnecting) this.reconnect(); // only if last login were correct, else we stop!
     }
 
+    private onTerminate(): void {
+        console.log('WebSocket Connection Terminated');
+        this.reconnecting = true;
+        this.close();
+    }
+
+    public delete(): void {
+        console.log('WebSocket Connection Closed and Deleted');
+        this.reconnecting = true;
+        this.close();
+    }
+
     private reconnect(): void {
         // Avoid multiple reconnection attempts at the same time
         if (this.reconnecting) return;
@@ -542,7 +555,7 @@ export class VRCWebSocket extends WebSocket {
         }, 5000); // Check the connection every 5 seconds
     }
 
-    private handleNotification(notification: Notification): void {
+    private handleNotification(notification: NotificationWS): void {
         const notificationType = notification.type as string as EventType;
         // we make sure we want to listen to that event
         if (this.eventsToListenTo.length > 0 && !this.eventsToListenTo.includes(notificationType)) {
@@ -576,27 +589,27 @@ export class VRCWebSocket extends WebSocket {
         }
     }
 
-    private handleVoteToKick(notification: Notification) {
+    private handleVoteToKick(notification: NotificationWS) {
         if (this.logAllEvents) console.log('Vote to kick: ', notification);
     }
 
-    private handleRequestInviteResponse(notification: Notification) {
+    private handleRequestInviteResponse(notification: NotificationWS) {
         if (this.logAllEvents) console.log('Request invite response: ', notification);
     }
 
-    private handleInviteReponse(notification: Notification) {
+    private handleInviteReponse(notification: NotificationWS) {
         if (this.logAllEvents) console.log('Invite response: ', notification);
     }
 
-    private handleInviteNotification(notification: Notification) {
+    private handleInviteNotification(notification: NotificationWS) {
         if (this.logAllEvents) console.log('Invite: ', notification);
     }
 
-    private handleFriendRequest(notification: Notification): void {
+    private handleFriendRequest(notification: NotificationWS): void {
         if (this.logAllEvents) console.log('Friend request: ', notification);
     }
 
-    private handleRequestInvite(notification: Notification): void {
+    private handleRequestInvite(notification: NotificationWS): void {
         if (this.logAllEvents) console.log('Request invite: ', notification);
     }
 
@@ -770,7 +783,7 @@ enum CategoryV2Enum {
     Social_Group = 'social.group',
 }
 
-enum NotificationV2ResponseTypeEnum {
+export enum NotificationV2ResponseTypeEnum {
     Accept = 'accept',
     Decline = 'decline',
     Block = 'block',
@@ -784,7 +797,7 @@ type NotificationType = {
     content: string;
 };
 
-export type Notification = NotificationBase & {
+export type NotificationWS = NotificationBase & {
     details: object; // This is a object already parsed
 };
 
@@ -971,7 +984,7 @@ export type InviteNotification = {
     message: string;
     details: {
         // ! read bellow
-        /** Be careful, even tho vrchat identify this field as a worldId, it's actually a instanceId  */
+        /** Be careful, even tho vrchat identify this field as a worldId, it's actually an instanceId  */
         worldId: string;
         worldName: string;
     };
@@ -990,11 +1003,12 @@ type FriendLocationType = {
 export type FriendLocation = {
     userId: string;
     location: string;
+    platform: string;
     travelingToLocation: string;
     worldId: string;
     canRequestInvite: boolean;
     user: UserBase;
-    world: BaseWorld;
+    world?: BaseWorld; // Not present if the user is in a private world and status set to Orange.
 };
 
 type FriendActiveType = {

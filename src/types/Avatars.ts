@@ -1,5 +1,5 @@
 import { UnityPackageAvatar } from './Files';
-import { AllTags } from './Generics';
+import { AllTags, SearchOrderOptions, SearchSortingOptions } from './Generics';
 
 //! --- Avatars --- !//
 
@@ -24,7 +24,7 @@ export type Avatar = {
     /** Release status of the avatar. **Default**: public  **Allowed**: `public`┃`private`┃`hidden`┃`all`. Enums: releaseStatus
      *
      * ## ⚠ Warning: Setting the release status to `hidden` will effectively delete your avatar and remove your access to it. be careful with this! */
-    releaseStatus: ReleaseStatus;
+    releaseStatus: AvatarReleaseStatus;
     /** Default: `0`. Version of the avatar */
     version: number;
     /** - Default: `FALSE`. If the avatar is a featured avatar or not.
@@ -50,46 +50,14 @@ export type Avatar = {
  *
  * ## ⚠ Warning: `hidden` will effectively delete your avatar and remove your access to it!
  */
-export enum ReleaseStatus {
+export enum AvatarReleaseStatus {
     Public = 'public',
     Private = 'private',
     Hidden = 'hidden',
     All = 'all',
 }
 
-/**
- * Search order options for searching avatars. Enums: SearchOrderOptions
- */
-export enum SearchSortingOptions {
-    Popularity = 'popularity',
-    Heat = 'heat',
-    Trust = 'trust',
-    Shuffle = 'shuffle',
-    Random = 'random',
-    Favorites = 'favorites',
-    Report_Score = 'reportScore',
-    Report_Count = 'reportCount',
-    Publication_Date = 'publicationDate',
-    Labs_Publication_Date = 'labsPublicationDate',
-    Created = 'created',
-    Created_At = '_created_at',
-    Updated = 'updated',
-    Updated_At = '_updated_at',
-    Order = 'order',
-    Relevance = 'relevance',
-    Magic = 'magic',
-    Name = 'name',
-}
-
 //! --- Requests --- !//
-
-/**
- * Search order options for searching avatars. Enums: SearchOrderOptions
- */
-export enum SearchOrderOptions {
-    Ascending = 'ascending',
-    Descending = 'descending',
-}
 
 /** Request options for getting own avatars. */
 export type getOwnAvatarOption = {
@@ -120,7 +88,7 @@ export type searchAvatarsOption = {
     /** Tags to exclude (comma-separated). None of the tags may be present. */
     noTags?: string;
     /** The release status of the avatar. Default = `all` */
-    releaseStatus?: ReleaseStatus;
+    releaseStatus?: AvatarReleaseStatus;
     /** The maximum unity version supported by the asset. */
     maxUnityVersion?: string;
     /** The minimum Unity version supported by the asset. */
@@ -143,7 +111,7 @@ export type createAvatarOption = {
     /** The image URL of the avatar. Min 1 chars */
     imageUrl: string;
     /** Release status of the avatar. **Default**: public  **Allowed**: `public`┃`private`┃`hidden`┃`all`. Enums: releaseStatus */
-    releaseStatus?: ReleaseStatus;
+    releaseStatus?: AvatarReleaseStatus;
     /** The uploaded version of the avatar. Min 0 Default: 1 */
     version?: number;
     /** Unity package of the avatar. */
@@ -177,7 +145,7 @@ export type dataKeysUpdateAvatar = {
     /** The image url for the avatar. Min 1 chars */
     imageUrl?: string;
     /** Release status of the avatar. **Default**: public  **Allowed**: `public`┃`private`┃`hidden`┃`all`. Enums: releaseStatus */
-    releaseStatus?: ReleaseStatus;
+    releaseStatus?: AvatarReleaseStatus;
     /** The uploaded version of the avatar. Min 0 Default: 1 */
     version?: number;
     /** Unity package of the avatar. */
@@ -227,7 +195,7 @@ export type listFavoritedAvatarsOption = {
     /** Tags to exclude (comma-separated). None of the tags may be present. */
     noTags?: string;
     /** The release status of the avatar. Default = `all` */
-    releaseStatus?: ReleaseStatus;
+    releaseStatus?: AvatarReleaseStatus;
     /** The maximum unity version supported by the asset. */
     maxUnityVersion?: string;
     /** The minimum Unity version supported by the asset. */

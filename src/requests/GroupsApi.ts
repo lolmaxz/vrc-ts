@@ -1,8 +1,10 @@
-import { VRChatAPI } from '../VRChatAPI';
 import { BadRequestParameter } from '../errors';
+import { replaceSpecialCharactersVRC } from '../tools';
 import { ApiPaths } from '../types/ApiPaths';
 import { RequestSuccess, executeRequestType } from '../types/Generics';
 import * as Group from '../types/Groups';
+import * as Inst from '../types/Instances';
+import { VRChatAPI } from '../VRChatAPI';
 import { BaseApi } from './BaseApi';
 
 /**
@@ -63,42 +65,7 @@ export class GroupsApi extends BaseApi {
         if (name.length < 3 || shortCode.length > 64)
             throw new BadRequestParameter('Name must be between 3 and 64 characters!');
         // Making sure group name is going to be valid when sent to the VRChat API.
-        const replacements: { [key: string]: string } = {
-            '@': '＠',
-            '#': '＃',
-            $: '＄',
-            '%': '％',
-            '&': '＆',
-            '=': '＝',
-            '+': '＋',
-            '/': '⁄',
-            '\\': '＼',
-            ';': ';',
-            ':': '˸',
-            ',': '‚',
-            '?': '？',
-            '!': 'ǃ',
-            '"': '＂',
-            '<': '≺',
-            '>': '≻',
-            '.': '․',
-            '^': '＾',
-            '{': '｛',
-            '}': '｝',
-            '[': '［',
-            ']': '］',
-            '(': '（',
-            ')': '）',
-            '|': '｜',
-            '*': '∗',
-        };
-
-        let result = '';
-        for (const char of name) {
-            result += replacements[char] || char;
-        }
-
-        name = result;
+        name = replaceSpecialCharactersVRC(name);
 
         if (shortCode.length < 3 || shortCode.length > 6)
             throw new BadRequestParameter('ShortCode must be between 3 and 64 characters!');
@@ -243,6 +210,7 @@ export class GroupsApi extends BaseApi {
      *
      * @param {Group.getGroupAnnouncementRequest} { groupId } - The id of the group to get the announcement for.
      * @returns {Group.GroupAnnouncement} The GroupAnnouncement object of the requested announcement.
+     * @deprecated ⚠️ This endpoint is deprecated and will be removed in the future.
      */
     public async getGroupAnnouncement({
         groupId,
@@ -259,6 +227,7 @@ export class GroupsApi extends BaseApi {
      * Creates an Announcement for a Group.
      * @param createGroupAnnouncementRequest - { groupId, title, text, imageId, sendNotification }
      * @returns {Group.GroupAnnouncement} The GroupAnnouncement object of the created announcement.
+     * @deprecated ⚠️ This endpoint is deprecated and will be removed in the future.
      */
     public async createGroupAnnouncement({
         groupId,
@@ -292,6 +261,7 @@ export class GroupsApi extends BaseApi {
      * Deletes the announcement for a Group.
      * @param deleteGroupAnnouncementRequest - { groupId }
      * @returns A RequestSuccess object.
+     * @deprecated ⚠️ This endpoint is deprecated and will be removed in the future.
      */
     public async deleteGroupAnnouncement({ groupId }: Group.deleteGroupAnnouncementRequest): Promise<RequestSuccess> {
         const paramRequest: executeRequestType = {
@@ -1045,5 +1015,60 @@ export class GroupsApi extends BaseApi {
         };
 
         return await this.executeRequest<Group.GroupRole[]>(paramRequest);
+    }
+
+    /**
+     * Returns a list of all Group Instances.
+     * @param getGroupRolesRequest - { groupId }
+     * @returns {Inst.GroupInstance[]} The GroupInstance object of the requested instances.
+     */
+    public async getGroupInstances({ groupId }: Group.getGroupInstancesRequest): Promise<Inst.GroupInstance[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getGroupInstances,
+            pathFormated: ApiPaths.groups.getGroupInstances.path.replace('{groupId}', groupId),
+        };
+
+        return await this.executeRequest<Inst.GroupInstance[]>(paramRequest);
+    }
+
+    /**
+     *  Edit a Group Post.
+     *
+     * @param editGroupPostRequest - { groupId, notificationId, title, text, imageId, sendNotification, roleIds, visibility }
+     * @returns {Group.GroupPost} The GroupPost object of the edited post.
+     */
+    public async editGroupPost({
+        groupId,
+        notificationId,
+        title,
+        text,
+        imageId,
+        sendNotification,
+        roleIds = [],
+        visibility,
+    }: Group.editGroupPostRequest): Promise<Group.GroupPost> {
+        // check parameters
+        if (visibility == Group.GroupPostVisibilityType.Public && roleIds.length > 0) {
+            console.warn('Warning: RoleIds will be ignored when visibility is set to Public!');
+        }
+
+        const body: Group.dataKeysEditGroupPost = {};
+
+        if (roleIds.length > 0) body.roleIds = roleIds;
+        if (title) body.title = replaceSpecialCharactersVRC(title);
+        if (text) body.text = replaceSpecialCharactersVRC(text);
+        if (sendNotification) body.sendNotification = sendNotification;
+        if (visibility) body.visibility = visibility;
+        if (imageId) body.imageId = imageId;
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.editGroupPost,
+            pathFormated: ApiPaths.groups.editGroupPost.path
+                .replace('{groupId}', groupId)
+                .replace('{notificationId}', notificationId),
+            body: body,
+        };
+
+        return await this.executeRequest<Group.GroupPost>(paramRequest);
     }
 }

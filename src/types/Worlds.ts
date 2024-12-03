@@ -1,4 +1,5 @@
 import { UnityPackage } from './Files';
+import { SearchOrderOptions, SearchSortingOptions, UserIdType } from './Generics';
 import { Instance } from './Instances';
 import { DeveloperType } from './Users';
 
@@ -9,7 +10,7 @@ export type BaseWorld = {
     description: string; // Min 0 chars
     authorId: string;
     authorName: string; // Min 1 chars
-    releaseStatus: ReleaseStatus; // Enum: ReleaseStatus, Default: public
+    releaseStatus: WorldReleaseStatus; // Enum: ReleaseStatus, Default: public
     featured: boolean; // Default: false
     capacity: number; // integer
     recommendedCapacity: number; // integer
@@ -43,32 +44,11 @@ export type World = BaseWorld & {
     unityPackages?: UnityPackage[]; // Empty if unauthenticated.
 };
 
-export enum ReleaseStatus {
+export enum WorldReleaseStatus {
     Public = 'public',
     Private = 'private',
     Hidden = 'hidden',
     All = 'all',
-}
-
-export enum SearchSortingOptions {
-    Popularity = 'popularity',
-    Heat = 'heat',
-    Trust = 'trust',
-    Shuffle = 'shuffle',
-    Random = 'random',
-    Favorites = 'favorites',
-    Report_Score = 'reportScore',
-    Report_Count = 'reportCount',
-    Publication_Date = 'publicationDate',
-    Labs_Publication_Date = 'labsPublicationDate',
-    Created = 'created',
-    Created_At = '_created_at',
-    Updated = 'updated',
-    Updated_At = '_updated_at',
-    Order = 'order',
-    Relevance = 'relevance',
-    Magic = 'magic',
-    Name = 'name',
 }
 
 export type LimitedWorld = {
@@ -76,7 +56,7 @@ export type LimitedWorld = {
     name: string;
     authorId: string;
     authorName: string;
-    releaseStatus: ReleaseStatus;
+    releaseStatus: WorldReleaseStatus;
     capacity: number;
     recommendedCapacity?: number;
     imageUrl: string;
@@ -105,14 +85,6 @@ export type WorldPublishStatus = {
     canPublish: boolean;
 };
 
-/**
- * Search order options for searching avatars. Enums: SearchOrderOptions
- */
-export enum SearchOrderOptions {
-    Ascending = 'ascending',
-    Descending = 'descending',
-}
-
 //! --- Request --- !//
 
 export type BaseSearch = {
@@ -133,20 +105,25 @@ export type BaseSearch = {
     /** The not tag to filter by. */
     notag?: string;
     /** The release status to filter by. */
-    releaseStatus?: ReleaseStatus;
+    releaseStatus?: WorldReleaseStatus;
     /** The maximum unity version supported by the asset. */
     maxUnityVersion?: string;
     /** The minimum Unity version supported by the asset. */
     minUnityVersion?: string;
     /** The platform of the avatar. */
     platform?: string;
+    /** This setting is special, here's a generic description:
+     *
+     * A fuzzy search is performed using a fuzzy matching algorithm, which returns a list of results based on likely relevance even though search argument words and spellings may not be an exact match. For web lookups, exact and highly relevant matches appear near the top of the list. Subjective relevance ratings may be given, usually as percentages.
+     **/
+    fuzzy?: boolean;
 };
 
 /** The data for requesting to search all worlds. */
 export type SearchAllWorldsRequest = BaseSearch & {
     user?: 'me';
     /** The user id to filter by. */
-    userId?: string;
+    userId?: UserIdType;
     /** The developer type to filter by. */
     developer?: DeveloperType;
 };
@@ -162,7 +139,7 @@ export type dataKeysCreateWorld = {
     imageUrl: string;
     name: string;
     platform?: string;
-    releaseStatus?: ReleaseStatus;
+    releaseStatus?: WorldReleaseStatus;
     tags?: string[];
     unityPackageUrl?: string;
     /** The unity version of the world. Example: "2022.3.6f1" Min. 1 character */
@@ -203,7 +180,7 @@ export type dataKeysUpdateWorld = {
     imageUrl?: string;
     name?: string;
     platform?: string;
-    releaseStatus?: ReleaseStatus;
+    releaseStatus?: WorldReleaseStatus;
     tags?: string[];
     unityPackageUrl?: string;
     /** The unity version of the world. Example: "2022.3.6f1" Min. 1 character */

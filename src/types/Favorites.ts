@@ -27,6 +27,19 @@ export enum FavoriteType {
     World = 'world',
 }
 
+export type FavoriteSingleGroupLimits = {
+    avatar: number;
+    friend: number;
+    world: number;
+};
+
+export type FavoriteLimits = {
+    defaultMaxFavoriteGroups: number;
+    defaultMaxFavoritesPerGroup: number;
+    maxFavoriteGroups: FavoriteSingleGroupLimits;
+    maxFavoritesPerGroup: FavoriteSingleGroupLimits;
+};
+
 //! --- Requests --- !//
 
 export type quantity = {

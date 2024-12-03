@@ -215,6 +215,7 @@ export class cookiesHandler {
                 await fs.readFile(this.cookieFilePath, 'utf8')
             ) as SavedCookieJar;
             if (username) {
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 if (!username || !cookies[username] || (cookies[username] && cookies[username]?.length === 0))
                     throw new CookiesUser404("No Cookies was found for user '" + username + "'!");
             } else {

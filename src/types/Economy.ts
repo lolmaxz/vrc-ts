@@ -1,5 +1,13 @@
-import { AllTags } from './Generics';
-import { SearchOrderOptions, SearchSortingOptions } from './Worlds';
+import {
+    AllTags,
+    GroupIdType,
+    LicenseGroupIdType,
+    ProductListingIdType,
+    SearchOrderOptions,
+    SearchSortingOptions,
+    SteamTransactionIdType,
+    UserIdType,
+} from './Generics';
 
 //! --- Economy --- !//
 
@@ -405,9 +413,9 @@ export type Listing = {
     /** The price of the listing in tokens 1VRC Token = 0.005$ Aprox. */
     priceTokens: number;
     /** from the duration type, how many of that type of duration */
-    duration: number;
+    duration?: number;
     /** The type of duration, see Enum DurationType */
-    durationType: DurationType;
+    durationType?: DurationType;
     /** If this listing is permanent or not */
     permanent: boolean;
     /** If this listing is instant or not */
@@ -418,10 +426,14 @@ export type Listing = {
     recurrable: boolean;
     /** If this listing is refundable or not.*/
     refundable: boolean; // todo to better document this
+    /** UNDOCUMENTED YET */
+    buyerRefundable: boolean; // todo to better document this
     /** If this listing is active or not. */
     active: boolean; // todo to better document this
     /** The Group ID associated with this listing */
-    groupId?: string;
+    groupId?: `grp_${string}-${string}-${string}-${string}-${string}`;
+    /** The Group Icon associated with this listing */
+    groupIcon: `file_${string}-${string}-${string}-${string}-${string}`;
     /** Other Listing variant(s) if available */
     listingVariants: unknown[]; // todo to better document this
 };
@@ -493,33 +505,63 @@ export type TOS = {
     signed_tos: boolean;
 };
 
+export type TokenBundle = {
+    /** The ID of the Token Bundle */
+    id: string;
+    /** The Steam Item ID */
+    steamItemId: string;
+    /** The Oculus SKU */
+    oculusSku: string;
+    /** The amount of the Token Bundle */
+    amount: number;
+    /** The description of the Token Bundle */
+    description: string;
+    /** How many tokens you get for this Token Bundle */
+    tokens: number;
+    /** The Image URL of the Token Bundle */
+    imageUrl: string;
+};
+
+/**
+ * The Tilia Integration Status
+ */
+export type TiliaStatus = {
+    /** Undocumented Yet */
+    economyOnline: boolean;
+};
+
 //! --- Requests --- !//
 
+/** Requirement to get all Steam Transactions using a Transaction ID */
 export type GetSteamTransactionRequest = {
     /** The ID of the Steam Transaction */
-    transactionId: string;
+    transactionId: SteamTransactionIdType;
 };
 
+/** Requirement to get all License Groups */
 export type GetLicenseGroupRequest = {
     /** The ID of the License Group */
-    licenseGroupId: string;
+    licenseGroupId: LicenseGroupIdType;
 };
 
+/** Requirement to get all Product Listings */
 export type GetProductListingRequest = {
     /** The ID of the Listing */
-    listingId: string;
+    listingId: ProductListingIdType;
     /** Hydrate is used if you want more detailed information about products as well as related listing */
     hydrate?: boolean;
 };
 
+/** Requirement to get all Current Subscriptions */
 export type GetOwnPurchasesRequest = {
-    buyerId?: string;
+    buyerId?: UserIdType;
     mostRecent?: boolean;
     getAll?: boolean;
     n?: number;
     offset?: number;
 };
 
+/** Requirement to get all Transactions */
 export type GetOwnTransactionsRequest = {
     type?: TransactionType;
     order?: SearchOrderOptions;
@@ -530,17 +572,38 @@ export type GetOwnTransactionsRequest = {
     offset?: number;
 };
 
+/** Requirement to get all Tilia Data */
 export type GetTiliaTOSRequest = {
     /** The User ID given to see the Tilia TOS data */
-    userId?: string;
+    userId?: UserIdType;
 };
 
+/** Requirement to get a User's Balance */
 export type GetUserBalanceRequest = {
     /** The User ID given to see the balance of that user */
-    userId: string;
+    userId?: UserIdType;
 };
 
+/** Requirement to get a License */
 export type GetLicenseRequest = {
     /** The ID of the License */
-    licenseId: string;
+    licenseId: LicenseGroupIdType;
+};
+
+/**
+ * Gets the product listings of a given user
+ */
+export type getUserProductListingsRequest = {
+    /** The User ID of the User to get the product listings */
+    userId: UserIdType;
+    /** The number of product to get */
+    n?: number;
+    /** The offset from zero index */
+    offset?: number;
+    /** If you want to hydrate the product */
+    hydrate?: boolean; // TODO Requires more Documentation
+    /** The Group ID of the Group to get the product listings */
+    groupId?: GroupIdType;
+    /** Get only the active product listings */
+    active?: boolean;
 };

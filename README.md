@@ -13,6 +13,7 @@ Perfect if you are looking to build bots, applications, or services that interac
 -   [Endpoints Supported](#endpoints)
 -   [WebSocket Support](#websocket)
 -   [Basic Example](#example)
+-   [Extra Information](#extra)
 -   [Contributing](#contributing)
 -   [License](#license)
 
@@ -326,6 +327,31 @@ async function main() {
 main();
 ```
 
+## Extra Information
+
+💡 With the VRChat API, there are a few things to keep in mind.
+
+> [!TIP]  
+> ERROR 429 - Too Many Requests\
+> \
+> This error might pop if you try doing too many requests consecutively. You might not be able to do any request or some specific request(s) for a moment.\
+> VRChat do no disclose the rate limit of their API, so be careful with them.\
+> Additionally, if you decide to NOT use the cookies, make sure you know what you are doing. Creating multiple logged in session can **quickly** give you an error 429 - Too Many Requests!
+
+> [!TIP]
+>
+> ## INFORMATION FROM VRCHAT FAQ:
+>
+> > ### <ins>I'd like to use your API!</ins>
+> >
+> > You may interact with our API or write applications to interact with our API as long as you follow some general guidelines.\
+> > \
+> > We do not provide public documentation on our API.\
+> > \
+> > However, our community has created unofficial documentation of our API. While this project is not officially sanctioned, the project tends to be accurate and respectful of our rules. \
+> > \
+> > Please see our latest API usage guidelines at the bottom of our Creators Guidelines. \
+
 ## Contributing
 
 Contributions are welcome! Feel free to open an issue or create a pull request.
@@ -334,7 +360,7 @@ A huge thank you to the community behind the VRChatApi project for their documen
 
 -   Check them out at <https://vrchatapi.github.io/>.
 
-Thank you as well to Huijiro, my partner helping me learn the best way :)
+Thank you as well to Huijiro, my coding buddy helping me learn so much :)
 
 Feel free to contact me on Discord under the same username if you have any questions.
 

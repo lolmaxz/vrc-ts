@@ -1,4 +1,3 @@
-import cookiesHandler from './VRCCookie';
 import { Color as C } from './colors';
 import { CookiesExpired, CookiesNotFound, CookiesUser404, EmailOtpRequired, TOTPRequired } from './errors';
 import { AuthApi } from './requests/AuthApi';
@@ -10,6 +9,7 @@ import { FriendsApi } from './requests/FriendsApi';
 import { GroupsApi } from './requests/GroupsApi';
 import { InstanceApi } from './requests/InstancesApi';
 import { InvitesApi } from './requests/InvitesApi';
+import { JamsApi } from './requests/JamsApi';
 import { NotificationsApi } from './requests/NotificationsApi';
 import { PermissionsApi } from './requests/PermissionsApi';
 import { PlayerModerationApi } from './requests/PlayerModerationApi';
@@ -18,6 +18,7 @@ import { UsersApi } from './requests/UsersApi';
 import { WorldsApi } from './requests/WorldsApi';
 import { ApiPaths } from './types/ApiPaths';
 import { CurrentUser, currentUserOrTwoFactorType } from './types/Users';
+import cookiesHandler from './VRCCookie';
 
 /**
  * This class is used to authenticate the user and get the current user information.
@@ -46,6 +47,7 @@ export class VRChatAPI {
     groupApi: GroupsApi = new GroupsApi(this);
     instanceApi: InstanceApi = new InstanceApi(this);
     inviteApi: InvitesApi = new InvitesApi(this);
+    jamApi: JamsApi = new JamsApi(this);
     notificationApi: NotificationsApi = new NotificationsApi(this);
     permissionApi: PermissionsApi = new PermissionsApi(this);
     playermoderationApi: PlayerModerationApi = new PlayerModerationApi(this);
@@ -114,6 +116,18 @@ export class VRChatAPI {
             } else if ('verified' in getCurrentUser && !getCurrentUser.verified) {
                 this.isAuthentificated = false;
                 this.currentUser = null;
+            } else if ('error' in getCurrentUser) {
+                const loginError = getCurrentUser.error;
+                if (loginError.status_code === 401) {
+                    if (loginError.message.includes('somewhere new')) {
+                        console.warn(
+                            'It seems you are logging in from a new location, please check your email for a Authorization Link! Then instantiate the API again.'
+                        );
+                        this.isAuthentificated = false;
+                        this.currentUser = null;
+                        return;
+                    }
+                }
             } else {
                 console.log('2FA required, attempt to login using 2FA authentication...');
 

@@ -1,5 +1,7 @@
 //! --- Invites --- !//
 
+import { UserIdType } from './Generics';
+
 export enum MessageType {
     Message = 'message',
     Response = 'response',
@@ -23,9 +25,9 @@ export type UpdatedInviteMessage = {
 
 //! --- Requests --- !//
 
-export type UserId = {
+type UserId = {
     /** The Id of the user you want to use with this request. */
-    userId: string;
+    userId: UserIdType;
 };
 
 export type dataKeysSendInvite = {

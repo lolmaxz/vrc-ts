@@ -1,6 +1,6 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { RequestSuccess, executeRequestType } from '../types/Generics';
+import { executeRequestType, GroupIdType, RequestSuccess, UserIdType } from '../types/Generics';
 import * as Notif from '../types/Notifications';
 import { BaseApi } from './BaseApi';
 
@@ -107,5 +107,33 @@ export class NotificationsApi extends BaseApi {
         };
 
         return await this.executeRequest<RequestSuccess>(paramRequest);
+    }
+
+    public async respondToNotification({
+        notificationId,
+        responseType,
+        groupId,
+        userId,
+    }: Notif.RespondToNotificationRequest): Promise<string> {
+        const jointedResponseDataIfAvailable: [GroupIdType?, UserIdType?] = [];
+        if (groupId) {
+            jointedResponseDataIfAvailable.push(groupId);
+        }
+        if (userId) {
+            jointedResponseDataIfAvailable.push(userId);
+        }
+
+        const body: Notif.dataKeysRespondToNotificationRequest = {
+            responseType,
+            responseData: jointedResponseDataIfAvailable.join(','),
+        };
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.notifications.respondToNotification,
+            pathFormated: ApiPaths.notifications.respondToNotification.path.replace('{notificationId}', notificationId),
+            body,
+        };
+
+        return await this.executeRequest<string>(paramRequest);
     }
 }

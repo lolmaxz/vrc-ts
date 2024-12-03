@@ -1,4 +1,12 @@
-import { AllTags, languageTagsShort } from './Generics';
+import {
+    AllTags,
+    FileIdType,
+    GroupIdType,
+    GroupRoleIdType,
+    languageTagsShort,
+    NotificationIdType,
+    UserIdType,
+} from './Generics';
 
 //! -- Group API -- !//
 export type Group = {
@@ -324,11 +332,12 @@ export type GroupAnnouncement = {
     id: string;
     groupId: string;
     authorId: string;
-    editorId?: string; // TODO undocumented yet
+    /** The User ID of the User who edited the post last */
+    editorId?: UserIdType;
     title: string;
     text: string;
-    imageId?: string;
-    imageUrl?: string;
+    imageId?: string | null;
+    imageUrl?: string | null;
     createdAt: string;
     updatedAt: string;
     /** List of role IDs that can view the post. Will be empty when for all members OR Public visibility. */
@@ -614,13 +623,16 @@ export enum GroupInviteResponse {
 //! -- Request Types -- !//
 
 export type GroupId = {
-    /** The groupId of the group you want to perform this action on. **[REQUIRED]** */
-    groupId: string;
+    /** The groupId of the group you want to perform this action on. **[REQUIRED]**
+     *
+     * Example: `grp_12345678-1234-1234-1234-1234567890ab`
+     */
+    groupId: GroupIdType;
 };
 
-export type UserId = {
+type UserId = {
     /** UserId of the User needed to perform this action on. **[REQUIRED]** */
-    userId: string;
+    userId: UserIdType;
 };
 
 export type Quantity = {
@@ -990,3 +1002,21 @@ export type updateGroupRoleRequest = GroupId & GroupRoleId & dataKeysUpdateGroup
 
 /** Information Required to request to delete a group role. */
 export type deleteGroupRoleRequest = GroupId & GroupRoleId;
+
+/** Information Required to get all the group instances. */
+export type getGroupInstancesRequest = GroupId;
+
+/** Data Keys Required to edit a group's post. */
+export type dataKeysEditGroupPost = {
+    title?: string;
+    text?: string;
+    imageId?: FileIdType;
+    sendNotification?: boolean;
+    roleIds?: GroupRoleIdType[];
+    visibility?: GroupPostVisibilityType;
+};
+
+/** Information Required to edit a group's post. */
+export type editGroupPostRequest = GroupId & {
+    notificationId: NotificationIdType;
+} & dataKeysEditGroupPost;

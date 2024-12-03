@@ -1,4 +1,4 @@
-import { AllTags } from './Generics';
+import { AllTags, FileIdType } from './Generics';
 
 export type UnityPackage = {
     id: string; // Pattern: (unp)_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
@@ -103,6 +103,60 @@ export enum fileType {
     Delta = 'delta',
 }
 
+export type FileAnalysis = {
+    avatarStats: {
+        animatorCount: number;
+        audioSourceCount: number;
+        blendShapeCount: number;
+        boneCount: number;
+        bounds: number[];
+        cameraCount: number;
+        clothCount: number;
+        constraintCount: number;
+        contactCount: number;
+        customExpressions: boolean;
+        customizeAnimationLayers: boolean;
+        enableEyeLook: boolean;
+        lightCount: number;
+        lineRendererCount: number;
+        lipSync: number;
+        materialCount: number;
+        materialSlotsUsed: number;
+        meshCount: number;
+        meshIndices: number;
+        meshParticleMaxPolygons: number;
+        meshPolygons: number;
+        meshVertices: number;
+        particleCollisionEnabled: boolean;
+        particleSystemCount: number;
+        particleTrailsEnabled: boolean;
+        physBoneColliderCount: number;
+        physBoneCollisionCheckCount: number;
+        physBoneComponentCount: number;
+        physBoneTransformCount: number;
+        physicsColliders: number;
+        physicsRigidbodies: number;
+        skinnedMeshCount: number;
+        skinnedMeshIndices: number;
+        skinnedMeshPolygons: number;
+        skinnedMeshVertices: number;
+        totalClothVertices: number;
+        totalIndices: number;
+        totalMaxParticles: number;
+        totalPolygons: number;
+        totalTextureUsage: number;
+        totalVertices: number;
+        trailRendererCount: number;
+        writeDefaultsUsed: boolean;
+    };
+    created_at: string;
+    fileSize: number;
+    success: boolean;
+    uncompressedSize: number;
+};
+
+// !-- Requests --! //
+
 /** Information required to request a list of files. */
 export type ListFilesRequest = {
     /** Min 1 chars. Tag, for example "icon" or "gallery", not included by default. */
@@ -129,7 +183,7 @@ export type CreateFileRequest = dataKeysCreateFile;
 
 export type FileId = {
     /** The Id of the file you want to use with this request.*/
-    fileId: string;
+    fileId: FileIdType;
 };
 
 /** The data for requesting to show a file */
@@ -147,7 +201,7 @@ export type CreateFileVersionRequest = FileId & dataKeysCreateFileVersion;
 
 export type VersionId = {
     /** The Id of the version you want to use with this request.*/
-    versionId: string;
+    versionId: number;
 };
 
 /** The data required to request to delete a file */
@@ -188,3 +242,12 @@ export type CheckFileDataUploadStatus = FileId &
         /** The fileType of the file you want to check. */
         fileType: fileType;
     };
+
+/** The data for requesting to show a file version's Analysis */
+export type FileVersionAnalysisRequest = FileId & VersionId;
+
+/** The data for requesting to show a file version's Security */
+export type FileVersionAnalysisSecurityRequest = FileId & VersionId;
+
+/** The data for requesting to show a file version's Standard Data */
+export type FileVersionAnalysisStandardRequest = FileId & VersionId;
