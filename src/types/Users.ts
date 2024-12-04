@@ -1,18 +1,28 @@
-import { AllTags, FeedbackIdType, twoFactorAuthResponseType, UserIdType, UserNoteIdType } from './Generics';
+import {
+    AllTags,
+    FeedbackIdType,
+    FileIdType,
+    InstanceIdType,
+    twoFactorAuthResponseType,
+    UserIdType,
+    UserNoteIdType,
+    WorldIdType,
+} from './Generics';
+import { Group } from './Groups';
 
 //! --- Users --- !//
 /** The CurrentUserPresence object containing detailed information about the currently logged in user's presence. */
 export type CurrentUserPresence = {
-    id?: string;
+    id?: UserIdType;
     displayName?: string;
-    instance?: string;
-    userIcon?: string;
-    travelingToInstance?: string;
+    instance?: InstanceIdType;
+    userIcon?: FileIdType;
+    travelingToInstance?: InstanceIdType;
     avatarThumbnail?: string;
-    world?: string;
+    world?: WorldIdType;
     currentAvatarTags?: string[];
-    groups?: string[];
-    travelingToWorld?: string;
+    groups?: Group[];
+    travelingToWorld?: InstanceIdType;
     instanceType?: string;
     status?: string;
     debugflag?: string; // todo new undocumented attribute !
@@ -25,7 +35,7 @@ export type CurrentUserPresence = {
 export type CurrentUser = {
     id: UserIdType;
     displayName: string;
-    userIcon: string;
+    userIcon: FileIdType;
     bio: string;
     bioLinks: string[];
     profilePicOverride: string;
@@ -42,7 +52,7 @@ export type CurrentUser = {
     unsubscribe: boolean;
     statusHistory: string[];
     statusFirstTime: boolean;
-    friends: string[];
+    friends: UserIdType[];
     friendGroupNames: string[];
     userLanguage?: string;
     userLanguageCode?: string; // new
@@ -82,8 +92,17 @@ export type CurrentUser = {
     isFriend: boolean;
     friendKey: string;
     last_activity?: string;
+    /** List of Online Friends.
+     * @deprecated This field is currently considered deprecated as it's not returned anymore.
+     */
     onlineFriends?: string[];
+    /** List of Active Friends.
+     * @deprecated This field is currently considered deprecated as it's not returned anymore.
+     */
     activeFriends?: string[];
+    /** User's current presence.
+     * @deprecated This field is currently considered deprecated as it's not returned anymore it seems.
+     */
     presence?: CurrentUserPresence;
     offlineFriends?: string[];
     /** If Booping is enabled for the user.
@@ -92,6 +111,10 @@ export type CurrentUser = {
     isBoopingEnabled: boolean;
     /** The user's preferred pronouns. */
     pronouns: string;
+    /** If the wants to receive mobile invitations. */
+    receiveMobileInvitations?: boolean;
+    /** The last time the user logged in from a mobile device. */
+    last_mobile?: string;
 };
 
 export enum AgeVerificationStatus {
@@ -173,7 +196,7 @@ export type LimitedUser = {
     /** The user's display name. */
     displayName: string;
     /** The user's ID. */
-    id: string;
+    id: UserIdType;
     /** If the user is a friend of the current logged in user.
      *
      * @variation - This field is always false is the user is not a friend of the current logged in user.
@@ -190,7 +213,7 @@ export type LimitedUser = {
     /** The user's tags. */
     tags: string[];
     /** The user's user icon. */
-    userIcon?: string;
+    userIcon?: FileIdType;
 };
 
 export type LimitedUserFriend = {
@@ -211,13 +234,13 @@ export type LimitedUserFriend = {
     /** The user's friend key. */
     friendKey?: string;
     /** The user's ID. */
-    id: string;
+    id: UserIdType;
     /** If the user is a friend of the current logged in user.
      * @variation - This field is always true is the user is a friend of the current logged in user.
      */
     isFriend: true;
     /** The user's last platform used. */
-    userIcon: string;
+    userIcon: FileIdType;
     /** The user's last login date. */
     last_login: string;
     /** The user's last platform used. */
@@ -241,14 +264,14 @@ export type LimitedUserFriend = {
      *
      * @deprecated This field seems deprecated and is not returned anymore.
      */
-    location?: string;
+    location?: InstanceIdType;
 };
 
 /** Base User type for the websocket when identifying a user object */
 export type UserBase = {
-    id: string;
+    id: UserIdType;
     displayName: string;
-    userIcon: string;
+    userIcon: FileIdType;
     bio: string;
     bioLinks: string[];
     profilePicOverride: string;
@@ -268,27 +291,29 @@ export type UserBase = {
     allowAvatarCopying: boolean;
     ageVerificationStatus: AgeVerificationStatus;
     tags: AllTags[];
+    /** The last time the user logged in from a mobile device. */
+    last_mobile?: string;
 };
 
 // todo some undocumented stuff here, those fields are not sent to the websocket! (as researched)
 /** This Type represents a user in VRChat. Includes field that the websocket doesn't send */
 export type User = UserBase & {
     friendRequestStatus?: string;
-    instanceId?: string;
-    location?: string;
+    instanceId?: InstanceIdType;
+    location?: InstanceIdType;
     note?: string;
     state: UserState;
-    travelingToInstance?: string;
-    travelingToLocation?: string;
-    travelingToWorld?: string;
+    travelingToInstance?: InstanceIdType;
+    travelingToLocation?: InstanceIdType;
+    travelingToWorld?: InstanceIdType;
     username?: string;
-    worldId?: string;
+    worldId?: WorldIdType;
 };
 
 export type UserUpdateWebSocket = {
-    id: string;
+    id: UserIdType;
     displayName: string;
-    userIcon: string;
+    userIcon: FileIdType;
     bio: string;
     profilePicOverride: string;
     statusDescription: string;
@@ -400,8 +425,13 @@ export type UserNote = {
         displayName?: string;
         /** The user's note ID. */
         id?: UserNoteIdType;
-        profilePicOverride?: string; // Most likely a URL // todo: need more information
-        userIcon?: string; // Most likely a URL OR ID // todo: need more information
+        /** URL leading to a REDIRECT, which brings you to a BLOB of the picture override for the profile picture
+         *
+         * @warning If you fetch this URL, you will get a BLOB of the profile picture override.
+         */
+        profilePicOverride?: string;
+        /** The user's user icon. If there is one. */
+        userIcon?: FileIdType;
     };
     targetUserId: UserIdType;
     userId: UserIdType;
@@ -456,8 +486,10 @@ export type dataKeysUpdateUser = {
     bio?: string;
     /** The user's bio links. Maximum of 3 links. Must contain 'https://' and finish with '.*[2]' */
     bioLinks?: [string?, string?, string?];
-    /** The user's user icon. MUST be a valid VRChat /file/ url. */
-    userIcon?: string;
+    /** The user's user icon. MUST be a valid VRChat file ID. */
+    userIcon?: FileIdType;
+    /** The user's preferred pronouns. */
+    pronouns?: string;
 };
 
 /** Information required to update a user's information. */
@@ -472,8 +504,8 @@ export type updateUserByIdRequest = dataKeysUpdateUser &
         /** Min 0 chars */
         bio?: string;
         bioLinks?: string[];
-        /** MUST be a valid VRChat /file/ url. */
-        userIcon?: string;
+        /** MUST be a valid VRChat file ID. */
+        userIcon?: FileIdType;
     };
 
 /** Information required to get a user's groups. */
@@ -487,7 +519,7 @@ export type getUserRepresentedGroupOptions = UserId;
 
 /** Information required to get a user's submited feedback */
 export type dataKeysGetUserSubmittedFeedback = {
-    /** Filter for users' previously submitted feedback, e.g., a groupId, useeId, avatarId, etc.? */
+    /** Filter for users' previously submitted feedback, e.g., a groupId, userId, avatarId, etc.? */
     contentId?: boolean; // todo: need more information
     /** The number of objects to return. Min 0, Max 100 Default 10 */
     n?: number;

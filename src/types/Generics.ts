@@ -198,6 +198,9 @@ export type APIPaths = {
         selectFallbackAvatar: subSectionType;
         listFavoritedAvatars: subSectionType;
     };
+    beta: {
+        getIOSClosedBetaInformation: subSectionType;
+    };
     economy: {
         listSteamTransactions: subSectionType;
         getSteamTransaction: subSectionType;
@@ -346,6 +349,7 @@ export type APIPaths = {
     };
     users: {
         searchAllUsers: subSectionType;
+        getUserbyUsername: subSectionType;
         getUserbyID: subSectionType;
         updateUserInfo: subSectionType;
         getUserGroups: subSectionType;
@@ -543,6 +547,8 @@ export type AllTags = AdminTags | SystemTags | WorldTags | LanguageTags | GroupA
 // export type LegacyUserID = `${string}${string}${string}${string}${string}${string}${string}${string}${string}${string}`;
 // export type UserIdType = `usr_${string}-${string}-${string}-${string}-${string}`;
 
+export type BaseId = `${string}-${string}-${string}-${string}-${string}`;
+
 /**
  *  A user ID is a unique identifier for a user.
  * ```example: usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469``` OR ```1234567890```
@@ -581,7 +587,7 @@ export type GroupAnnouncementIdType = `gpos_${string}-${string}-${string}-${stri
 export type GroupAuditLogIdType = `gaud_${string}-${string}-${string}-${string}-${string}`;
 export type GroupGalleryImageIdType = `ggim_${string}-${string}-${string}-${string}-${string}`;
 
-export type SteamTransactionIdType = `txn_${string}-${string}-${string}-${string}-${string}`;
+export type TransactionIdType = `txn_${string}-${string}-${string}-${string}-${string}`;
 export type ProductListingIdType = `prod_${string}-${string}-${string}-${string}-${string}`;
 export type ProductListingVariantIdType = `listvar_${string}-${string}-${string}-${string}-${string}`;
 export type LicenseGroupIdType = `lgrp_${string}-${string}-${string}-${string}-${string}`;

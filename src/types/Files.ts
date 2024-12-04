@@ -1,7 +1,7 @@
-import { AllTags, FileIdType } from './Generics';
+import { AllTags, FileIdType, UnityPackageIdType, UserIdType } from './Generics';
 
 export type UnityPackage = {
-    id: string; // Pattern: (unp)_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+    id: UnityPackageIdType; // Pattern: (unp)_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
     unityVersion: string; // Min 1 chars, Default: 5.3.4p1
     assetVersion: number; // Min 0
     platform: string; // Can be various values like standalonewindows, android, or specific Unity versions
@@ -16,7 +16,7 @@ export type UnityPackage = {
 };
 
 export type UnityPackageAvatar = {
-    id: string; // Pattern: (unp)_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+    id: UnityPackageIdType; // Pattern: (unp)_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
     unityVersion: string; // Min 1 chars, Default: 5.3.4p1
     unitySortNumber?: number; // Min 0
     assetVersion: number; // Min 0
@@ -29,9 +29,16 @@ export type UnityPackageAvatar = {
     pluginUrlObject?: object;
 };
 
+export enum fileDataStatus {
+    waiting = 'waiting',
+    complete = 'complete',
+    none = 'none',
+    queued = 'queued',
+}
+
 export type File = {
     extension: string;
-    id: string;
+    id: FileIdType;
     mimeType:
         | 'image/jpeg'
         | 'image/jpg'
@@ -48,7 +55,7 @@ export type File = {
         | 'application/x-rsync-delta'
         | 'application/octet-stream';
     name: string;
-    ownerId: string;
+    ownerId: UserIdType;
     tags: string[]; // Assuming tags are strings based on the description
     versions: {
         created_at: Date;
@@ -56,7 +63,7 @@ export type File = {
         delta: FileData;
         file: FileData;
         signature: FileData;
-        status: 'waiting' | 'complete' | 'none' | 'queued';
+        status: fileDataStatus;
         version: number;
     }[];
 };
@@ -66,7 +73,7 @@ export type FileData = {
     fileName: string;
     md5: string;
     sizeInBytes: number;
-    status: 'waiting' | 'complete' | 'none' | 'queued';
+    status: fileDataStatus;
     uploadId: string;
     url: string;
 };

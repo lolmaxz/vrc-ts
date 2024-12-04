@@ -15,7 +15,7 @@ export const ApiPaths: APIPaths = {
     },
     avatars: {
         getOwnAvatar: { path: "/users/{userId}/avatar", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
-        searchAvatars: { path: "/avatars", method: "GET", cookiesNeeded: [] },
+        searchAvatars: { path: "/avatars", method: "GET", cookiesNeeded: ["authCookie"] },
         createAvatar: { path: "/avatars", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
         getAvatar: { path: "/avatars/{avatarId}", method: "GET", cookiesNeeded: ["authCookie"] },
         updateAvatar: { path: "/avatars/{avatarId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true },
@@ -24,6 +24,9 @@ export const ApiPaths: APIPaths = {
         selectFallbackAvatar: { path: "/avatars/{avatarId}/selectFallback", method: "PUT", cookiesNeeded: ["authCookie"] },
         listFavoritedAvatars: { path: "/avatars/favorites", method: "GET", cookiesNeeded: ["authCookie"] },
     },
+    beta: {
+        getIOSClosedBetaInformation: { path: "/beta/ios-closed-beta", method: "GET", cookiesNeeded: ["authCookie"] },
+    },
     economy: {
         listSteamTransactions: { path: "/Steam/transactions", method: "GET", cookiesNeeded: ["authCookie"] },
         getSteamTransaction: { path: "/Steam/transactions/{transactionId}", method: "GET", deprecated: true, cookiesNeeded: ["authCookie"] },
@@ -31,9 +34,9 @@ export const ApiPaths: APIPaths = {
         listSubscriptions: { path: "/subscriptions", method: "GET", cookiesNeeded: ["authCookie"] },
         getLicenseGroup: { path: "/licenseGroups/{licenseGroupId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["licenseGroupId"] },
         getProductListing: { path: "/listing/{productId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["productId"] },
-        getUserProductListings: { path: "/user/{userId}/listings", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] }, // ! TODO - TO TEST
-        listTokenBundles: { path: "/tokenBundles", method: "GET", cookiesNeeded: ["authCookie"] }, // ! TODO - TO TEST
-        getTiliaStatus: { path: "/tilia/status", method: "GET", cookiesNeeded: ["authCookie"] }, // ! TODO - TO TEST
+        getUserProductListings: { path: "/user/{userId}/listings", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
+        listTokenBundles: { path: "/tokenBundles", method: "GET", cookiesNeeded: ["authCookie"] },
+        getTiliaStatus: { path: "/tilia/status", method: "GET", cookiesNeeded: ["authCookie"] },
         getTiliaTOS: { path: "/user/{userId}/tilia/tos", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"], requiresData:true },
         getBalance: { path: "/user/{userId}/balance", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getOwnPurchases: { path: "/economy/purchases", method: "GET", cookiesNeeded: ["authCookie"] },
@@ -136,10 +139,10 @@ export const ApiPaths: APIPaths = {
         createNormalInstance: { path: "/instances/{instanceId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["instanceId"] },
         createGroupInstance: { path: "/instances", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, secondPath: true},
     },
-    jams: { // ! TODO - TO TEST 
-        getJamsList: { path: "/jams", method: "GET", cookiesNeeded: ["authCookie"] }, // ! TODO - TO TEST
-        getJamInfo: { path: "/jams/{jamId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["jamId"] }, // ! TODO - TO TEST
-        getJamSubmissions: { path: "/jams/{jamId}/submissions", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["jamId"] }, // ! TODO - TO TEST
+    jams: {
+        getJamsList: { path: "/jams", method: "GET", cookiesNeeded: ["authCookie"] },
+        getJamInfo: { path: "/jams/{jamId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["jamId"] },
+        getJamSubmissions: { path: "/jams/{jamId}/submissions", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["jamId"] },
     },
     notifications: {
         listNotifications: { path: "/auth/user/notifications", method: "GET", cookiesNeeded: ["authCookie"] },
@@ -172,19 +175,20 @@ export const ApiPaths: APIPaths = {
     },
     users: {
         searchAllUsers: { path: "/users", method: "GET", cookiesNeeded: ["authCookie"] },
+        getUserbyUsername: { path: "/users/{username}/name", method: "GET", deprecated: true, notImplemented: true, cookiesNeeded: ["authCookie"], requiredQueryParams: ["username"] },
         getUserbyID: { path: "/users/{userId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         updateUserInfo: { path: "/users/{userId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId"] },
         getUserGroups: { path: "/users/{userId}/groups", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getUserGroupRequests: { path: "/users/{userId}/groups/requested", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getUserRepresentedGroup: { path: "/users/{userId}/groups/represented", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
-        getUserFeedback: { path: "/users/{userId}/feedback", method: "GET", cookiesNeeded: ["authCookie"], deprecated: true, requiredQueryParams: ["userId"] }, // ! TODO - TO TEST
-        getAllUserNotes: { path: "/userNotes", method: "GET", cookiesNeeded: ["authCookie"]}, // ! TODO - TO TEST
-        updateUserNote: { path: "/userNotes", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true}, // ! TODO - TO TEST
-        getAUserNote: { path: "/userNotes/{noteId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["noteId"] }, // ! TODO - TO TEST
-        getUserGroupInstances: { path: "/users/{userId}/instances/groups", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] }, // ! TODO - TO TEST
+        getUserFeedback: { path: "/users/{userId}/feedback", method: "GET", cookiesNeeded: ["authCookie"], deprecated: true, requiredQueryParams: ["userId"] },
+        getAllUserNotes: { path: "/userNotes", method: "GET", cookiesNeeded: ["authCookie"]},
+        updateUserNote: { path: "/userNotes", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true},
+        getAUserNote: { path: "/userNotes/{noteId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["noteId"] },
+        getUserGroupInstances: { path: "/users/{userId}/instances/groups", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
     },
     worlds: {
-        searchAllWorlds: { path: "/worlds", method: "GET", cookiesNeeded: [] },
+        searchAllWorlds: { path: "/worlds", method: "GET", cookiesNeeded: ["authCookie"] },
         createWorld: { path: "/worlds", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true },
         listActiveWorlds: { path: "/worlds/active", method: "GET", cookiesNeeded: ["authCookie"] },
         listFavoritedWorlds: { path: "/worlds/favorites", method: "GET", cookiesNeeded: ["authCookie"] },

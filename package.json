@@ -11,7 +11,6 @@
     ],
     "scripts": {
         "build": "tsup src/index.ts --format cjs,esm --dts --clean --sourcemap",
-        "build2": "if exist dist rmdir /s /q dist && mkdir dist && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && call fixup.bat",
         "test": "jest --verbose",
         "dev": "ts-node src/main.ts",
         "check-exports": "attw --pack .",
@@ -60,11 +59,18 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/lolmaxz/vrchat-wrapper-ts.git"
+        "url": "https://github.com/lolmaxz/vrc-ts"
     },
-    "homepage": "https://github.com/lolmaxz/vrchat-wrapper-ts.git",
+    "maintainers": [
+        {
+            "name": "lolmaxz",
+            "email": "lolmaxz@theedenapis.com",
+            "url": "https://discord.gg/theedenapis"
+        }
+    ],
+    "homepage": "https://github.com/lolmaxz/vrc-ts",
     "bugs": {
-        "url": "https://github.com/lolmaxz/vrchat-wrapper-ts/issues",
+        "url": "https://github.com/lolmaxz/vrc-ts/issues",
         "email": "lolmaxz@theedenapis.com"
     },
     "funding": [

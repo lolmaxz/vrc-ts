@@ -1,18 +1,18 @@
 import { UnityPackageAvatar } from './Files';
-import { AllTags, SearchOrderOptions, SearchSortingOptions } from './Generics';
+import { AllTags, AvatarIdType, SearchOrderOptions, SearchSortingOptions, UserIdType } from './Generics';
 
 //! --- Avatars --- !//
 
 export type Avatar = {
     /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12} */
-    id: string;
+    id: AvatarIdType;
     /** Min 1 chars. Name of the avatar */
     name: string;
     /** Min 0 chars. Description of the avatar */
     description: string;
     /** - **UserID**: A users unique ID, usually in the form of `usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469`.
      * - Legacy players can have old IDs in the form of `8JoV9XEdpo`. *The ID can never be changed*. */
-    authorId: string;
+    authorId: UserIdType;
     /** Min 1 chars. Name of the author/user */
     authorName: string;
     /** System tags and more */
@@ -62,7 +62,7 @@ export enum AvatarReleaseStatus {
 /** Request options for getting own avatars. */
 export type getOwnAvatarOption = {
     /** The id of the user to get the avatar from. */
-    userId: string;
+    userId: UserIdType;
 };
 
 /** Request options for searching avatars.
@@ -76,7 +76,7 @@ export type searchAvatarsOption = {
      * - Only works for yourself. Default = `me` */
     user?: string;
     /** The UserId of the user who uploaded the avatar */
-    userId?: string;
+    userId?: UserIdType;
     /** How many results to return. Default = `60` */
     n?: number;
     /** The order of the results. Default = `descending` */
@@ -101,7 +101,7 @@ export type searchAvatarsOption = {
 export type createAvatarOption = {
     assetUrl?: string;
     /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12} */
-    id?: string;
+    id?: AvatarIdType;
     /** Name of the avatar. Min 1 chars */
     name: string;
     /** Description of the avatar. Min 1 chars */
@@ -123,7 +123,7 @@ export type createAvatarOption = {
 /** Request options for getting an avatar. */
 export type getAvatarOption = {
     /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12} */
-    avatarId: string;
+    avatarId: AvatarIdType;
 };
 
 export type testing = {
@@ -135,7 +135,7 @@ export type testing = {
 export type dataKeysUpdateAvatar = {
     assetUrl?: string;
     /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12} */
-    id?: string;
+    id?: AvatarIdType;
     /** Name of the avatar. Min 1 chars */
     name?: string;
     /** Description of the avatar. Min 1 chars */
@@ -157,25 +157,25 @@ export type dataKeysUpdateAvatar = {
 /** Request options for updating an avatar. */
 export type updateAvatarOption = {
     /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12} */
-    avatarId: string;
+    avatarId: AvatarIdType;
 } & dataKeysUpdateAvatar;
 
 /** Request options for deleting an avatar. */
 export type deleteAvatarOption = {
     /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12} */
-    avatarId: string;
+    avatarId: AvatarIdType;
 };
 
 /** Request options for selecting an avatar. */
 export type selectAvatarOption = {
     /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F] */
-    avatarId: string;
+    avatarId: AvatarIdType;
 };
 
 /** Request options for selecting a fallback avatar. */
 export type selectFallbackAvatarOption = {
     /** AvatarID Pattern: avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F] */
-    avatarId: string;
+    avatarId: AvatarIdType;
 };
 
 /** Request options for listing favorited avatars. */
@@ -203,5 +203,5 @@ export type listFavoritedAvatarsOption = {
     /** The platform of the avatar. */
     platform?: string;
     /** The UserId of the user who uploaded the avatar */
-    userId?: string;
+    userId?: UserIdType;
 };

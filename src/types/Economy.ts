@@ -1,11 +1,17 @@
 import {
     AllTags,
+    AvatarIdType,
+    FileIdType,
     GroupIdType,
+    GroupRoleIdType,
     LicenseGroupIdType,
+    PermissionIdType,
     ProductListingIdType,
     SearchOrderOptions,
     SearchSortingOptions,
-    SteamTransactionIdType,
+    TiliaDatabaseIdType,
+    tiliaIdType,
+    TransactionIdType,
     UserIdType,
 } from './Generics';
 
@@ -16,6 +22,10 @@ export type SubscriptionPeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
 export type transactionWalletInfoStatus = 'Trusted';
 
 export type Subscription = {
+    /** The ID of the subscription
+     *
+     * Can be `vrchatplus-yearly` or `vrchatplus-monthly` by example.
+     */
     id: string;
     steamItemId: string;
     oculusSku: string; // todo new - undocumented
@@ -26,10 +36,13 @@ export type Subscription = {
 };
 
 export type SubscriptionComplete = {
-    /** Min. 1 character */
+    /** The ID of the subscription
+     * Can be `vrchatplus-yearly` or `vrchatplus-monthly` by example.
+     *
+     */
     id: string;
     /** Transaction ID */
-    transactionId: string;
+    transactionId: TransactionIdType;
     /** Which "Store" it came from. Right now only Stores are "Steam" and "Admin"  */
     store: string;
     /** The Steam Item ID */
@@ -46,6 +59,8 @@ export type SubscriptionComplete = {
     active: boolean;
     /** The transactino status, see Enum TransactionStatus. Default: active */
     status: TransactionStatus;
+    /** The Date this subscription starts */
+    starts: string;
     /** The Date this subscription will expire */
     expires: string;
     /** The Date this subscription was created */
@@ -56,6 +71,10 @@ export type SubscriptionComplete = {
     licenseGroup: string[];
     /** If this subscription is a gift or not */
     isGift: boolean;
+    /** When this was part of a multi gift purchase. Thanks to VRChat new option to throw gifts on the floor.
+     *
+     * This feature is in use in Open beta since November 2024.  */
+    isBulkGift: boolean;
 };
 
 export type TransactionSteamWalletInfo = {
@@ -102,8 +121,8 @@ export type TransactionAgreement = {
 };
 
 export type SteamTransaction = {
-    id: string;
-    userId: string; // todo new - undocumented
+    id: TransactionIdType;
+    userId: UserIdType;
     userDisplayName: string; // todo new - undocumented
     steam?: TransactionSteamInfo;
     /** Status of the transaction, see Enum TransactionStatus. Default: active */
@@ -126,19 +145,45 @@ export type SteamTransaction = {
 
 export type SteamTransactions = SteamTransaction[];
 
-export type License = {
-    /** Either a AvatarID, LicenseGroupID, PermissionID or ProductID. This depends on the forType field. */
-    forId: string;
-    /** The type of the license. See Enum LicenseType. Default: permission */
-    forType: LicenseType;
+export type LicenseBase = {
     /** The name of the product. */
     forName: string;
     /** The action the owner took on this purchase. See Enum LicenseAction. Default: have */
     forAction: LicenseAction;
 };
 
+export type License = LicenseAvatarType | LicenseGroupType | LicensePermissionType | LicenseProductType;
+
+export type LicenseAvatarType = LicenseBase & {
+    /** A AvatarID. */
+    forId: AvatarIdType;
+    /** The type of the license. In this case, it's always avatar. */
+    forType: LicenseType.Avatar;
+};
+
+export type LicenseGroupType = LicenseBase & {
+    /** A LicenseGroupID. */
+    forId: LicenseGroupIdType;
+    /** The type of the license. In this case, it's always licenseGroup. */
+    forType: LicenseType.LicenseGroup;
+};
+
+export type LicensePermissionType = LicenseBase & {
+    /** A PermissionID. */
+    forId: PermissionIdType;
+    /** The type of the license. In this case, it's always permission. */
+    forType: LicenseType.Permission;
+};
+
+export type LicenseProductType = LicenseBase & {
+    /** A ProductID. */
+    forId: ProductListingIdType;
+    /** The type of the license. In this case, it's always product. */
+    forType: LicenseType.Product;
+};
+
 export type LicenseGroup = {
-    id: string;
+    id: LicenseGroupIdType;
     name: string;
     description: string;
     licenses: License[];
@@ -173,20 +218,20 @@ export type SyncData = {
      *
      * Format: acct_X9X9X9X9X9X9X9X9X9X9X9X9X9X
      */
-    tiliaId: string;
+    tiliaId: tiliaIdType;
     /** If you have accepted the Tilia terms of service */
     tiliaTosAccepted: boolean;
     /** The type of Tilia account you have */
     tiliaType: TiliaTypes;
     /** Your vrchat userID */
-    userId: string;
+    userId: UserIdType;
     /** When your Tilia account was created. Normally this is when you opened the Marketplace page for the first time either on the website or the game */
     _created_at: string;
     /** database ID from linking your vrchat account to Tilia
      *
      * Format: till_4d4d4d4d-d4d4-d4d4-d4d4-d4d4d4d4d4d4
      */
-    _id: string;
+    _id: TiliaDatabaseIdType;
     /** When your Tilia account was last updated. */
     _updated_at: string;
 };
@@ -210,9 +255,9 @@ export type Transactions = {
 
 export type Transaction = {
     /** The ID of the transaction */
-    id: string;
+    id: TransactionIdType;
     /** The Listing ID of this transaction, Is null is it was token buying */
-    listingId?: string;
+    listingId?: ProductListingIdType;
     /** The name of this transaction if any. When buying credit is typically "XXX VRChat Credits" */
     name: string;
     /** The Image ID of this listing is any. When buying VRChat credit this is null */
@@ -220,11 +265,11 @@ export type Transaction = {
     /** The Purchase ID? Undocumented field, is empty when buying VRChat credit */
     purchaseId: string; // todo documentation unsure here
     /** The User ID of the user who bought this */
-    toUserId: string;
+    toUserId: UserIdType;
     /** The display name of the user who bought this */
     toUserDisplayName: string;
     /** When buying credit this will be 'vrchat-token' */
-    fromUserId: string;
+    fromUserId: UserIdType;
     /** When buying credit will display 'Steam' */
     fromUserDisplayName: string;
     /** When buying credit will display 'Steam' */
@@ -236,7 +281,7 @@ export type Transaction = {
     /** Trilia Reference ID
      *
      * format: vtok_4Wa4Wa4Wa4Wa4Wa4Qaq4Q4qQAAd */
-    triliaRef: string;
+    triliaRef: string; // todo documentation unsure here
     /** The amount of tokens this transaction cost */
     amoutTokens: number;
     /** The amount of VRChat Credit left after this transaction */
@@ -257,9 +302,9 @@ export enum TransactionPOV {
 
 export type Purchase = {
     /** The ID of the purchase */
-    purchaseId: string;
+    purchaseId: string; // todo To potentially update
     /** The ID of the listing */
-    listingId: string;
+    listingId: ProductListingIdType;
     /** The Displayname of the listing, could be the name of the Udon object or Group Role */
     listingDisplayName: string;
     /** The Image ID of the listing/purchase */
@@ -267,15 +312,15 @@ export type Purchase = {
     /** The list of products included in this purchase (can be multiple) */
     products: (ProductListingRole | ProductListingUdon)[];
     /** The User ID of the seller who sold this listing */
-    sellerId: string;
+    sellerId: UserIdType;
     /** The Displayname of the seller who sold this listing */
     sellerDisplayName: string;
     /** The User ID of the buyer who bought this listing */
-    buyerId: string;
+    buyerId: UserIdType;
     /** The Displayname of the buyer who bought this listing */
     buyerDisplayName: string;
     /** Who received this purchased listing (you or the person you gifted it to <3 ) */
-    receiverId: string;
+    receiverId: UserIdType;
     /** The Displayname of the person who received this purchased listing (you or the person you gifted it to <3 ) */
     receiverDisplayName: string;
     /** The price in VRChat Credit this has cost (that will display) */
@@ -334,7 +379,7 @@ export type Purchase = {
     listingCurrentlyAvailable: boolean;
 };
 
-export type Lisense = {
+export type LicenseObject = {
     /** The ID of the license */
     id: string;
     /** The VRChat User ID of the owner of the licensed product (not this exact license) */
@@ -344,7 +389,7 @@ export type Lisense = {
     /** The ID of the Group that this product purchased belongs to */
     forId: string;
     /** The type of the Group that this product purchased belongs to */
-    forType: LisenseType;
+    forType: LicenseType;
     /** Name of the product purchased */
     forName: string;
     /** The action the owner took on this purchase */
@@ -356,7 +401,7 @@ export type Lisense = {
     /** The User ID of the user who created this License (The buyer normally) */
     licenseHolderId: string;
     /** The type of License Holder who created this License (The buyer normally) */
-    licenseHolderType: LisenceHolderType;
+    licenseHolderType: LicenceHolderType;
     /** The display name of the user who created this License (The buyer normally) */
     licenseHolderDisplayName: string;
     /** If this license is active or not */
@@ -373,11 +418,11 @@ export type Lisense = {
     created: string;
 };
 
-export enum LisenceHolderType {
+export enum LicenceHolderType {
     User = 'user',
 }
 
-export enum LisenseType {
+export enum LicenseType {
     Role = 'role',
 }
 
@@ -387,7 +432,7 @@ export enum ActionTypes {
 
 export type Listing = {
     /** Listing ID */
-    id: string;
+    id: ProductListingIdType;
     /** The date this listing was created */
     created: string;
     /** The date this listing was last updated */
@@ -395,7 +440,7 @@ export type Listing = {
     /** The type of Listing (Only 'listing' for now) */
     productType: ProductListingType;
     /** The User ID of the User who created this Listing */
-    sellerId: string;
+    sellerId: UserIdType;
     /** The display name of the User who created this Listing */
     sellerDisplayName: string;
     /** The name of this Listing */
@@ -431,9 +476,9 @@ export type Listing = {
     /** If this listing is active or not. */
     active: boolean; // todo to better document this
     /** The Group ID associated with this listing */
-    groupId?: `grp_${string}-${string}-${string}-${string}-${string}`;
+    groupId?: GroupIdType;
     /** The Group Icon associated with this listing */
-    groupIcon: `file_${string}-${string}-${string}-${string}-${string}`;
+    groupIcon: FileIdType;
     /** Other Listing variant(s) if available */
     listingVariants: unknown[]; // todo to better document this
 };
@@ -449,13 +494,13 @@ export enum ProductListingType {
 
 export type ProductBase = {
     /** Product ID */
-    id: string;
+    id: ProductListingIdType;
     /** The date this product was created */
     created: string;
     /** The date this product was last updated */
     updated: string;
     /** The User ID of the user selling this */
-    sellerId: string;
+    sellerId: UserIdType;
     /** The display name of the User selling this */
     sellerDisplayName: string;
     /** The name of what is being sold here */
@@ -481,9 +526,9 @@ export type ProductListingUdon = ProductBase & {
     /** The type of the product, see Enum ProductType */
     productType: ProductType.Role;
     /** The Group ID related to this item, IF productType is = role */
-    groupId?: string;
+    groupId?: GroupIdType;
     /** The Group Role ID that is given as a sold item, IF productType is = role */
-    groupRoleId?: string;
+    groupRoleId?: GroupRoleIdType;
     /** If you currently have access to this group (part of that group) */
     groupAccess?: boolean; // todo to better document this
     /** Undocumented */
@@ -535,7 +580,7 @@ export type TiliaStatus = {
 /** Requirement to get all Steam Transactions using a Transaction ID */
 export type GetSteamTransactionRequest = {
     /** The ID of the Steam Transaction */
-    transactionId: SteamTransactionIdType;
+    transactionId: TransactionIdType;
 };
 
 /** Requirement to get all License Groups */

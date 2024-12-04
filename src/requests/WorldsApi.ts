@@ -36,6 +36,7 @@ export class WorldsApi extends BaseApi {
         userId,
         developer,
         fuzzy = false,
+        includeInstances,
     }: Wrld.SearchAllWorldsRequest): Promise<Wrld.LimitedWorld[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
@@ -63,6 +64,7 @@ export class WorldsApi extends BaseApi {
         if (userId) parameters.append('userId', userId);
         if (developer) parameters.append('developer', developer);
         if (fuzzy) parameters.append('fuzzy', fuzzy.toString());
+        if (includeInstances) parameters.append('includeInstances', 'partial');
 
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.worlds.searchAllWorlds,

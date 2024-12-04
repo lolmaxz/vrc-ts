@@ -2,6 +2,7 @@ import { Color as C } from './colors';
 import { CookiesExpired, CookiesNotFound, CookiesUser404, EmailOtpRequired, TOTPRequired } from './errors';
 import { AuthApi } from './requests/AuthApi';
 import { AvatarsApi } from './requests/AvatarsApi';
+import { BetaApi } from './requests/BetaApi';
 import { EconomyApi } from './requests/EconomyApi';
 import { FavoritesApi } from './requests/FavoritesApi';
 import { FilesApi } from './requests/FilesApi';
@@ -40,6 +41,7 @@ export class VRChatAPI {
 
     authApi: AuthApi = new AuthApi(this);
     avatarApi: AvatarsApi = new AvatarsApi(this);
+    betaApi: BetaApi = new BetaApi(this);
     economyApi: EconomyApi = new EconomyApi(this);
     favoriteApi: FavoritesApi = new FavoritesApi(this);
     fileApi: FilesApi = new FilesApi(this);

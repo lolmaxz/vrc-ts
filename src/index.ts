@@ -4,6 +4,7 @@ export * from 'VRChatAPI';
 export * from 'types/ApiPaths';
 export * from 'types/Auth';
 export * from 'types/Avatars';
+export * from 'types/Beta';
 export * from 'types/Economy';
 export * from 'types/Favorites';
 export * from 'types/Files';

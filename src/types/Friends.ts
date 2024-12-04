@@ -1,3 +1,5 @@
+import { UserIdType } from './Generics';
+
 export type FriendStatus = {
     incomingRequest: boolean;
     isFriend: boolean;
@@ -6,7 +8,7 @@ export type FriendStatus = {
 
 export type UserId = {
     /** UserId of the User needed to perform this action on. **[REQUIRED]** */
-    userId: string;
+    userId: UserIdType;
 };
 
 /** List information about friends. */

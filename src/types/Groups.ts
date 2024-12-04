@@ -1,7 +1,12 @@
 import {
     AllTags,
     FileIdType,
+    GroupAnnouncementIdType,
+    GroupAuditLogIdType,
+    GroupGalleryIdType,
+    GroupGalleryImageIdType,
     GroupIdType,
+    GroupMemberIdType,
     GroupRoleIdType,
     languageTagsShort,
     NotificationIdType,
@@ -10,18 +15,18 @@ import {
 
 //! -- Group API -- !//
 export type Group = {
-    id: string;
+    id: GroupIdType;
     name: string;
     shortCode: string;
     discriminator: string;
     description: string;
-    iconId?: string;
+    iconId?: FileIdType;
     iconUrl?: string;
     bannerUrl?: string;
-    bannerId?: string;
+    bannerId?: FileIdType;
     lastPostCreatedAt?: string; // assuming date-time is a string in ISO format
     privacy: GroupPrivacy;
-    ownerId: string;
+    ownerId: UserIdType;
     rules?: string;
     links?: string[];
     languages?: languageTagsShort[]; // only languages short tags
@@ -43,16 +48,16 @@ export type Group = {
 };
 
 export type LimitedGroup = {
-    id: string;
+    id: GroupIdType;
     name: string;
     shortCode: string;
     discriminator: string;
     description: string;
-    iconId?: string;
+    iconId?: FileIdType;
     iconUrl?: string;
     bannerUrl?: string;
-    bannerId?: string;
-    ownerId: string;
+    bannerId?: FileIdType;
+    ownerId: UserIdType;
     memberCount: number;
     tags?: AllTags[];
     createdAt?: string; // assuming date-time is a string in ISO format
@@ -66,26 +71,26 @@ export type RepresentedGroup = {
     shortCode: string;
     discriminator: string;
     description: string;
-    iconId?: string;
+    iconId?: FileIdType;
     iconUrl?: string;
     bannerUrl?: string;
-    bannerId?: string;
+    bannerId?: FileIdType;
     privacy: GroupPrivacy;
-    ownerId: string;
+    ownerId: UserIdType;
     memberCount: number;
-    groupId: string;
+    groupId: GroupIdType;
     memberVisibility: GroupUserVisibility;
     isRepresenting: boolean;
 };
 
 export type GroupAudit = {
     results: {
-        id: string;
+        id: GroupAuditLogIdType;
         created_at: string;
-        groupId: string;
-        actorId: string;
+        groupId: GroupIdType;
+        actorId: UserIdType;
         actorDisplayName: string;
-        targetId: string;
+        targetId: UserIdType;
         eventType: GroupAuditLogEventType;
         description: string;
         data?:
@@ -166,10 +171,10 @@ export enum GroupAuditLogEventType {
 export type GroupAuditLogDataPostCreated = {
     title: string;
     text: string;
-    imageId?: string;
-    authorId?: string;
+    imageId?: string; // Often null
+    authorId?: UserIdType;
     sendNotification?: boolean;
-    roleIds?: string[];
+    roleIds?: GroupRoleIdType[];
     visibility: GroupPostVisibilityType;
 };
 
@@ -178,17 +183,17 @@ export type GroupAuditLogDataPostDeleted = {
     text: string;
     imageId?: string;
     imageUrl?: string;
-    authorId?: string;
-    editorId?: string;
+    authorId?: UserIdType;
+    editorId?: UserIdType;
     sendNotification?: boolean; // todo, not sure yet
-    roleIds?: string[];
+    roleIds?: GroupRoleIdType[];
     createdAt: string;
     updatedAt: string;
     visibility: GroupPostVisibilityType;
 };
 
 export type GroupAuditLogDataRoleCreate = {
-    groupId: string;
+    groupId: GroupIdType;
     name: string;
     description: string;
     isSelfAssignable: boolean;
@@ -239,12 +244,12 @@ export type GroupAuditLogDataMemberUpdate = {
 };
 
 export type GroupAuditLogDataRoleAssign = {
-    roleId: string;
+    roleId: GroupRoleIdType;
     roleName: string;
 };
 
 export type GroupAuditLogDataRoleUnassign = {
-    roleId: string;
+    roleId: GroupRoleIdType;
     roleName: string;
 };
 
@@ -262,12 +267,12 @@ export type GroupAuditLogDataGroupUpdate = {
         new: GroupJoinState;
     };
     iconId?: {
-        old?: string;
-        new: string;
+        old?: FileIdType;
+        new: FileIdType;
     };
     bannerId?: {
-        old?: string;
-        new: string;
+        old?: FileIdType;
+        new: FileIdType;
     };
     privacy?: {
         old: GroupPrivacy;
@@ -290,10 +295,10 @@ export type GroupAuditLogGalleryCreate = {
     name: string;
     description: string;
     membersOnly: boolean;
-    roleIdsToView?: string[];
-    roleIdsToSubmit?: string[];
-    roleIdsToAutoApprove?: string[];
-    roleIdsToManage?: string[];
+    roleIdsToView?: GroupRoleIdType[];
+    roleIdsToSubmit?: GroupRoleIdType[];
+    roleIdsToAutoApprove?: GroupRoleIdType[];
+    roleIdsToManage?: GroupRoleIdType[];
 };
 
 export type GroupAuditLogGalleryUpdate = {
@@ -315,23 +320,23 @@ export type GroupAuditLogGalleryDelete = {
     name: string;
     description: string;
     membersOnly: boolean;
-    roleIdsToView?: string[];
-    roleIdsToSubmit?: string[];
-    roleIdsToAutoApprove?: string[];
-    roleIdsToManage?: string[];
+    roleIdsToView?: GroupRoleIdType[];
+    roleIdsToSubmit?: GroupRoleIdType[];
+    roleIdsToAutoApprove?: GroupRoleIdType[];
+    roleIdsToManage?: GroupRoleIdType[];
     createdAt: string;
     updatedAt: string;
 };
 
 export type GroupAuditLogDataGroupInstanceCreate = {
     groupAccessType: string; // 'member'
-    roleIds?: string[];
+    roleIds?: GroupRoleIdType[];
 };
 
 export type GroupAnnouncement = {
-    id: string;
-    groupId: string;
-    authorId: string;
+    id: GroupAnnouncementIdType;
+    groupId: GroupIdType;
+    authorId: UserIdType;
     /** The User ID of the User who edited the post last */
     editorId?: UserIdType;
     title: string;
@@ -341,7 +346,7 @@ export type GroupAnnouncement = {
     createdAt: string;
     updatedAt: string;
     /** List of role IDs that can view the post. Will be empty when for all members OR Public visibility. */
-    roleIds: string[];
+    roleIds: GroupRoleIdType[];
 };
 
 export type GroupPost = GroupAnnouncement & {
@@ -353,12 +358,12 @@ export type GroupPostRequestResponse = {
     posts: GroupPost[];
 };
 export type BaseMyMember = {
-    id: string;
-    groupId: string;
-    userId: string;
+    id: GroupMemberIdType;
+    groupId: GroupIdType;
+    userId: UserIdType;
     isRepresenting: boolean;
-    roleIds: string[];
-    mRoleIds?: string[]; // TODO: Undocumented yet!
+    roleIds: GroupRoleIdType[];
+    mRoleIds?: GroupRoleIdType[]; // TODO: Undocumented yet!
     joinedAt: string; // assuming date-time is a string in ISO format
     membershipStatus: string;
     visibility: string;
@@ -375,7 +380,7 @@ export type MyMember = BaseMyMember & {
 };
 
 export type GroupMemberLimitedUser = {
-    id: string;
+    id: GroupMemberIdType;
     displayName: string;
     thumbnailUrl: string;
     iconUrl: string;
@@ -385,12 +390,12 @@ export type GroupMemberLimitedUser = {
 };
 
 export type GroupMember = {
-    id: string;
-    groupId: string;
-    userId: string;
+    id: GroupMemberIdType;
+    groupId: GroupIdType;
+    userId: UserIdType;
     isRepresenting: boolean;
     user: GroupMemberLimitedUser;
-    roleIds: string[];
+    roleIds: GroupRoleIdType[];
     joinedAt: string;
     membershipStatus: GroupMembershipStatus;
     visibility: string;
@@ -401,8 +406,8 @@ export type GroupMember = {
 };
 
 export type GroupRole = {
-    id: string;
-    groupId: string;
+    id: GroupRoleIdType;
+    groupId: GroupIdType;
     name: string;
     description: string;
     isSelfAssignable: boolean;
@@ -413,35 +418,35 @@ export type GroupRole = {
     order: number;
     createdAt: string; // assuming date-time is a string in ISO format
     updatedAt: string; // assuming date-time is a string in ISO format
-    /** The default role is the role that is assigned to all members by default. If set to true, this role will be given to any members that join the VRChat Group */
+    /** A default role is a role that is assigned to all members by default. If set to true, this role will be given to any members that join the VRChat Group */
     defaultRole: boolean; //! new attribute
     /** The role that will be assigned to new members when they join the VRChat Group */
     isAddedOnJoin: boolean; //! new attribute
 };
 
 export type GroupGallery = {
-    id: string;
+    id: GroupGalleryIdType;
     name: string;
     description: string;
     membersOnly: boolean;
-    roleIdsToView: string[];
-    roleIdsToSubmit: string[];
-    roleIdsToAutoApprove: string[];
-    roleIdsToManage: string[];
+    roleIdsToView: GroupRoleIdType[];
+    roleIdsToSubmit: GroupRoleIdType[];
+    roleIdsToAutoApprove: GroupRoleIdType[];
+    roleIdsToManage: GroupRoleIdType[];
     createdAt: string; // assuming date-time is a string in ISO format
     updatedAt: string; // assuming date-time is a string in ISO format
 };
 
 export type GroupGalleryImage = {
-    id: string;
-    groupId: string;
-    galleryId: string;
-    fileId: string;
+    id: GroupGalleryImageIdType;
+    groupId: GroupIdType;
+    galleryId: GroupGalleryIdType;
+    fileId: FileIdType;
     imageUrl: URL;
     createdAt: string;
-    submittedByUserId: string;
+    submittedByUserId: UserIdType;
     approved: boolean;
-    approvedByUserId: string;
+    approvedByUserId: UserIdType;
     approvedAt: string;
 };
 
@@ -687,9 +692,9 @@ export type basicGroupData = Description & {
     /** The JoinState of the group. Must be one of the following: `open`, `invite`, `request`, `closed`. Default is `open`. *[OPTIONAL]* */
     joinState?: GroupJoinState;
     /** The IconId of the group. *[OPTIONAL]*. */
-    iconId?: string;
+    iconId?: FileIdType;
     /** The BannerId of the group. *[OPTIONAL]*. */
-    bannerId?: string;
+    bannerId?: FileIdType;
 };
 
 /** Information Required to request to create a group. */
@@ -766,7 +771,7 @@ export enum GroupPostVisibilityType {
 export type dataKeyCreatePost = dataKeysCreateGroupPost & {
     /** The visibility of the post. If the Post is either for members only or for specific roles, it NEEDS to be set to Group.*/
     visibility: GroupPostVisibilityType;
-    roleIds?: string[];
+    roleIds?: GroupRoleIdType[];
 };
 
 /** Final Information Required to request to create a group post. */
@@ -785,7 +790,7 @@ export type dataKeysCreateGroupPost = {
     /** The title of the Group Announcement. Must be minimum 1 character long. **[REQUIRED]**.*/
     title: string;
     /** The imageId of the Group Announcement. *[OPTIONAL]*.*/
-    imageId?: string;
+    imageId?: string; //! Potentially a FileIdType
     /** Whether or not to send a notification to all group members. Defaults to true. *[OPTIONAL]*.*/
     sendNotification?: boolean;
 };
@@ -794,7 +799,7 @@ export type dataKeysCreateGroupPostPlus = dataKeyCreatePost &
     extraCreateGroupPostTextRequest & {
         /** The visibility of the post. If the Post is either for members only or for specific roles, it NEEDS to be set to Group.*/
         visibility: GroupPostVisibilityType;
-        roleIds?: string[];
+        roleIds?: GroupRoleIdType[];
     };
 
 export type dataKeysCreateGroupAnnouncement = {
@@ -817,7 +822,7 @@ export type deleteGroupAnnouncementRequest = GroupId;
 /** Information Required to request to delete a Group's Post. */
 export type deleteGroupPostRequest = GroupId & {
     /** The ID of the post you want to delete. **[REQUIRED]**.*/
-    postId: string;
+    postId: NotificationIdType;
 };
 
 /** Information Required to request to get a group's banned users. */
@@ -825,7 +830,7 @@ export type getBannedUsersRequest = GroupId & Quantity & Offset;
 
 export type dataKeysGroupBanMember = {
     /** The ID of the user to ban. **[REQUIRED]**.*/
-    userId: string;
+    userId: UserIdType;
 };
 
 /** Information Required to request to ban a user from a group. */
@@ -834,18 +839,22 @@ export type banGroupMemberRequest = GroupId & dataKeysGroupBanMember;
 /** Information Required to request to unban a user from a group. */
 export type unbanGroupMemberRequest = GroupId & UserId;
 
+export type roleData = {
+    /** The roleIds that can view the gallery. *[OPTIONAL]*.*/
+    roleIdsToView?: GroupRoleIdType[];
+    /** The roleIds that can submit to the gallery. *[OPTIONAL]*.*/
+    roleIdsToSubmit?: GroupRoleIdType[];
+    /** The roleIds that can auto approve submissions to the gallery. *[OPTIONAL]*.*/
+    roleIdsToAutoApprove?: GroupRoleIdType[];
+    /** The roleIds that can manage the gallery. *[OPTIONAL]*.*/
+    roleIdsToManage?: GroupRoleIdType[];
+};
+
 export type dataKeysGroupCreateGallery = ReqName &
-    Description & {
+    Description &
+    roleData & {
         /** Whether or not the gallery is members only. Defaults to false. *[OPTIONAL]*.*/
         membersOnly?: boolean;
-        /** The roleIds that can view the gallery. *[OPTIONAL]*.*/
-        roleIdsToView?: string[];
-        /** The roleIds that can submit to the gallery. *[OPTIONAL]*.*/
-        roleIdsToSubmit?: string[];
-        /** The roleIds that can auto approve submissions to the gallery. *[OPTIONAL]*.*/
-        roleIdsToAutoApprove?: string[];
-        /** The roleIds that can manage the gallery. *[OPTIONAL]*.*/
-        roleIdsToManage?: string[];
     };
 
 /** Information Required to request to create a group gallery. */
@@ -853,7 +862,7 @@ export type createGroupGalleryRequest = GroupId & dataKeysGroupCreateGallery;
 
 export type groupGalleryId = {
     /** The groupGalleryId of the Group Gallery you want to perform this action on. **[REQUIRED]** */
-    groupGalleryId: string;
+    groupGalleryId: GroupGalleryIdType;
 };
 
 /** Information Required to request to get a group's gallerie's Images. */
@@ -866,17 +875,10 @@ export type getGroupGalleryImagesRequest = GroupId &
     };
 
 export type dataKeysGroupUpdateGallery = OptName &
-    Description & {
+    Description &
+    roleData & {
         /** Whether or not the gallery is members only. *[OPTIONAL]*.*/
         membersOnly?: boolean;
-        /** The roleIds that can view the gallery. *[OPTIONAL]*.*/
-        roleIdsToView?: string[];
-        /** The roleIds that can submit to the gallery. *[OPTIONAL]*.*/
-        roleIdsToSubmit?: string[];
-        /** The roleIds that can auto approve submissions to the gallery. *[OPTIONAL]*.*/
-        roleIdsToAutoApprove?: string[];
-        /** The roleIds that can manage the gallery. *[OPTIONAL]*.*/
-        roleIdsToManage?: string[];
     };
 
 /** Information Required to request to update a group gallery. */
@@ -887,7 +889,7 @@ export type deleteGroupGalleryRequest = GroupId & groupGalleryId;
 
 export type dataKeysAddGroupGalleryImage = {
     /** The fileId of the image you want to add to the gallery. **[REQUIRED]**.*/
-    fileId: string; // TODO Research how that file ID looks like ( file_ce35d830-e20a-4df0-a6d4-5aaef4508044 )
+    fileId: FileIdType;
 };
 
 /** Information Required to request to add a image to a group gallery. */
@@ -897,7 +899,7 @@ export type addGroupGalleryImagesRequest = GroupId & groupGalleryId & dataKeysAd
 export type deleteGroupGalleryImagesRequest = GroupId &
     groupGalleryId & {
         /** The groupGalleryImageId of the Group Gallery Image you want to delete. **[REQUIRED]**.*/
-        groupGalleryImageId: string;
+        groupGalleryImageId: GroupGalleryImageIdType;
     };
 
 /** Information Required to request to get a group's invites. */
@@ -905,7 +907,7 @@ export type getGroupInvitesSentRequest = GroupId;
 
 export type dataKeysCreateGroupInvite = {
     /** The ID of the user to invite to the group. **[REQUIRED]**.*/
-    userId: string;
+    userId: UserIdType;
     /** // TODO research what this does. *[OPTIONAL]*. */
     confirmOverrideBlock?: boolean;
 };
@@ -945,7 +947,7 @@ export type kickGroupMemberRequest = GroupId & UserId;
 
 export type GroupRoleId = {
     /** The groupRoleId of the Group Role you want to perform this action on. **[REQUIRED]** */
-    groupRoleId: string;
+    groupRoleId: GroupRoleIdType;
 };
 
 /** Information Required to request to add a role to a group member. */

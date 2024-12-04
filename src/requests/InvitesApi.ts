@@ -43,14 +43,14 @@ export class InvitesApi extends BaseApi {
      * Sends self an invite to an instance.
      */
     public async inviteMyselfToInstance({
-        instanceid,
-        worldid,
+        instanceId,
+        worldId,
     }: Inv.InviteMyselfToInstanceRequest): Promise<Notif.SentNotification> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.invites.inviteMyselfToInstance,
             pathFormated: ApiPaths.invites.inviteMyselfToInstance.path
-                .replace('{instanceId}', instanceid)
-                .replace('{worldId}', worldid),
+                .replace('{instanceId}', instanceId)
+                .replace('{worldId}', worldId),
         };
 
         return await this.executeRequest<Notif.SentNotification>(paramRequest);
