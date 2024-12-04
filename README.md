@@ -1,5 +1,6 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
+Latest version: **v1.0.5**<br>
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically.
 Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
 
