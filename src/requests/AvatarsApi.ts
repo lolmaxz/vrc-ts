@@ -44,7 +44,7 @@ export class AvatarsApi extends BaseApi {
         offset,
         tags,
         noTags,
-        releaseStatus = Avi.ReleaseStatus.All,
+        releaseStatus = Avi.AvatarReleaseStatus.All,
         maxUnityVersion,
         minUnityVersion,
         platform,

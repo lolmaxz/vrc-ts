@@ -1,8 +1,10 @@
 //! --- Permissions --- !//
 
+import { PermissionIdType, UserIdType } from './Generics';
+
 export type Permission = {
-    id: string;
-    ownerId: string;
+    id: PermissionIdType;
+    ownerId: UserIdType;
     ownerDisplayName?: string;
     name: string;
     displayName?: string;
@@ -21,5 +23,5 @@ export type Permission = {
 //! --- Request --- !//
 
 export type GetPermissionRequest = {
-    permissionId: string;
+    permissionId: PermissionIdType;
 };

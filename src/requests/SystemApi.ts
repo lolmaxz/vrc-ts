@@ -58,6 +58,7 @@ export class SystemApi extends BaseApi {
 
     /**
      * NOTE: The response type is not a JSON object, but a simple JSON integer.
+     * @deprecated ⚠️ This endpoint is deprecated and will be removed in the future.
      */
     public checkAPIHealth() {
         console.log('This endpoint is still under development. Please check back later.');

@@ -24,6 +24,12 @@ export class EconomyApi extends BaseApi {
         return await this.executeRequest<Eco.SteamTransactions>(paramRequest);
     }
 
+    /**
+     * Get a Steam transaction by ID.
+     * @param param0 transactionId - The ID of the transaction.
+     * @returns {Promise<Eco.SteamTransaction>} - Returns a Promise with the response from the API.
+     * @deprecated ⚠️ This endpoint is deprecated and will be removed in the future.
+     */
     public async getSteamTransaction({ transactionId }: Eco.GetSteamTransactionRequest): Promise<Eco.SteamTransaction> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.economy.getSteamTransaction,
@@ -76,15 +82,72 @@ export class EconomyApi extends BaseApi {
         return await this.executeRequest<Eco.Listing>(paramRequest);
     }
 
-    public async getOwnSubscription(): Promise<Eco.SubscriptionComplete> {
+    /**
+     * Get the current user's product listings.
+     *
+     * Only works for your own account. So you can Omit the `userId` parameter.
+     *
+     * @param {Eco.getUserProductListingsRequest} param0 - The request parameters. ONE is required. Otherwise n=60 by default.
+     * @returns {Promise<Eco.Listing[]>} - Returns a Promise with an array of a user's product listings.
+     **/
+    public async getUserProductListings({
+        userId,
+        n,
+        offset,
+        hydrate,
+        groupId,
+        active,
+    }: Eco.getUserProductListingsRequest): Promise<Eco.Listing[]> {
+        const queryOptions = new URLSearchParams();
+        if (n && n > 0) {
+            queryOptions.append('n', n.toString());
+        } else {
+            queryOptions.append('n', '60');
+        }
+        if (offset && offset > 0) queryOptions.append('offset', offset.toString());
+        if (hydrate) queryOptions.append('hydrate', hydrate.toString());
+        if (groupId) queryOptions.append('groupId', groupId);
+        if (active) queryOptions.append('active', active.toString());
+
         const paramRequest: executeRequestType = {
-            currentRequest: ApiPaths.economy.getOwnSubscription,
-            pathFormated: ApiPaths.economy.getOwnSubscription.path,
+            currentRequest: ApiPaths.economy.getUserProductListings,
+            pathFormated: ApiPaths.economy.getUserProductListings.path.replace('{userId}', userId),
+            queryOptions: queryOptions,
         };
 
-        return await this.executeRequest<Eco.SubscriptionComplete>(paramRequest);
+        return await this.executeRequest<Eco.Listing[]>(paramRequest);
     }
 
+    /**
+     * Get the current user's list of Token Bundles.
+     *
+     * @returns {Promise<Eco.TokenBundle[]>} - Returns a Promise with the response from the API.
+     * @memberof EconomyApi
+     */
+    public async listTokenBundles(): Promise<Eco.TokenBundle[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.economy.listTokenBundles,
+            pathFormated: ApiPaths.economy.listTokenBundles.path,
+        };
+
+        return await this.executeRequest<Eco.TokenBundle[]>(paramRequest);
+    }
+
+    public async getTiliaStatus(): Promise<Eco.TiliaStatus> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.economy.getTiliaStatus,
+            pathFormated: ApiPaths.economy.getTiliaStatus.path,
+        };
+
+        return await this.executeRequest<Eco.TiliaStatus>(paramRequest);
+    }
+
+    /**
+     * Get a user's Tilia TOS.
+     *
+     * @param {Eco.GetTiliaTOSRequest} param0 - The request parameters.
+     * @returns {Promise<Eco.TOS>} - Returns a Promise with the Tilila TOS of the user.
+     */
     public async getTiliaTOS({ userId }: Eco.GetTiliaTOSRequest): Promise<Eco.TOS> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.economy.getTiliaTOS,
@@ -189,12 +252,16 @@ export class EconomyApi extends BaseApi {
      * @param {Eco.GetUserBalanceRequest} param0 - The request parameters.
      * @returns {Promise<Eco.Balance>} - Returns a Promise with the response from the API.
      */
-    public async getBalance({ userId }: Eco.GetUserBalanceRequest): Promise<Eco.Balance> {
+    public async getBalance({ userId }: Eco.GetUserBalanceRequest = {}): Promise<Eco.Balance> {
+        if (!userId && this.baseClass.currentUser) {
+            userId = this.baseClass.currentUser.id;
+        } else {
+            throw new Error('You need to provide a userId or be logged in to get the balance.');
+        }
+
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.economy.getBalance,
-            pathFormated: userId
-                ? ApiPaths.economy.getBalance.path.replace('{userId}', userId)
-                : ApiPaths.economy.getBalance.path,
+            pathFormated: ApiPaths.economy.getBalance.path.replace('{userId}', userId),
         };
 
         return await this.executeRequest<Eco.Balance>(paramRequest);

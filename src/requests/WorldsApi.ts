@@ -35,6 +35,8 @@ export class WorldsApi extends BaseApi {
         user,
         userId,
         developer,
+        fuzzy = false,
+        includeInstances,
     }: Wrld.SearchAllWorldsRequest): Promise<Wrld.LimitedWorld[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
@@ -61,6 +63,8 @@ export class WorldsApi extends BaseApi {
         if (user) parameters.append('user', user);
         if (userId) parameters.append('userId', userId);
         if (developer) parameters.append('developer', developer);
+        if (fuzzy) parameters.append('fuzzy', fuzzy.toString());
+        if (includeInstances) parameters.append('includeInstances', 'partial');
 
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.worlds.searchAllWorlds,
@@ -335,6 +339,7 @@ export class WorldsApi extends BaseApi {
      * ⚠️ **DEPRECATED** ⚠️
      *
      * Return a worlds custom metadata. This is currently believed to be unused. Metadata can be set with updateWorld and can be any arbitrary object.
+     * @deprecated ⚠️ This endpoint is deprecated and will be removed in the future.
      */
     public async getWorldMetadata({ worldId }: Wrld.GetWorldMetadataRequest): Promise<Wrld.WorldMetadata> {
         const paramRequest: executeRequestType = {

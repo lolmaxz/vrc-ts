@@ -101,7 +101,7 @@ export class BaseApi {
         }
 
         if (!response.ok) {
-            if (pathFormated.includes('/auth/twofactorauth') && response.status === 400) {
+            if (pathFormated.includes('/auth/twofactorauth') && (response.status === 400 || response.status === 401)) {
                 return (await response.json()) as E;
             }
             let extraMessage = '';

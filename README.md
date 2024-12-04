@@ -1,5 +1,6 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
+Latest version: **v1.0.5**<br>
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically.
 Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
 
@@ -13,6 +14,7 @@ Perfect if you are looking to build bots, applications, or services that interac
 -   [Endpoints Supported](#endpoints)
 -   [WebSocket Support](#websocket)
 -   [Basic Example](#example)
+-   [Extra Information](#extra-information)
 -   [Contributing](#contributing)
 -   [License](#license)
 
@@ -31,6 +33,38 @@ Install the project dependencies:
 ```npm
 npm install vrc-ts
 ```
+
+> [!IMPORTANT]
+>
+> <h2> .ENV FILE</h2>
+> ⚠️ Make sure to have a .env in your project's root and you have the minimum requirement. <br>
+> ⭕ = REQUIRED | 🟡 = Requires One-Of<br><br>
+>
+> -   `VRCHAT_USERNAME` ⭕
+>     -   **Description:** Your VRChat Username _(Can be different from your displayname in some cases)_
+> -   `VRCHAT_PASSWORD` ⭕
+>     -   **Description:** Your VRChat Password _(Make sure to keep it safe)_
+> -   `EMAIL_2FA_CODE` 🟡
+>     -   **Description:** The 6 digits code you received by Email _(Only if you are using Email OTP)_
+> -   `VRCHAT_2FA_SECRET` 🟡
+>     -   **Description:** The 32 digits secret you got from your 2FA App _(Only if you are using TOTP)_
+> -   `TOTP_2FA_CODE` 🟡
+>     -   **Description:** The 6 digits code you got from your 2FA App _(Only if you are using TOTP)_
+> -   `COOKIES_PATH`
+>     -   **Default/recommended:** `'./cookies.json'`
+>     -   **Description:** The path where the cookies will be stored.
+> -   `USE_COOKIES`
+>     -   **Default/Recommended:** `true`
+>     -   **Description:** If you want to use cookies or not. (Highly recommended if you want to avoid 429 errors)
+> -   `DEBUG`
+>     -   **Default/Recommended:** `false`
+>     -   **Description:** If you want to see debug logs.
+> -   `WEBCLIENT_DEBUG`
+>     -   **Default/Recommended:** `false`
+>     -   **Description:** If you want to see debug logs for the webclient.
+> -   `USER_AGENT`
+>     -   **Default if left empty:** `'ExampleApp/1.0.0 Email@example.com'`
+>     -   **Description:** The User Agent used for the requests. _(You can change it if you want)_
 
 ## Usage
 
@@ -326,6 +360,31 @@ async function main() {
 main();
 ```
 
+## Extra-Information
+
+💡 With the VRChat API, there are a few things to keep in mind.
+
+> [!TIP]  
+> ERROR 429 - Too Many Requests\
+> \
+> This error might pop if you try doing too many requests consecutively. You might not be able to do any request or some specific request(s) for a moment.\
+> VRChat do no disclose the rate limit of their API, so be careful with them.\
+> Additionally, if you decide to NOT use the cookies, make sure you know what you are doing. Creating multiple logged in session can **quickly** give you an error 429 - Too Many Requests!
+
+> [!TIP]
+>
+> ## INFORMATION FROM VRCHAT FAQ:
+>
+> > ### <ins>I'd like to use your API!</ins>
+> >
+> > You may interact with our API or write applications to interact with our API as long as you follow some general guidelines.\
+> > \
+> > We do not provide public documentation on our API.\
+> > \
+> > However, our community has created unofficial documentation of our API. While this project is not officially sanctioned, the project tends to be accurate and respectful of our rules. \
+> > \
+> > Please see our latest API usage guidelines at the bottom of our Creators Guidelines. \
+
 ## Contributing
 
 Contributions are welcome! Feel free to open an issue or create a pull request.
@@ -334,7 +393,9 @@ A huge thank you to the community behind the VRChatApi project for their documen
 
 -   Check them out at <https://vrchatapi.github.io/>.
 
-Thank you as well to Huijiro, my partner helping me learn the best way :)
+Thank you as well to Huijiro, my coding buddy helping me learn so much :)
+
+For more information on plans and the wiki, head to the repo 😉
 
 Feel free to contact me on Discord under the same username if you have any questions.
 

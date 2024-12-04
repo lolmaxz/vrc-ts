@@ -1,5 +1,7 @@
 //! --- Invites --- !//
 
+import { InstanceIdType, InviteMessageIdType, NotificationIdType, UserIdType, WorldIdType } from './Generics';
+
 export enum MessageType {
     Message = 'message',
     Response = 'response',
@@ -8,7 +10,7 @@ export enum MessageType {
 }
 
 export type InviteMessage = {
-    id: string;
+    id: InviteMessageIdType;
     slot: number;
     message: string;
     messageType: MessageType;
@@ -23,14 +25,14 @@ export type UpdatedInviteMessage = {
 
 //! --- Requests --- !//
 
-export type UserId = {
+type UserId = {
     /** The Id of the user you want to use with this request. */
-    userId: string;
+    userId: UserIdType;
 };
 
 export type dataKeysSendInvite = {
     /** The instance id of the instance */
-    instanceId: string;
+    instanceId: InstanceIdType;
     /** the slot number of the message // todo to figure what this is? */
     messageSlot?: number;
 };
@@ -41,9 +43,9 @@ export type InviteUserRequest = UserId & dataKeysSendInvite;
 /** The data for requesting to send an invite to yourself. */
 export type InviteMyselfToInstanceRequest = {
     /** The instance id of the instance */
-    instanceid: string;
+    instanceId: InstanceIdType;
     /** The World id to invite yourself to */
-    worldid: string;
+    worldId: WorldIdType;
 };
 
 export type dataKeysRequestInvite = {
@@ -60,7 +62,7 @@ export type dataKeysInviteResponse = {
 /** The data for requesting to respond to an invite. */
 export type InviteResponseRequest = dataKeysInviteResponse & {
     /** The notification id of the invite to respond to. */
-    notificationId: string;
+    notificationId: NotificationIdType;
 };
 
 /** The data for requesting to get invite messages. */

@@ -1,20 +1,34 @@
 //! --- Instances --- !//
 
+import { GroupIdType, GroupRoleIdType, InstanceIdType, WorldIdType } from './Generics';
+import { LimitedUser, LimitedUserFriend } from './Users';
+import { World } from './Worlds';
+
 export type Instance = {
-    id: string;
-    location: string; // the full ID of the instance + world
-    instanceId: string; // The id of the instance
-    name: string; // the name of the instance, unless specified manually, will always be affected at random by vrchat with a digit number ranging from 0 to 99999
-    worldId: string; // The world ID for the instance
-    ownerId?: string; // depending on the type, could be a Group ID // todo to research more
+    id: InstanceIdType;
+    /** The full ID of the instance + world */
+    location: InstanceIdType;
+    /** The ID of the instance */
+    instanceId: InstanceIdType;
+    /** The name of the instance, unless specified manually, will always be affected at random by vrchat with a digit number ranging from 0 to 99999 */
+    name: string;
+    /** The world ID for the instance */
+    worldId: WorldIdType | 'offline';
+    /** Depending on the type, could be a Group ID */
+    ownerId?: string;
     tags: string[]; // todo to research more
+    /** If there is currently players in this world/instance */
     active: boolean; // If there is currently players in this world/instance
-    full: boolean; // If the instance is full or not. Default to false.
+    /** If the instance is full or not. Default to false. */
+    full: boolean;
     n_users: number; // todo check the difference with this and userCount, seems to be the same..
     capacity: number;
     recommendedCapacity: number;
     userCount: number; // todo check the difference with this and n_users, seems to be the same..
-    queueEnabled: boolean; // Whether the queue is enabled or not
+    /** Whether the queue is enabled or not */
+    queueEnabled: boolean;
+    /** The number of players in the queue */
+    queueSize: number;
     /** The number of player in the instance, per platforms */
     platforms: {
         /** Number of PC players */
@@ -23,12 +37,15 @@ export type Instance = {
         android: number;
     };
     gameServerVersion?: number | null; // todo research more. for now we only know that this can be null, it can be a number
-    roleRestricted: boolean; // if this instance requires roles to access // todo research more
+    /** If this instance requires roles to access */
+    roleRestricted: boolean;
     secureName: string; // The short code to access the instance (for short link to share outside vrchat website, only the code part, not the full link!)
     shortName?: string | null; // todo research more. for now we only know that this can be null
     world: unknown; // todo this will be a world type when it's completed
-    clientNumber: 'unknown'; // todo research more. for now we only know that this can be a string or "unknown"
-    photonRegion: InstanceRegionType; // The region of the instance
+    clientNumber: 'unknown'; // todo research more. for now we only know that this can be a string or "unknown" (Deprecated apparently?)
+    /** The type of instance */
+    photonRegion: InstanceRegionType;
+    /** The type of instance */
     region: InstanceRegionType; // The region of the instance
     /**
      * Default to false. Only in the case of a invite type instance. If set to true, will make a invite instance into a invite+ instance type!
@@ -39,10 +56,17 @@ export type Instance = {
     strict: boolean; // todo research more
     /** Required to generate an instance that isn't public */
     nonce: string;
-    users?: string[]; // todo research more
+    /** This users field is present on instances created by the requesting user. */
+    users?: (LimitedUser | LimitedUserFriend)[];
     hidden?: string; // hidden field is only present if InstanceType is hidden aka "Friends+", and is instance creator. // TODO research more
     friends?: string; //friends field is only present if InstanceType is friends aka "Friends", and is instance creator. // TODO research more
     private?: string; // private field is only present if InstanceType is private aka "Invite" or "Invite+", and is instance creator. // TODO research more
+    /** If this instance has been hard closed or not. */
+    hardclose?: boolean;
+    /** If this instance has enough capacity for you to join. */
+    hasCapacityForYou?: boolean;
+    /** The time the instance was closed at. */
+    closedAt?: string;
 };
 
 export type InstanceShortName = {
@@ -97,10 +121,25 @@ export enum GroupAccessType {
     Group_Members = 'members',
 }
 
+/**
+ * ## A Group Instance Object
+ */
+export type GroupInstance = {
+    instanceId: InstanceIdType;
+    location: InstanceIdType;
+    world: World;
+    memberCount: number;
+};
+
+export type UserGroupInstances = {
+    fetchedAt: string;
+    instances: GroupInstance[];
+};
+
 //! --- Requests --- !//
 
 export type CreateRegularInstanceRequest = {
-    worldId: string;
+    worldId: WorldIdType;
     region: InstanceRegionType;
     instanceCode?: number | string;
 } & (PublicType | Friends_Invite_Type);
@@ -123,12 +162,12 @@ export type Friends_Invite_Type = {
 type NonEmptyArray<T> = [T, ...T[]];
 
 export type CreateGroupInstanceRequest = {
-    worldId: string;
+    worldId: WorldIdType;
     groupAccessType: GroupAccessType;
     /** The GROUP ID of the group you want to create an instance for. */
-    groupId: string;
+    groupId: GroupIdType;
     region: InstanceRegionType;
-    roleIds: NonEmptyArray<string>;
+    roleIds: NonEmptyArray<GroupRoleIdType>;
     queueEnabled?: boolean;
     instanceCode?: number | string;
 };
@@ -138,27 +177,27 @@ export type dataKeysCreateGroupInstance = {
     ownerId: string;
     queueEnabled: boolean;
     region: InstanceRegionType;
-    roleIds: NonEmptyArray<string>;
+    roleIds: NonEmptyArray<GroupRoleIdType>;
     type: 'group';
-    worldId: string;
+    worldId: WorldIdType;
     instanceCode: number | string;
 };
 
 /** The Required Parameters to get an instance. */
 export type GetInstanceRequest = {
-    worldId: string;
-    instanceId: string;
+    worldId: WorldIdType;
+    instanceId: InstanceIdType;
 };
 
 /** The Required Parameters to get an instance's short name. */
 export type GetInstanceShortNameRequest = {
-    instanceId: string;
+    instanceId: InstanceIdType;
 };
 
 /** The Required Parameters to send an invite to yourself. */
 export type SendSelfInviteRequest = {
-    worldId: string;
-    instanceId: string;
+    worldId: WorldIdType;
+    instanceId: InstanceIdType;
 };
 
 /** The Required Parameters to get an instance by short name. */

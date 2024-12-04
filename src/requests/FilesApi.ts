@@ -151,7 +151,7 @@ export class FilesApi extends BaseApi {
             currentRequest: ApiPaths.files.downloadFileVersion,
             pathFormated: ApiPaths.files.downloadFileVersion.path
                 .replace('{fileId}', fileId)
-                .replace('{versionId}', versionId),
+                .replace('{versionId}', versionId.toString()),
         };
 
         return await this.executeRequest<File.File>(paramRequest);
@@ -165,7 +165,7 @@ export class FilesApi extends BaseApi {
             currentRequest: ApiPaths.files.deleteFileVersion,
             pathFormated: ApiPaths.files.deleteFileVersion.path
                 .replace('{fileId}', fileId)
-                .replace('{versionId}', versionId),
+                .replace('{versionId}', versionId.toString()),
         };
 
         return await this.executeRequest<RequestSuccess>(paramRequest);
@@ -190,7 +190,7 @@ export class FilesApi extends BaseApi {
             currentRequest: ApiPaths.files.finishFileDataUpload,
             pathFormated: ApiPaths.files.finishFileDataUpload.path
                 .replace('{fileId}', fileId)
-                .replace('{versionId}', versionId)
+                .replace('{versionId}', versionId.toString())
                 .replace('{fileType}', fileType),
             body,
         };
@@ -212,7 +212,7 @@ export class FilesApi extends BaseApi {
             currentRequest: ApiPaths.files.startFileDataUpload,
             pathFormated: ApiPaths.files.startFileDataUpload.path
                 .replace('{fileId}', fileId)
-                .replace('{versionId}', versionId)
+                .replace('{versionId}', versionId.toString())
                 .replace('fileType', fileType),
         };
 
@@ -231,10 +231,60 @@ export class FilesApi extends BaseApi {
             currentRequest: ApiPaths.files.checkFileDataUploadStatus,
             pathFormated: ApiPaths.files.checkFileDataUploadStatus.path
                 .replace('{fileId}', fileId)
-                .replace('{versionId}', versionId)
+                .replace('{versionId}', versionId.toString())
                 .replace('{fileType}', fileType),
         };
 
         return await this.executeRequest<File.CurrentFileVersionStatus>(paramRequest);
+    }
+    /**
+     * Get File Version Analysis
+     */
+    public async getFileVersionAnalysis({
+        fileId,
+        versionId,
+    }: File.FileVersionAnalysisRequest): Promise<File.FileAnalysis> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.files.getFileVersionAnalysis,
+            pathFormated: ApiPaths.files.getFileVersionAnalysis.path
+                .replace('{fileId}', fileId)
+                .replace('{versionId}', versionId.toString()),
+        };
+
+        return await this.executeRequest<File.FileAnalysis>(paramRequest);
+    }
+
+    /**
+     * Get File Version Analysis Security
+     */
+    public async getFileVersionAnalysisSecurity({
+        fileId,
+        versionId,
+    }: File.FileVersionAnalysisSecurityRequest): Promise<File.FileAnalysis> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.files.getFileVersionAnalysisSecurity,
+            pathFormated: ApiPaths.files.getFileVersionAnalysisSecurity.path
+                .replace('{fileId}', fileId)
+                .replace('{versionId}', versionId.toString()),
+        };
+
+        return await this.executeRequest<File.FileAnalysis>(paramRequest);
+    }
+
+    /**
+     * Get File Version Analysis Standard
+     */
+    public async getFileVersionAnalysisStandard({
+        fileId,
+        versionId,
+    }: File.FileVersionAnalysisStandardRequest): Promise<File.FileAnalysis> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.files.getFileVersionAnalysisStandard,
+            pathFormated: ApiPaths.files.getFileVersionAnalysisStandard.path
+                .replace('{fileId}', fileId)
+                .replace('{versionId}', versionId.toString()),
+        };
+
+        return await this.executeRequest<File.FileAnalysis>(paramRequest);
     }
 }

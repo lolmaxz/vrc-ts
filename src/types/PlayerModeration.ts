@@ -1,3 +1,5 @@
+import { PlayerModerationObjectIdType, UserIdType } from './Generics';
+
 //! --- PlayerModeration --- !//
 export enum PlayerModerationType {
     Mute = 'mute',
@@ -9,11 +11,11 @@ export enum PlayerModerationType {
 }
 
 export type PlayerModeration = {
-    id: string;
+    id: PlayerModerationObjectIdType;
     type?: PlayerModerationType;
-    sourceUserId?: string;
+    sourceUserId?: UserIdType;
     sourceDisplayName?: string;
-    targetUserId?: string;
+    targetUserId?: UserIdType;
     targetDisplayName?: string;
     created?: string;
 };
@@ -25,7 +27,7 @@ export type PlayerModeration = {
  */
 export type SearchPlayerModerationsRequest = {
     type?: PlayerModerationType;
-    targetUserId?: string;
+    targetUserId?: UserIdType;
 };
 
 export type dataKeysModerateUserRequest = {
@@ -42,14 +44,14 @@ export type ModerateUserRequest = dataKeysModerateUserRequest;
  * The data for requesting to get a player moderation.
  */
 export type GetPlayerModerationRequest = {
-    playerModerationId: string;
+    playerModerationId: PlayerModerationObjectIdType;
 };
 
 /**
  * The data for requesting to delete a player moderation.
  */
 export type DeletePlayerModerationRequest = {
-    playerModerationId: string;
+    playerModerationId: PlayerModerationObjectIdType;
 };
 
 export type dataKeysUnModerateUser = {

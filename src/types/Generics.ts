@@ -17,6 +17,7 @@ import {
     dataKeysCreateGroupAnnouncement,
     dataKeysCreateGroupInvite,
     dataKeysCreateGroupRole,
+    dataKeysEditGroupPost,
     dataKeysGroupBanMember,
     dataKeysGroupCreateGallery,
     dataKeysGroupUpdateGallery,
@@ -26,15 +27,21 @@ import {
     dataKeysUpdateGroupRole,
     searchGroupRequest,
 } from './Groups';
-import { CreateRegularInstanceRequest, dataKeysCreateGroupInstance } from './Instances';
+import {
+    CreateRegularInstanceRequest,
+    dataKeysCreateGroupInstance,
+    InstanceRegionType,
+    InstanceType,
+} from './Instances';
 import {
     dataKeysInviteResponse,
     dataKeysRequestInvite,
     dataKeysSendInvite,
     dataKeysUpdateInviteMessage,
 } from './Invites';
+import { dataKeysRespondToNotificationRequest } from './Notifications';
 import { dataKeysModerateUserRequest, dataKeysUnModerateUser } from './PlayerModeration';
-import { dataKeysUpdateUser } from './Users';
+import { dataKeysGetUserSubmittedFeedback, dataKeysUpdateUser, dataKeysUpdateUserNote } from './Users';
 import { dataKeysCreateWorld, dataKeysUpdateWorld } from './Worlds';
 
 export interface requestConfig {
@@ -75,12 +82,12 @@ export type headerOptions = {
 export type error2fa = { requiresTwoFactorAuth: ['totp', 'otp'] };
 export type error2faEmail = { requiresTwoFactorAuth: ['emailOtp'] };
 export type error2FABase = error2fa | error2faEmail;
-export type twoFactorAuthResponseType = {
+export type twoFactorAuthResponseType = (RequestSuccess | APIRequestError) & {
     verified?: boolean;
     requiresTwoFactorAuth?: ['totp', 'otp'] | ['emailOtp'];
 };
 
-export type authRequest = API<AuthenticationResponse, error2FABase | RequestError>;
+export type authRequest = API<AuthenticationResponse, error2FABase | APIRequestError>;
 
 // type auth2FARequest = API<AuthenticationResponse, { verified: boolean }>;
 
@@ -91,7 +98,7 @@ export type RequestSuccess = {
     };
 };
 
-export type RequestError = {
+export type APIRequestError = {
     error: {
         message: string;
         status_code: number;
@@ -116,7 +123,7 @@ export type QueryParamsList = { name: string; value: string }[];
 
 export type VRCResponseValidType = twoFactorAuthResponseType | RequestSuccess | AuthenticationResponse;
 
-export type VRCResponseError = RequestError | error2FABase;
+export type VRCResponseError = APIRequestError | error2FABase;
 
 export type VRCAPIResponse = API<VRCResponseValidType, VRCResponseError>;
 
@@ -148,7 +155,9 @@ export type querryParamsType =
     | 'playerModerationId'
     | 'username'
     | 'productId'
-    | 'licenseId';
+    | 'licenseId'
+    | 'jamId'
+    | 'noteId';
 
 export type subSectionType = {
     path: string;
@@ -189,6 +198,9 @@ export type APIPaths = {
         selectFallbackAvatar: subSectionType;
         listFavoritedAvatars: subSectionType;
     };
+    beta: {
+        getIOSClosedBetaInformation: subSectionType;
+    };
     economy: {
         listSteamTransactions: subSectionType;
         getSteamTransaction: subSectionType;
@@ -196,7 +208,9 @@ export type APIPaths = {
         listSubscriptions: subSectionType;
         getLicenseGroup: subSectionType;
         getProductListing: subSectionType;
-        getOwnSubscription: subSectionType;
+        getUserProductListings: subSectionType;
+        listTokenBundles: subSectionType;
+        getTiliaStatus: subSectionType;
         getTiliaTOS: subSectionType;
         getOwnPurchases: subSectionType;
         getOwnTransactions: subSectionType;
@@ -213,6 +227,7 @@ export type APIPaths = {
         showFavoriteGroup: subSectionType;
         updateFavoriteGroup: subSectionType;
         clearFavoriteGroup: subSectionType;
+        getFavoriteLimits: subSectionType;
     };
     files: {
         listFiles: subSectionType;
@@ -225,6 +240,9 @@ export type APIPaths = {
         finishFileDataUpload: subSectionType;
         startFileDataUpload: subSectionType;
         checkFileDataUploadStatus: subSectionType;
+        getFileVersionAnalysis: subSectionType;
+        getFileVersionAnalysisSecurity: subSectionType;
+        getFileVersionAnalysisStandard: subSectionType;
     };
     friends: {
         listFriends: subSectionType;
@@ -245,6 +263,7 @@ export type APIPaths = {
         getGroupPosts: subSectionType;
         createGroupPost: subSectionType;
         deleteGroupPost: subSectionType;
+        editGroupPost: subSectionType;
         getGroupAuditLogs: subSectionType;
         getGroupBans: subSectionType;
         banGroupMember: subSectionType;
@@ -255,6 +274,7 @@ export type APIPaths = {
         deleteGroupGallery: subSectionType;
         addGroupGalleryImage: subSectionType;
         deleteGroupGalleryImage: subSectionType;
+        getGroupInstances: subSectionType;
         getGroupInvitesSent: subSectionType;
         inviteUserToGroup: subSectionType;
         deleteUserInvite: subSectionType;
@@ -293,12 +313,18 @@ export type APIPaths = {
         createNormalInstance: subSectionType;
         createGroupInstance: subSectionType;
     };
+    jams: {
+        getJamsList: subSectionType;
+        getJamInfo: subSectionType;
+        getJamSubmissions: subSectionType;
+    };
     notifications: {
         listNotifications: subSectionType;
         acceptFriendRequest: subSectionType;
         markNotificationAsRead: subSectionType;
         deleteNotification: subSectionType;
         clearAllNotifications: subSectionType;
+        respondToNotification: subSectionType;
     };
     permissions: {
         getAssignedPermissions: subSectionType;
@@ -329,6 +355,11 @@ export type APIPaths = {
         getUserGroups: subSectionType;
         getUserGroupRequests: subSectionType;
         getUserRepresentedGroup: subSectionType;
+        getUserFeedback: subSectionType;
+        getAllUserNotes: subSectionType;
+        updateUserNote: subSectionType;
+        getAUserNote: subSectionType;
+        getUserGroupInstances: subSectionType;
     };
     worlds: {
         searchAllWorlds: subSectionType;
@@ -359,6 +390,7 @@ export type dataSetKeys =
     | createGroupRequest
     | dataKeysUpdateGroup
     | dataKeysCreateGroupAnnouncement
+    | dataKeysEditGroupPost
     | dataKeysGroupBanMember
     | dataKeysGroupCreateGallery
     | dataKeysGroupUpdateGallery
@@ -386,7 +418,10 @@ export type dataSetKeys =
     | GetTiliaTOSRequest
     | GetUserBalanceRequest
     | GetLicenseRequest
-    | dataKeysCreateGroupInstance;
+    | dataKeysCreateGroupInstance
+    | dataKeysGetUserSubmittedFeedback
+    | dataKeysUpdateUserNote
+    | dataKeysRespondToNotificationRequest;
 
 export type dataKeys2Fa = {
     code: string;
@@ -507,3 +542,96 @@ export type UselessTags =
     | 'system_cute_robot';
 
 export type AllTags = AdminTags | SystemTags | WorldTags | LanguageTags | GroupAdminTags | UselessTags;
+
+//-- ID Types ---
+// export type LegacyUserID = `${string}${string}${string}${string}${string}${string}${string}${string}${string}${string}`;
+// export type UserIdType = `usr_${string}-${string}-${string}-${string}-${string}`;
+
+export type BaseId = `${string}-${string}-${string}-${string}-${string}`;
+
+/**
+ *  A user ID is a unique identifier for a user.
+ * ```example: usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469``` OR ```1234567890```
+ */
+export type UserIdType = string; // Because of literal types, it's not possible to use both types at the same time. :/ (I think)
+export type FriendRequestIdType = `frq_${string}-${string}-${string}-${string}-${string}`;
+export type UserNoteIdType = `unt_${string}-${string}-${string}-${string}-${string}`;
+export type PlayerModerationObjectIdType = `pmod_${string}-${string}-${string}-${string}-${string}`;
+export type PermissionIdType = `prms_${string}-${string}-${string}-${string}-${string}`;
+
+export type WorldIdType = `wrld_${string}-${string}-${string}-${string}-${string}`;
+
+/**
+ * ```example: 12345~hidden(usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469)~region(eu)~nonce(27e8414a-59a0-4f3d-af1f-f27557eb49a2) ```
+ * */
+export type InstanceIdType =
+    | `${number}~${InstanceType}(${UserIdType})~region(${InstanceRegionType})~nonce(${string}-${string}-${string}-${string}-${string})`
+    | 'private' // If your friend is in a private instance
+    | 'offline'; // If the user is not friend with you
+
+export type AvatarIdType = `avtr_${string}-${string}-${string}-${string}-${string}`;
+
+export type NotificationIdType = `not_${string}-${string}-${string}-${string}-${string}`;
+
+export type FileIdType = `file_${string}-${string}-${string}-${string}-${string}`;
+export type UnityPackageIdType = `unp_${string}-${string}-${string}-${string}-${string}`;
+
+/**
+ * Example Group ID: `grp_0c1b3b5b-3ca4-45b4-97c6-a2a0de70d469`
+ */
+export type GroupIdType = `grp_${string}-${string}-${string}-${string}-${string}`;
+export type GroupRoleIdType = `grol_${string}-${string}-${string}-${string}-${string}`;
+export type GroupGalleryIdType = `ggal_${string}-${string}-${string}-${string}-${string}`;
+export type GroupMemberIdType = `gmem_${string}-${string}-${string}-${string}-${string}`;
+export type GroupAnnouncementIdType = `gpos_${string}-${string}-${string}-${string}-${string}`;
+export type GroupAuditLogIdType = `gaud_${string}-${string}-${string}-${string}-${string}`;
+export type GroupGalleryImageIdType = `ggim_${string}-${string}-${string}-${string}-${string}`;
+
+export type TransactionIdType = `txn_${string}-${string}-${string}-${string}-${string}`;
+export type ProductListingIdType = `prod_${string}-${string}-${string}-${string}-${string}`;
+export type ProductListingVariantIdType = `listvar_${string}-${string}-${string}-${string}-${string}`;
+export type LicenseGroupIdType = `lgrp_${string}-${string}-${string}-${string}-${string}`;
+export type tiliaIdType = `acct_${string}`;
+export type TiliaDatabaseIdType = `till_${string}-${string}-${string}-${string}-${string}`;
+
+export type FavoriteIdType = `fvrt_${string}-${string}-${string}-${string}-${string}`;
+export type FavoriteGroupIdType = `fvgrp_${string}-${string}-${string}-${string}-${string}`;
+
+export type InviteMessageIdType = `invm_${string}-${string}-${string}-${string}-${string}`;
+export type JamIdType = `jam_${string}-${string}-${string}-${string}-${string}`;
+export type JamSubmissionIdType = `jsub_${string}-${string}-${string}-${string}-${string}`;
+
+export type FeedbackIdType = `feedback_${string}-${string}-${string}-${string}-${string}`;
+
+//* -- VRCHAT GENERIC TYPES -- *//
+/**
+ * Search order options for searching avatars. Enums: SearchOrderOptions
+ */
+export enum SearchOrderOptions {
+    Ascending = 'ascending',
+    Descending = 'descending',
+}
+
+/**
+ * Search order options for searching avatars. Enums: SearchOrderOptions
+ */
+export enum SearchSortingOptions {
+    Popularity = 'popularity',
+    Heat = 'heat',
+    Trust = 'trust',
+    Shuffle = 'shuffle',
+    Random = 'random',
+    Favorites = 'favorites',
+    Report_Score = 'reportScore',
+    Report_Count = 'reportCount',
+    Publication_Date = 'publicationDate',
+    Labs_Publication_Date = 'labsPublicationDate',
+    Created = 'created',
+    Created_At = '_created_at',
+    Updated = 'updated',
+    Updated_At = '_updated_at',
+    Order = 'order',
+    Relevance = 'relevance',
+    Magic = 'magic',
+    Name = 'name',
+}

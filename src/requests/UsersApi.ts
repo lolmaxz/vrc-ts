@@ -2,6 +2,7 @@ import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
 import { AllTags, executeRequestType } from '../types/Generics';
 import { Group, RepresentedGroup } from '../types/Groups';
+import * as Inst from '../types/Instances';
 import * as User from '../types/Users';
 import { BaseApi } from './BaseApi';
 
@@ -13,7 +14,12 @@ export class UsersApi extends BaseApi {
         this.baseClass = baseClass;
     }
 
-    async searchAllUsers({ search, offset, n }: User.SearchAllUsersRequest): Promise<User.LimitedUser[]> {
+    async searchAllUsers({
+        search,
+        offset,
+        n,
+        fuzzy = false,
+    }: User.SearchAllUsersRequest): Promise<(User.LimitedUser | User.LimitedUserFriend)[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
         if (n) {
@@ -24,6 +30,10 @@ export class UsersApi extends BaseApi {
         if (offset) {
             if (offset < 0) throw new Error('Offset must be greater than 0!');
             parameters.append('offset', offset.toString());
+        }
+
+        if (fuzzy) {
+            parameters.append('fuzzy', fuzzy.toString());
         }
 
         if (!search.trim()) throw new Error('No search term was provided!');
@@ -68,6 +78,7 @@ export class UsersApi extends BaseApi {
         bio,
         bioLinks,
         userIcon,
+        pronouns,
     }: User.updateUserByIdRequest): Promise<User.CurrentUser> {
         const body: User.dataKeysUpdateUser = {};
 
@@ -78,6 +89,7 @@ export class UsersApi extends BaseApi {
         if (status) body.status = status;
         if (bioLinks) body.bioLinks = bioLinks;
         if (userIcon) body.userIcon = userIcon;
+        if (pronouns) body.pronouns = pronouns;
 
         if (statusDescription) {
             if (statusDescription.length > 32) throw new Error('Status description must be 32 characters or less!');
@@ -140,6 +152,87 @@ export class UsersApi extends BaseApi {
         };
 
         return await this.executeRequest<RepresentedGroup>(paramRequest);
+    }
+
+    /**
+     * Get a list of the user's feedback.
+     * @deprecated ⚠️ This endpoint is deprecated and will be removed in the future.
+     */
+    public async getUserFeedback({ userId }: User.getUserSubmittedFeedbackOptions): Promise<User.Feedback[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getUserFeedback,
+            pathFormated: ApiPaths.users.getUserFeedback.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<User.Feedback[]>(paramRequest);
+    }
+
+    public async getAllUserNotes({ n, offset }: User.getUserNotesRequest): Promise<User.UserNote[]> {
+        const parameters: URLSearchParams = new URLSearchParams();
+
+        if (n) {
+            if (n > 100 || n < 1) throw new Error('Quantity must be between 1 and 100!');
+            parameters.append('n', n.toString());
+        }
+
+        if (offset) {
+            if (offset < 0) throw new Error('Offset must be greater than 0!');
+            parameters.append('offset', offset.toString());
+        }
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getAllUserNotes,
+            pathFormated: ApiPaths.users.getAllUserNotes.path,
+            queryOptions: parameters,
+        };
+
+        return await this.executeRequest<User.UserNote[]>(paramRequest);
+    }
+
+    public async updateUserNote({ targetUserId, note }: User.updateUserNoteRequest): Promise<User.UserNote> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.updateUserNote,
+            pathFormated: ApiPaths.users.updateUserNote.path,
+            body: {
+                targetUserId,
+                note,
+            },
+        };
+
+        return await this.executeRequest<User.UserNote>(paramRequest);
+    }
+
+    public async getAUserNote({ userNoteId }: User.getNoteFromUserRequest): Promise<User.UserNote> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getAUserNote,
+            pathFormated: ApiPaths.users.getAUserNote.path.replace('{userNoteId}', userNoteId),
+        };
+
+        return await this.executeRequest<User.UserNote>(paramRequest);
+    }
+
+    /**
+     * Get The User's Current Group Instances.
+     * ⚠️ This can only work for the currently logged in user.
+     *
+     * @param param0
+     * @returns
+     */
+    public async getUserGroupInstances(): Promise<Inst.UserGroupInstances> {
+        let userId = '';
+
+        if (!this.baseClass.currentUser) {
+            throw new Error('No user is logged in!');
+        } else {
+            userId = this.baseClass.currentUser.id;
+        }
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getUserGroupInstances,
+            pathFormated: ApiPaths.users.getUserGroupInstances.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<Inst.UserGroupInstances>(paramRequest);
     }
 }
 

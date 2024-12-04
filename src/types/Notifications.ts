@@ -1,14 +1,17 @@
 //! --- Notifications --- !//
 
+import { NotificationV2ResponseTypeEnum } from 'requests/VRCWebSocketApi';
+import { GroupIdType, NotificationIdType, UserIdType } from './Generics';
+
 export type NotificationBase = {
-    id: string;
-    senderUserId: string;
+    id: NotificationIdType;
+    senderUserId: UserIdType;
     senderUsername?: string; // Deprecated, but still included as it might be present
     type: NotificationTypes;
     message: string;
-    receiverUserId?: string;
+    receiverUserId?: UserIdType;
     seen?: boolean;
-    created_at: Date;
+    created_at: Date | string;
 };
 
 export type Notification = NotificationBase & {
@@ -16,9 +19,9 @@ export type Notification = NotificationBase & {
 };
 
 export type SentNotification = {
-    id: string;
-    recieiverUserId?: string;
-    senderUserId?: string;
+    id: NotificationIdType;
+    recieiverUserId?: UserIdType;
+    senderUserId?: UserIdType;
     type: NotificationTypes;
     message: string;
     details: string;
@@ -47,13 +50,28 @@ export type ListNotificationsRequest = {
 };
 
 export type AcceptFriendRequestRequest = {
-    notificationId: string;
+    notificationId: NotificationIdType;
 };
 
 export type MarkNotificationAsReadRequest = {
-    notificationId: string;
+    notificationId: NotificationIdType;
 };
 
 export type DeleteNotificationRequest = {
-    notificationId: string;
+    notificationId: NotificationIdType;
+};
+
+export type dataKeysRespondToNotificationRequest = {
+    responseType: NotificationV2ResponseTypeEnum;
+    responseData: string; // Should be a GroupId or UserId
+};
+
+/** The data for requesting to respond to an invite. */
+export type RespondToNotificationRequest = {
+    /** The notification id of the invite to respond to. */
+    notificationId: NotificationIdType;
+    /** The response type to the notification. */
+    responseType: NotificationV2ResponseTypeEnum;
+    groupId?: GroupIdType;
+    userId?: UserIdType;
 };

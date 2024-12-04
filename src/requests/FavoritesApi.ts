@@ -186,4 +186,16 @@ export class FavoritesApi extends BaseApi {
 
         return await this.executeRequest<RequestSuccess>(paramRequest);
     }
+
+    /**
+     * Get the limits for the number of favorites you can have.
+     */
+    public async getFavoriteLimits(): Promise<Fav.FavoriteLimits> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.favorites.getFavoriteLimits,
+            pathFormated: ApiPaths.favorites.getFavoriteLimits.path,
+        };
+
+        return await this.executeRequest<Fav.FavoriteLimits>(paramRequest);
+    }
 }

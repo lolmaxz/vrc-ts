@@ -1,21 +1,47 @@
 //! --- Favorites --- !//
 
-import { AllTags, FavoriteAvatarTags, FavoriteGroupTags, FavoriteWorldTags, allFavoriteTags } from './Generics';
+import {
+    AllTags,
+    AvatarIdType,
+    FavoriteAvatarTags,
+    FavoriteGroupTags,
+    FavoriteIdType,
+    FavoriteWorldTags,
+    UserIdType,
+    WorldIdType,
+    allFavoriteTags,
+} from './Generics';
 
 export type BaseFavorite = {
-    id: string;
-    type: FavoriteType;
     tags: string[];
 };
 
-export type Favorite = BaseFavorite & {
-    favoriteId?: string;
+export type FavoriteAvatar = BaseFavorite & {
+    id: AvatarIdType;
+    type: FavoriteType.Avatar;
 };
+
+export type FavoriteFriend = BaseFavorite & {
+    userId: UserIdType;
+    type: FavoriteType.Friend;
+};
+
+export type FavoriteWorld = BaseFavorite & {
+    worldId: WorldIdType;
+    type: FavoriteType.World;
+};
+
+export type PossibleFavorite = FavoriteAvatar | FavoriteFriend | FavoriteWorld;
+
+export type Favorite = PossibleFavorite &
+    BaseFavorite & {
+        favoriteId?: FavoriteIdType;
+    };
 
 export type FavoriteGroup = BaseFavorite & {
     displayName: string;
     visibility: FavoriteType;
-    ownerId: string;
+    ownerId: UserIdType;
     ownerDisplayName?: string;
     name?: string;
 };
@@ -26,6 +52,19 @@ export enum FavoriteType {
     Avatar = 'avatar',
     World = 'world',
 }
+
+export type FavoriteSingleGroupLimits = {
+    avatar: number;
+    friend: number;
+    world: number;
+};
+
+export type FavoriteLimits = {
+    defaultMaxFavoriteGroups: number;
+    defaultMaxFavoritesPerGroup: number;
+    maxFavoriteGroups: FavoriteSingleGroupLimits;
+    maxFavoritesPerGroup: FavoriteSingleGroupLimits;
+};
 
 //! --- Requests --- !//
 
@@ -41,7 +80,7 @@ export type offset = {
 
 export type favId = {
     /** The Id of the favorite. */
-    favoriteId: string;
+    favoriteId: FavoriteIdType;
 };
 /**
  * The request parameters for the `listFavorites` method.
@@ -57,14 +96,14 @@ export type listFavoritesRequest = quantity &
  */
 export type dataKeysAddFavoriteAvatar = {
     type: FavoriteType.Avatar;
-    favoriteId: string;
+    favoriteId: FavoriteIdType;
     tags: FavoriteAvatarTags[];
 };
 
 /** The data for requesting to favorites a friend. */
 export type dataKeysAddFavoriteFriend = {
     type: FavoriteType.Friend;
-    favoriteId: string;
+    favoriteId: FavoriteIdType;
     tags: FavoriteGroupTags[];
 };
 
@@ -73,7 +112,7 @@ export type dataKeysAddFavoriteFriend = {
  */
 export type dataKeysAddFavoriteWorld = {
     type: FavoriteType.World;
-    favoriteId: string;
+    favoriteId: FavoriteIdType;
     tags: FavoriteWorldTags[];
 };
 
@@ -98,7 +137,7 @@ export type removeFavoriteRequest = favId;
 export type listFavoriteGroupsRequest = quantity &
     offset & {
         /** The owner of whoms favorite groups to return. Must be a UserID. */
-        ownerId: string;
+        ownerId: UserIdType;
     };
 
 /** The request parameters for any favorite group request. */
@@ -108,7 +147,7 @@ export type favoriteGroupRequest = {
     /** The name of the group to fetch, must be a name of a FavoriteGroup. */
     favoriteGroupName: string;
     /** The owner of whoms favorite groups to return. Must be a UserID. */
-    userId: string;
+    userId: UserIdType;
 };
 
 /**

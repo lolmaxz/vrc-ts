@@ -54,6 +54,7 @@ export class InstanceApi extends BaseApi {
 
     /**
      * Sends an invite to the instance to yourself.
+     * @deprecated ⚠️ This endpoint is deprecated and will be removed in the future.
      */
     public async sendSelfInvite({ worldId, instanceId }: Inst.SendSelfInviteRequest): Promise<RequestSuccess> {
         const paramRequest: executeRequestType = {

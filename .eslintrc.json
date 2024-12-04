@@ -29,5 +29,6 @@
                 "no-undef": "off" // Example: disable no-undef for this file
             }
         }
-    ]
+    ],
+    "ignorePatterns": ["**.test.*", "**jest.*"]
 }
