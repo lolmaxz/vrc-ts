@@ -1,5 +1,12 @@
 import { Color as C } from './colors';
-import { CookiesExpired, CookiesNotFound, CookiesUser404, EmailOtpRequired, TOTPRequired } from './errors';
+import {
+    CookiesExpired,
+    CookiesNotFound,
+    CookiesUser404,
+    EmailOtpRequired,
+    InvalidUserAgent,
+    TOTPRequired,
+} from './errors';
 import { AuthApi } from './requests/AuthApi';
 import { AvatarsApi } from './requests/AvatarsApi';
 import { BetaApi } from './requests/BetaApi';
@@ -21,6 +28,16 @@ import { ApiPaths } from './types/ApiPaths';
 import { CurrentUser, currentUserOrTwoFactorType } from './types/Users';
 import cookiesHandler from './VRCCookie';
 
+export type VRCApiParams = {
+    username?: string;
+    password?: string;
+    userAgent?: string;
+    EmailOTPCode?: string;
+    TOTPCode?: string;
+    useCookies?: boolean;
+    cookiePath?: string;
+};
+
 /**
  * This class is used to authenticate the user and get the current user information.
  * @export
@@ -33,11 +50,14 @@ export class VRChatAPI {
     isAuthentificated: boolean;
     static baseDomain: string = 'api.vrchat.cloud';
     public static ApiBaseUrl: string = 'https://api.vrchat.cloud/api/1';
-    headerAgent: string = process.env.USER_AGENT || 'ExampleApp/1.0.0 Email@example.com';
+    headerAgent: string = process.env.USER_AGENT || 'ExampleProgram/0.0.1 my@email.com';
     basePath: string = ApiPaths.apiBasePath;
     basePath2: string = ApiPaths.apiBasePath;
     cookiesLoaded = false;
     currentUser: CurrentUser | null = null;
+    TOTPCode: string = process.env.TOTP_2FA_CODE || '';
+    EmailOTPCode: string = process.env.EMAIL_2FA_CODE || '';
+    useCookies: boolean = process.env.USE_COOKIES === 'true' || false;
 
     authApi: AuthApi = new AuthApi(this);
     avatarApi: AvatarsApi = new AvatarsApi(this);
@@ -57,7 +77,7 @@ export class VRChatAPI {
     userApi: UsersApi = new UsersApi(this);
     worldApi: WorldsApi = new WorldsApi(this);
 
-    constructor(username?: string, password?: string) {
+    constructor({ username, password, userAgent, EmailOTPCode, TOTPCode, useCookies, cookiePath }: VRCApiParams) {
         if (username) {
             this.username = username;
         } else {
@@ -69,14 +89,41 @@ export class VRChatAPI {
             this.password = process.env.VRCHAT_PASSWORD || '';
         }
 
+        if (userAgent) {
+            this.headerAgent = userAgent;
+        }
+
+        if (EmailOTPCode) {
+            this.EmailOTPCode = EmailOTPCode;
+        } else {
+            this.EmailOTPCode = process.env.EMAIL_2FA_CODE || '';
+        }
+
+        if (TOTPCode) {
+            this.TOTPCode = TOTPCode;
+        } else {
+            this.TOTPCode = process.env.TOTP_2FA_CODE || '';
+        }
+
+        if (useCookies) {
+            this.useCookies = useCookies;
+        } else {
+            this.useCookies = process.env.USE_COOKIES === 'true' || false;
+        }
+
         this.isAuthentificated = false;
-        this.instanceCookie = new cookiesHandler(this.username);
+        this.instanceCookie = new cookiesHandler({
+            username: this.username,
+            cookieFilePath: cookiePath || './cookies.json',
+            vrcApi: this,
+            cookies: [],
+        });
     }
 
     async login() {
         console.log(`Authenticating with username: ${this.username}...`);
 
-        if (process.env.USE_COOKIES && process.env.USE_COOKIES === 'true') {
+        if (this.useCookies) {
             try {
                 await this.instanceCookie.cookiesExist();
                 await this.instanceCookie.loadCookies();
@@ -101,7 +148,12 @@ export class VRChatAPI {
                 }
             }
         } else {
-            this.instanceCookie = new cookiesHandler(this.username);
+            this.instanceCookie = new cookiesHandler({
+                username: this.username,
+                cookieFilePath: '',
+                vrcApi: this,
+                cookies: [],
+            });
         }
 
         try {
@@ -152,7 +204,7 @@ export class VRChatAPI {
                         }
 
                         // this should always be true normally if authentication with email was successful at this point.
-                        if (process.env.EMAIL_2FA_CODE) await this.instanceCookie.addEmailCode();
+                        if (this.EmailOTPCode) await this.instanceCookie.addEmailCode();
                         console.log('Email OTP verified! Authentication successful!');
 
                         this.isAuthentificated = true;
@@ -189,11 +241,17 @@ export class VRChatAPI {
                 // check if message is contains 401
                 if (error.message.includes('401')) {
                     throw new Error('Invalid Username/Email or Password | Missing Credentials');
+                } else if (error.message.includes('403')) {
+                    if (error.message.includes('please identify yourself with a properly formatted user-agent')) {
+                        throw new InvalidUserAgent('Invalid User-Agent');
+                    } else {
+                        throw new Error(error.message);
+                    }
                 } else {
-                    console.log(error);
+                    throw new Error(error.message);
                 }
             } else {
-                console.error('Unknown error: ', error);
+                throw new Error('Unknown error!');
             }
         }
     }

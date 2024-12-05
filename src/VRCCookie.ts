@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import fs from 'fs/promises';
+import { VRChatAPI } from 'VRChatAPI';
 import { Color as C } from './colors';
 import { CookiesExpired, CookiesNotFound, CookiesReadError, CookiesUser404, CookiesWriteError } from './errors';
 
@@ -61,6 +62,13 @@ export type SavedCookieJar = {
     [username: string]: VRCCookie[] | undefined;
 };
 
+export type CookieConstructor = {
+    username: string;
+    cookies: VRCCookie[];
+    vrcApi: VRChatAPI;
+    cookieFilePath?: string;
+};
+
 /**
  * This class will handle cookies for the user.
  * @param username The username of the user.
@@ -71,15 +79,23 @@ export class cookiesHandler {
     private usernameOwner: string;
     private cookies: VRCCookie[];
     private cookieFilePath: string = process.env.COOKIES_PATH || './cookies.json';
+    private baseApi: VRChatAPI;
 
     /**
      *
      * @param username The username of the user.
      * @param cookies An array of cookies to set for the user [Optional].
      */
-    constructor(username: string, cookies: VRCCookie[] = []) {
+    constructor({ username, cookies = [], vrcApi, cookieFilePath }: CookieConstructor) {
         this.cookies = cookies;
         this.usernameOwner = username;
+        this.baseApi = vrcApi;
+
+        if (cookieFilePath) {
+            this.cookieFilePath = cookieFilePath;
+        } else {
+            this.cookieFilePath = process.env.COOKIES_PATH || './cookies.json';
+        }
     }
 
     public setCookies(cookies: VRCCookie[]): void {
@@ -155,7 +171,7 @@ export class cookiesHandler {
      */
     async saveCookies(): Promise<void> {
         // we save if the user had cookies before or not before saving
-        if (!process.env.USE_COOKIES || !(process.env.USE_COOKIES === 'true')) {
+        if (!this.baseApi.useCookies) {
             return;
         }
 
@@ -215,8 +231,7 @@ export class cookiesHandler {
                 await fs.readFile(this.cookieFilePath, 'utf8')
             ) as SavedCookieJar;
             if (username) {
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                if (!username || !cookies[username] || (cookies[username] && cookies[username]?.length === 0))
+                if (!username || !cookies[username] || cookies[username].length === 0)
                     throw new CookiesUser404("No Cookies was found for user '" + username + "'!");
             } else {
                 if (
@@ -446,12 +461,18 @@ export class cookiesHandler {
     // compare current saved email code with the one from the .env file in the field EMAIL_2FA_CODE
     isSameEmailCode(): boolean {
         let result: boolean = false;
-        if (!process.env.EMAIL_2FA_CODE) return false;
+        if (!process.env.EMAIL_2FA_CODE && !this.baseApi.EmailOTPCode) return false;
         this.cookies.forEach((cookie) => {
             // skip loop if no last email code
             if (cookie.key === 'auth') {
                 if (!cookie.lastEmailCodeUsed) return;
-                if (cookie.lastEmailCodeUsed === process.env.EMAIL_2FA_CODE) {
+                if (
+                    cookie.lastEmailCodeUsed === process.env.EMAIL_2FA_CODE
+                        ? process.env.EMAIL_2FA_CODE
+                        : this.baseApi.EmailOTPCode
+                        ? this.baseApi.EmailOTPCode
+                        : ''
+                ) {
                     result = true;
                 }
             }
@@ -463,7 +484,8 @@ export class cookiesHandler {
     async addEmailCode(): Promise<void> {
         this.cookies.forEach((cookie) => {
             if (cookie.key === 'auth') {
-                cookie.lastEmailCodeUsed = process.env.EMAIL_2FA_CODE || '';
+                cookie.lastEmailCodeUsed =
+                    process.env.EMAIL_2FA_CODE || this.baseApi.EmailOTPCode ? this.baseApi.EmailOTPCode : '';
             }
         });
         await this.saveCookies();

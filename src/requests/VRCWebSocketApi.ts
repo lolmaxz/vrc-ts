@@ -129,6 +129,7 @@ export class VRCWebSocket extends WebSocket {
     private reconnecting = false;
     private eventsToListenTo: EventType[] = [];
     private logAllEvents = false;
+    private closing: boolean = false;
 
     /**
      *
@@ -165,15 +166,9 @@ export class VRCWebSocket extends WebSocket {
     constructor({ vrchatAPI, eventsToListenTo = [], logAllEvents = false }: WebSocketParameters) {
         super(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
             headers: {
-                'user-agent': process.env.USER_AGENT || 'ExampleBot/1.0.0',
+                'user-agent': process.env.USER_AGENT || 'ExampleProgram/0.0.1 my@email.com',
             },
         });
-
-        // this.ws = new WebSocket(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
-        //     headers: {
-        //         'user-agent': process.env.USER_AGENT || 'ExampleBot/1.0.0',
-        //     },
-        // });
 
         this.eventsToListenTo = eventsToListenTo;
 
@@ -500,12 +495,12 @@ export class VRCWebSocket extends WebSocket {
 
     private onClose(): void {
         console.log('WebSocket Connection Closed');
-        if (!this.badLoginDetected && !this.reconnecting) this.reconnect(); // only if last login were correct, else we stop!
+        if (!this.badLoginDetected && !this.reconnecting && !this.closing) this.reconnect(); // only if last login were correct, else we stop!
     }
 
     private onTerminate(): void {
         console.log('WebSocket Connection Terminated');
-        this.reconnecting = true;
+        this.closing = true;
         this.close();
     }
 
@@ -518,6 +513,7 @@ export class VRCWebSocket extends WebSocket {
     private reconnect(): void {
         // Avoid multiple reconnection attempts at the same time
         if (this.reconnecting) return;
+        if (this.closing) return; // we stop if we are closing the connection
         this.reconnecting = true;
         // Exponential backoff for reconnection attempts
         const reconnectAfterMs = Math.min(10000, this.reconnectAttempts ** 2 * 1000);
