@@ -1,5 +1,6 @@
 import totp from 'totp-generator';
 import { VRChatAPI } from '../VRChatAPI';
+import { EmailOtpRequired, TOTPRequired } from '../errors';
 import { ApiPaths } from '../types/ApiPaths';
 import {
     checkUserExistOptions,
@@ -95,7 +96,7 @@ export class AuthApi extends BaseApi {
                 process.env.VRCHAT_2FA_SECRET === undefined ||
                 (process.env.VRCHAT_2FA_SECRET && process.env.VRCHAT_2FA_SECRET.length < 32)
             ) {
-                throw new Error("Bad or no 2FA secret was provided in 'VRCHAT_2FA_SECRET' !");
+                throw new TOTPRequired("Bad or no 2FA secret was provided in 'VRCHAT_2FA_SECRET' !");
             }
             // secret was correctly set now we compute it
             console.log('Using generated 2FA code from secret key...');
@@ -104,13 +105,13 @@ export class AuthApi extends BaseApi {
         } else {
             // we use the code from .env file
             if (process.env.TOTP_2FA_CODE === undefined || process.env.TOTP_2FA_CODE.length !== 6) {
-                throw new Error("Bad or no 2FA code was provided in 'TOTP_2FA_CODE' !");
+                throw new TOTPRequired("Bad or no 2FA code was provided in 'TOTP_2FA_CODE' !");
             }
             code = process.env.TOTP_2FA_CODE;
         }
 
         if (!this.regexCode.test(code))
-            throw new Error('The provided 2FA code is invalid! It must be a 6 digit number.');
+            throw new TOTPRequired('The provided 2FA code is invalid! It must be a 6 digit number.');
         const body: dataKeys2Fa = { code };
 
         const paramRequest: executeRequestType = {
@@ -143,15 +144,15 @@ export class AuthApi extends BaseApi {
 
         // we use the code from .env file
         if (!envCode || envCode.length !== 6)
-            throw new Error("Bad or no 2FA code was provided in 'EMAIL_2FA_CODE' in .env file. !");
+            throw new EmailOtpRequired("Bad or no 2FA code was provided in 'EMAIL_2FA_CODE' in .env file. !");
         if (this.baseClass.instanceCookie.isSameEmailCode())
-            throw new Error(
+            throw new EmailOtpRequired(
                 'The provided 2FA code is the same as the one from the last request! Please provide a new one.'
             );
         code = envCode;
 
         if (!this.regexCode.test(code))
-            throw new Error('The provided 2FA code is invalid! It must be a 6 digit number.');
+            throw new EmailOtpRequired('The provided 2FA code is invalid! It must be a 6 digit number.');
         const body: dataKeys2Fa = { code };
 
         const paramRequest: executeRequestType = {

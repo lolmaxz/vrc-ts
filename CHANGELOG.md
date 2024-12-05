@@ -1,3 +1,28 @@
+# Changelog 1.0.6 [ - December 5rd, 2024 - ]
+
+## Changes to VRChatApi Class
+
+-   Added a new attribute to the VRChatApi class called `userAgent`. This will allow you to specify the User-Agent. This is useful if you want to change the User-Agent for a specific instance of the VRChatApi class.
+-   Instantiating the VRChatApi class will now throw an error if the User-Agent is invalid.
+-   The VRChatApi class now has new parameters: `userAgent`, `useCookies`, `cookiePath`, `EmailOTPCode` and `TOTPCode`. These parameters are used to set the User-Agent, use cookies, set the path to the cookies, set the Email OTP code and set the TOTP code respectively.
+-   Additionally, the VRChatApi class parameters are set as an object instead of individual parameters. This is to make it easier to add new parameters in the future and control the order of the parameters, especially for optional parameters.
+-   Cookies can now be enabled or disabled by setting the `useCookies` parameter to true or false. If cookies are enabled, the cookies will be saved to the path specified in the `cookiePath` parameter, if omitted, the cookies will be saved to the default path `./cookies.json`.
+
+## More Changes
+
+-   The .env file is now more optional. If you don't have a .env file, the library will still work. You can set the User-Agent, Email OTP code and TOTP code directly in the VRChatApi class as parameters when you instantiate it.
+-   Changed the default User-Agent to be `ExampleProgram/0.0.1 my@email.com` instead of `ExampleApp/1.0.0 Email@example.com` for safety reasons. Please change it in your .env file if you are using the library.
+-   Rewrote part of the Readme file.
+-   Created WIP documentation on the Github Wiki.
+-   Updated the .env.example file to reflect the new User-Agent.
+
+### Better Error Handling from the VRChatApi Class
+
+-   New Error Type `InvalideUserAgent` will be thrown if the User-Agent is invalid.
+-   Better handling of errors being thrown during bad login procedures.
+
+---
+
 # Changelog 1.0.5 [ - December 3rd, 2024 - ]
 
 ## Added
@@ -105,7 +130,3 @@
 -   Searching users will now return a list of users that are a mix of LimitedUser and LimitedUserFriend (more fields are available on LimitedUserFriend) (Check isFriend attribute to know if the user is a friend)
 -   Deprecated endpoint are now properly marked as deprecated in the jsdoc
 -   `Instance` type's attribute `users` is not properly defined to be an array of either Limited User or Limited User Friend, or empty array. Only if the instance is made by you will it return that field.
-
-## IN PROGRESS
-
--   All required ID, like Group ID, Notification ID, World ID, Avatar ID, etc are now stricter. Only exception is the `userId` field, which is still a string because of legacy username format.

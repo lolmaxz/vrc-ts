@@ -93,6 +93,16 @@ export class RequestError extends Error {
 }
 
 /**
+ * Error thrown when the User Agent is invalid.
+ * @throws {InvalidUserAgent}
+ */
+export class InvalidUserAgent extends Error {
+    constructor(message: string) {
+        super(`${C.yellow}[ WARNING ]${C.reset} - Invalid User-Agent: ${message}`); // Pass the message to the Error constructor
+    }
+}
+
+/**
  * Error when the user is not authenticated.
  * @throws {UserNotAuthenticated}
  */

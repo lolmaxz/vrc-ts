@@ -1,8 +1,38 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
-Latest version: **v1.0.5**<br>
-From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically.
-Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
+Latest version: **v1.0.6**<br>
+Changelogs: [CHANGELOG Link](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGELOG.md)
+
+From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically. Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
+
+## Important note about 1.0.6
+<details>
+<summary>⚠️ Please Read This If You Are Updating From 1.0.5 or Lower</summary>
+
+-   The .env file is now more optional. If you don't have a .env file, the library will still work. You can set the User-Agent, Email OTP code and TOTP code directly in the VRChatApi class as parameters when you instantiate it, as well as the cookies path and if you want to use cookies!
+-   The VRChatApi class's parameters is now an object of multiple optional options.
+-   ⚠️ If you used to instantiate it like this:
+```ts
+const api = new VRChatAPI();
+```
+or
+```ts
+const api = new VRChatAPI("username", "password");
+```
+
+You will now have to instantiate it like this:
+```ts
+const api = new VRChatAPI({});
+```
+or
+```ts
+const api = new VRChatAPI({username: "username", password: "password"});
+```
+
+### This change was made to make the library more flexible and to allow for more options in the future and also to be more in line with the rest of the library's structure.
+</details>
+
+---
 
 ## Table of Contents
 
@@ -10,21 +40,36 @@ Perfect if you are looking to build bots, applications, or services that interac
 -   [Installation](#installation)
 -   [Usage](#usage)
 -   [Authenticating](#authenticating)
+    -   [Using Email OTP](#using-email-otp)
+    -   [Using TOTP](#using-totp)
+    -   [Using `VRCHAT_2FA_SECRET`](#using-vrchat_2fa_secret)
+-   [User-Agent](#user-agent)
+-   [Cookies](#cookies)
 -   [Notes](#notes)
--   [Endpoints Supported](#endpoints)
--   [WebSocket Support](#websocket)
--   [Basic Example](#example)
+-   [Endpoints Supported](#endpoints-supported)
+-   [WebSocket Support](#websocket-support)
+-   [Basic Example](#basic-example)
+-   [Error Handling](#error-handling)
 -   [Extra Information](#extra-information)
 -   [Contributing](#contributing)
 -   [License](#license)
+-   [Changelog](#changelog)
+-   [Contact](#contact)
+-   [Final Notes](#final-notes)
+
+---
 
 ## Features
 
--   Fully Typed with most of VRChat's API Endpoints integrated and simple to use.
--   Fully functional Websocket with multiple events to listen to.
--   Built in Cookies Manager, so you don't have to manage Cookies.
--   Big push on functionalities touching VRChat Group Endpoints.
--   Compatible with both for CommonJS and Module.
+-   **Full TypeScript Support**: Benefit from strong typing and IntelliSense.
+-   **Comprehensive API Coverage**: Most of VRChat's API endpoints are integrated.
+-   **WebSocket Support**: Receive real-time updates with a fully functional WebSocket client.
+-   **Automatic 2FA Handling**: Simplify authentication with built-in 2FA code generation.
+-   **Cookie Management**: Maintain session state effortlessly with the built-in cookies manager.
+-   **Group Functionality**: Enhanced support for VRChat group endpoints.
+-   **Dual Module Support**: Compatible with both CommonJS and ES Modules.
+
+---
 
 ## Installation
 
@@ -35,47 +80,21 @@ npm install vrc-ts
 ```
 
 > [!IMPORTANT]
->
-> <h2> .ENV FILE</h2>
-> ⚠️ Make sure to have a .env in your project's root and you have the minimum requirement. <br>
-> ⭕ = REQUIRED | 🟡 = Requires One-Of<br><br>
->
-> -   `VRCHAT_USERNAME` ⭕
->     -   **Description:** Your VRChat Username _(Can be different from your displayname in some cases)_
-> -   `VRCHAT_PASSWORD` ⭕
->     -   **Description:** Your VRChat Password _(Make sure to keep it safe)_
-> -   `EMAIL_2FA_CODE` 🟡
->     -   **Description:** The 6 digits code you received by Email _(Only if you are using Email OTP)_
-> -   `VRCHAT_2FA_SECRET` 🟡
->     -   **Description:** The 32 digits secret you got from your 2FA App _(Only if you are using TOTP)_
-> -   `TOTP_2FA_CODE` 🟡
->     -   **Description:** The 6 digits code you got from your 2FA App _(Only if you are using TOTP)_
-> -   `COOKIES_PATH`
->     -   **Default/recommended:** `'./cookies.json'`
->     -   **Description:** The path where the cookies will be stored.
-> -   `USE_COOKIES`
->     -   **Default/Recommended:** `true`
->     -   **Description:** If you want to use cookies or not. (Highly recommended if you want to avoid 429 errors)
-> -   `DEBUG`
->     -   **Default/Recommended:** `false`
->     -   **Description:** If you want to see debug logs.
-> -   `WEBCLIENT_DEBUG`
->     -   **Default/Recommended:** `false`
->     -   **Description:** If you want to see debug logs for the webclient.
-> -   `USER_AGENT`
->     -   **Default if left empty:** `'ExampleApp/1.0.0 Email@example.com'`
->     -   **Description:** The User Agent used for the requests. _(You can change it if you want)_
+> **Environment Setup**<br>
+> Ensure you have a `.env` file in your project's root directory with the required variables.
+
+---
 
 ## Usage
 
-Here’s how you can use the `vrc-ts` in your project:
+Here’s how you can use `vrc-ts` in your project:
 
-**Typescript :**
+### TypeScript
 
 ```typescript
 import { RequestError, VRChatAPI } from 'vrc-ts';
 
-const api = new VRChatAPI('username', 'password');
+const api = new VRChatAPI({userAgent: 'ExampleProgram/0.0.1'});
 main();
 
 async function main() {
@@ -92,262 +111,370 @@ async function main() {
 }
 ```
 
-**Javascript Imports :**
+### JavaScript (CommonJS)
 
 ```javascript
 const { RequestError, VRChatAPI } = require('vrc-ts');
+
+const api = new VRChatAPI({userAgent: 'ExampleProgram/0.0.1'});
+main();
+
+async function main() {
+    try {
+        await api.login();
+        console.log(`Logged in successfully as ${api.currentUser.displayName}!`);
+    } catch (error) {
+        if (error instanceof RequestError) {
+            console.error(`Failed to login: ${error.message}`);
+        } else {
+            console.error(`An unexpected error occurred: ${error}`);
+        }
+    }
+}
 ```
 
-## Authenticating
+> [!TIP]
+> Multiple Sessions<br>
+> If you need to create multiple sessions, you can instantiate the `VRChatAPI` class multiple times.
+>
+> It's possible to have multiple cookies for different accounts, but be cautious with rate limits globally.
 
-VRChat now has an automatic 2FA system in place that is set by default to email OTP and you can also enable 2FA with a TOTP (Time based One Time Password) like using the 'Authy App'.
+---
 
-> [!IMPORTANT]  
-> **.ENV Requires more information!**\
-> :warning: Please note that **YOU WILL** need to add one more thing in your `.env` file in order to complete the authenticating process, whether you are using _Email OTP_ or _2FA TOTP_.
+## User-Agent
 
-Depending on your situation, here is how you can define either the **Email OTP** or the **TOTP** in the `.env` file:
+The User-Agent header is required for all requests to VRChat's API. You can set it in the `.env` file:
 
--   **Email OTP** :
-
-```js
-EMAIL_2FA_CODE = 123456;
+```dotenv
+USER_AGENT=ExampleProgram/0.0.1
 ```
 
-> When you've started the app and you know you received a code by Email, add it to the .env file and restart the app within :clock3: **15 Minutes** of the code being sent to you. Past that delay the code will be invalidated by VRChat.
+or
 
--   **TOTP** :
+Add it as an optional parameter when instantiating the VRChatAPI class:
 
-```js
-TOTP_2FA_CODE = 123456;
+```typescript
+const api = new VRChatAPI({ userAgent: 'ExampleProgram/0.0.1' });
 ```
 
-> When you've started the app and you know you need the TOTP 2FA Code, Go on your _Authy App_ or similar, grab the 6 digits code and add it to the .env file and restart the app within :clock3: **30 Seconds**.
-> :warning: the TOTP code is always valid for only 30 seconds. Refer to app like Authy to see the timing. The right code should be in the .env when starting the app, in order for the connectino to successfully work.
+---
+
+## Cookies
+
+Cookies are used to maintain session state. By default, cookies are **disabled** and stored in the `./cookies.json` file. You can enable cookies and define the path/filename in the `.env` file:
+
+```dotenv
+USE_COOKIES=true
+COOKIES_PATH='./cookies.json'
+```
+
+or
+
+Add it as an optional parameter when instantiating the VRChatAPI class:
+
+```typescript
+const api = new VRChatAPI({ useCookies: true, cookiePath: './cookies.json' });
+```
 
 > [!NOTE]
-> For the **Email OTP** you have **15 minutes** after receiving it to use it.\
-> For the **TOTP** you have 30 seconds between each code reset. It is time based!
+> **Cookies Path**<br>
+> If the `COOKIES_PATH` is omitted, cookies will be saved to the default path `./cookies.json`.
+>
+> **Cookies Usage**<br>
+> Cookies are used to maintain session state. If you disable cookies, you may need to re-authenticate on each application start.
+> 
+> This is useful for applications that require a fresh login each time. Otherwise you might get quickly rate limited. (Error 429)
+>
+> ⚠️ Important to note that if you are using cookies, you should be careful with the cookies file. It contains your session information and should be kept secure and private at all times.
 
-## :white_check_mark: Bonus Easier Authentication
+---
+## Authenticating
 
-This Wrapper also comes with a 2FA Secret code generator. (totp-generator) You will simply need to specify it in your `.env` file like so:
+VRChat requires two-factor authentication (2FA). Depending on your setup (Email OTP or TOTP), follow the steps below:
 
-```js
-VRCHAT_2FA_SECRET=2W4X6Z7YQ9A2B4C62W4X6Z7YQ9A2B4C6
-```
+### Using Email OTP
 
-It comes in the form of 32 digits and capital characters mixed string.
+1. Start your application; you'll receive a 6-digit code via email.
+2. Add the code to your `.env` file:
 
-> :exclamation: Using this secret, you'll be able to authenticate automatically each time without having to deal with a 6 digits code.
-> _To get your secret you can simply scan the QR code VRChat gives you when enabling 2FA on your account. Scan it with a camera and copy the text to get the secret. Then you can add it to the Authy App if you want._
+    ```dotenv
+    EMAIL_2FA_CODE=123456
+    ```
+
+    or
+
+    Add it as an optional parameter when instantiating the VRChatAPI class:
+
+    ```typescript
+    const api = new VRChatAPI({ EmailOTPCode: '123456' });
+    ```
+
+3. Restart your application within **15 minutes** to complete authentication.
+
+> [!NOTE]
+> **Email OTP Validity**<br>
+> The Email OTP code is valid for **15 minutes**. Ensure you use it within this time frame.
+
+### Using TOTP
+
+1. Obtain the 6-digit code from your authenticator app.
+2. Add the code to your `.env` file:
+
+    ```dotenv
+    TOTP_2FA_CODE=123456
+    ```
+
+    or
+
+    Add it as an optional parameter when instantiating the VRChatAPI class:
+
+    ```typescript
+    const api = new VRChatAPI({ TOTPCode: '123456' });
+    ```
+
+3. Restart your application within **30 seconds** to complete authentication.
+
+> [!NOTE] 
+> **TOTP Code Validity**<br>
+> The TOTP code is valid for **30 seconds**. Ensure you use it promptly.
+
+### Using `VRCHAT_2FA_SECRET`
+
+For automatic 2FA code generation:
+
+1. Add your 2FA secret to the `.env` file:
+
+    ```dotenv
+    VRCHAT_2FA_SECRET=YOUR_32_CHARACTER_SECRET
+    ```
+
+2. The application will generate TOTP codes automatically, removing the need for manual entry.
 
 > [!CAUTION]
-> Make sure to never commit or share any password, especially your 2FA secret!
+> **Security Warning**<br>
+> Make sure to **never share or commit** your passwords or 2FA secrets. Keep them secure.
+
+---
 
 ## Notes
 
-You can also use the `.env` file to login and/or store your credential like so:
+-   You can store your credentials in the `.env` file:
 
-```js
-VRCHAT_USERNAME = username_here;
-VRCHAT_PASSWORD = password_here;
-```
+    ```dotenv
+    VRCHAT_USERNAME=your_username
+    VRCHAT_PASSWORD=your_password
+    ```
 
-Then in your program, you can simply authenticate this way:
+-   Then instantiate the `VRChatAPI` without arguments:
 
-```typescript
-const api = new VRChatAPI();
-```
-
-> instead of
-
-```typescript
-const api = new VRChatAPI('username', 'password');
-```
+    ```typescript
+    const api = new VRChatAPI({});
+    ```
 
 > [!NOTE]
-> For more option with the `.env` file, check the `.env.example` file in the project.
+> **Additional .env Options**<br>
+> For more options with the `.env` file, check the `.env.example` file in the project.
 
-## Endpoints
+---
 
-<h2> Here is the full list of endpoints by category that this wrapper does implements and has all typed: </h2>
+## Endpoints Supported
 
-**Authentication API** :
+Here is the full list of endpoints by category that this wrapper implements. For detailed documentation, please refer to the [API Documentation](https://github.com/lolmaxz/vrc-ts/wiki).
+
+**Authentication API**:
 
 -   `userExist`, `getCurrentUserInfo`, `verify2FATOTP`, `verify2FAEmail`, `verifyAuthToken`, `logout`
 
-**Avatars API** :
+**Avatars API**:
 
 -   `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`
 
-**Economy API** : (Some endpoints here may need more testing. Usage of these endpoints are at your own discretion.)
+**Beta API**:
 
--   `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`, `getProductListing`, `getOwnSubscription`, `getTiliaTOS`, `getOwnPurchases`, `getOwnTransactions`, `getTiliaSyncData`, `getBalance`, `getLicenses`
+-   `getIOSClosedBetaInformation`
 
-**Favorites API** :
+**Economy API**:
 
--   `listFavorites`, `addFavorite`, `showFavorite`, `removeFavorite`, `listFavoriteGroups`, `showFavoriteGroup`, `updateFavoriteGroup`, `clearFavoriteGroup`
+-   `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`, `getProductListing`, `getTiliaTOS`, `getOwnPurchases`, `getOwnTransactions`, `getTiliaSyncData`, `getBalance`, `getLicenses`, `getUserProductListings`, `listTokenBundles`, `getTiliaStatus`
 
-**Files API** :
+**Favorites API**:
 
--   `listFiles`, `createFile`, `showFile`, `createFileVersion`, `deleteFile`, `downloadFileVersion`, `deleteFileVersion`, `finishFileDataUpload`, `startFileDataUpload`, `checkFileDataUploadStatus`
+-   `listFavorites`, `addFavorite`, `showFavorite`, `removeFavorite`, `listFavoriteGroups`, `showFavoriteGroup`, `updateFavoriteGroup`, `clearFavoriteGroup`, `getFavoriteLimits`
 
-**Friends API** :
+**Files API**:
+
+-   `listFiles`, `createFile`, `showFile`, `createFileVersion`, `deleteFile`, `downloadFileVersion`, `deleteFileVersion`, `finishFileDataUpload`, `startFileDataUpload`, `checkFileDataUploadStatus`, `getFileVersionAnalysis`, `getFileVersionAnalysisSecurity`, `getFileVersionAnalysisStandard`
+
+**Friends API**:
 
 -   `listFriends`, `sendFriendRequest`, `deleteFriendRequest`, `checkFriendStatus`, `unfriend`
 
-**Groups API** :
+**Groups API**:
 
--   `searchGroups`, `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `createGroupPost`, `getGroupPosts`, `deleteGroupPost`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`
+-   `searchGroups`, `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `createGroupPost`, `getGroupPosts`, `deleteGroupPost`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup`, `deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`, `getGroupInstances`, `editGroupPost`
 
-**Invites API** :
+**Invites API**:
 
 -   `inviteUser`, `inviteMyselfToInstance`, `requestInvite`, `respondInvite`, `listInviteMessages`, `getInviteMessage`, `updateInviteMessage`, `resetInviteMessage`
 
-**Instances API** :
+**Instances API**:
 
 -   `getInstance`, `getInstanceShortName`, `sendSelfInvite`, `getInstanceByShortName`, `createNormalInstance`, `createGroupInstance`
 
-**Notifications API** :
+**Jams API**:
 
--   `listNotifications`, `acceptFriendRequest`, `markNotificationAsRead`, `deleteNotification`, `clearAllNotifications`
+-   `getJamsList`, `getJamInfo`, `getJamSubmissions`
 
-**Permissions API** :
+**Notifications API**:
+
+-   `listNotifications`, `acceptFriendRequest`, `markNotificationAsRead`, `deleteNotification`, `clearAllNotifications`, `respondToNotification`
+
+**Permissions API**:
 
 -   `getAssignedPermissions`, `getPermission`
 
-**Playermoderations API** :
+**Playermoderations API**:
 
 -   `searchPlayerModerations`, `moderateUser`, `clearAllPlayerModerations`, `getPlayerModeration`, `deletePlayerModeration`, `unmoderateUser`
 
-**System API** :
+**System API**:
 
 -   `fetchAPIConfig`, `currentOnlineUsers`, `currentSystemTime`
 
-**Users API** :
+**Users API**:
 
--   `searchAllUsers`, `getUserbyUsername`, `getUserbyID`, `updateUserInfo`, `getUserGroups`, `getUserGroupRequests`, `getUserRepresentedGroup`
+-   `searchAllUsers`, `getUserbyUsername`, `getUserbyID`, `updateUserInfo`, `getUserGroups`, `getUserGroupRequests`, `getUserRepresentedGroup`, `getUserFeedback` _(Deprecated)_, `getAllUserNotes`, `updateUserNote`, `getAUserNote`, `getUserGroupInstances`
 
-**Worlds API** :
+**Worlds API**:
 
 -   `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
 
 > [!CAUTION]
-> Some Endpoints may not yet be implemented. Some Endpoint implemented may require more testing.
-> Some Endpoints aren't supported anymore and they haven't been included in this list, but for legacy reason, they may still exist in the code. Their usage is up for discretion.
-> Remember that VRChat's API is **NOT** documented and this project relies on people testing the API and documents it themselves.
+> **Usage Disclaimer**<br>
+> Some endpoints may not yet be fully implemented or require more testing. Use them at your own discretion. VRChat's API is not officially documented, and this project relies on community efforts.
 
 > [!TIP]  
 > **Instance creation** have two separate endpoints now!
 > One for regular instance and one for group instance. For regular instance you can also just create the instance ID without touching the API. Function is called `generateNormalInstanceIdOnly()` in the `instanceApi`.
 
-## WebSocket
+---
 
-VRChat's Websocket has also been implemented. You can listen for specific events in real time. The connection will stay alive and renewed. If the connection is lost, a reconnection will be done as soon as possible.
+## WebSocket Support
 
-Using the WebSocket with VRC-TS is very easy, you simply need to instanciate a WebSocket and declare the various events you want to listen to. Most (if not all) WebSocket events have been correctly Typed too!
+VRChat's WebSocket has also been implemented. You can listen for specific events in real-time. The connection will stay alive and auto-renew. If the connection is lost, a reconnection will be attempted automatically.
 
-**Here's how you can instanciate a new WebSocket:**
+> [!TIP]
+> For more detailed information and to get started with VRChat's WebSocket, you can [head here](<https://github.com/lolmaxz/vrc-ts/wiki/VRC-WebSocket-API-(Draft-WIP)#2-getting-started>).
 
-**Javascript :**
+### Basic WebSocket Usage
 
-```javascript
-const { VRChatAPI, VRCWebSocket } = require('vrc-ts');
-
-const api = new VRChatAPI();
-
-new VRCWebSocket({ vrchatAPI: api });
-```
-
-**Typescript :**
+**TypeScript**
 
 ```typescript
-import { VRChatAPI, VRCWebSocket } from 'vrc-ts';
+import { VRChatAPI, VRCWebSocket, EventType, FriendOnline } from 'vrc-ts';
 
-const api = new VRChatAPI();
+const api = new VRChatAPI({});
 
-new VRCWebSocket({ vrchatAPI: api });
+const ws = new VRCWebSocket({
+    vrchatAPI: api,
+    eventsToListenTo: [EventType.All],
+    logAllEvents: false,
+});
+
+// Listening to friend online events
+ws.on(EventType.Friend_Online, (data: FriendOnline) => {
+    console.log(`Friend ${data.user.displayName} is online at ${data.location}.`);
+});
 ```
 
-The system ensure you've given the instance of `api` as a parameter so it knows which username and password to use to connect to the websocket.
+**JavaScript**
+
+```javascript
+const { VRChatAPI, VRCWebSocket, EventType } = require('vrc-ts');
+
+const api = new VRChatAPI({});
+
+const ws = new VRCWebSocket({
+    vrchatAPI: api,
+    eventsToListenTo: [EventType.All],
+    logAllEvents: false,
+});
+
+// Listening to friend online events
+ws.on(EventType.Friend_Online, (data) => {
+    console.log(`Friend ${data.user.displayName} is online at ${data.location}.`);
+});
+```
 
 > [!WARNING]
-> A valid authToken saved from authenticating with the API first before the WebSocket is functional.
+> **Authentication Required**<br>
+> A valid `authToken` is required. Ensure you authenticate with the API before initializing the WebSocket.
 
-### Extra Websocket
+### Specifying Events to Listen To
 
-If you don't want to execute the code all events, you can specify to the WebSocket instanciator (`const websocket = new VRCWebSocket({})`) which events you actually want to listen to and then redefine the behavior of that event.
+You can specify which events you want to listen to:
 
-Here is an example if we only wanted to listen to incoming **friend request**:
+```typescript
+import { VRChatAPI, VRCWebSocket, EventType, friendRequestNotification } from 'vrc-ts';
 
-**Javascript :**
+const api = new VRChatAPI({});
 
-```javascript
-const { EventType, RequestError, VRChatAPI, VRCWebSocket } = require('vrc-ts');
+const ws = new VRCWebSocket({
+    vrchatAPI: api,
+    eventsToListenTo: [EventType.Friend_Request],
+});
 
-const api = new VRChatAPI();
-
-const websocket = new VRCWebSocket({ vrchatAPI: api, eventsToListenTo: [EventType.Friend_Request] });
-
-websocket.on(EventType.Friend_Request, (eventData) => {
-    console.log('A friend request was received by: ' + eventData.senderUsername);
+ws.on(EventType.Friend_Request, (eventData: friendRequestNotification) => {
+    console.log('A friend request was received from: ' + eventData.senderUsername);
 });
 ```
 
-**Typescript :**
+**Supported Events Include**:
+
+-   `User_Online`, `User_Update`, `User_Location`, `User_Offline`, `Friend_Online`, `Friend_Active`, `Friend_Update`, `Friend_Location`, `Friend_Offline`, `Friend_Add`, `Friend_Delete`, `Notification`, `Notification_V2`, `Notification_V2_Update`, `Notification_V2_Delete`, `Content_Refresh`, `Group_Join`, `Group_Leave`, `Group_Member_Updated`, `Group_Role_Updated`, `Error`, `All`, `Friend`, `User`, `Group`, `Notification_V1_All`, `Notification_V2_All`, `Notification_All`, `Friend_Request`, `Request_Invite`, `Invite`, `Invite_Response`, `Request_Invite_Response`, `Vote_To_Kick`, `Group_Announcement`, `Group_Invite`, `Group_Informative`, `Group_Join_Request`
+
+> [!TIP]
+> Description of each events can be found [here](<https://github.com/lolmaxz/vrc-ts/wiki/VRC-WebSocket-API-(Draft-WIP)#3-event-types>).
+
+---
+
+## Basic Example
+
+Here's a simple example to get you started:
 
 ```typescript
-import { EventType, friendRequestNotification, RequestError, VRChatAPI, VRCWebSocket } from 'vrc-ts';
-
-const api = new VRChatAPI();
-
-const websocket = new VRCWebSocket({ vrchatAPI: api, eventsToListenTo: [EventType.Friend_Request] });
-
-websocket.on(EventType.Friend_Request, (eventData: friendRequestNotification) => {
-    console.log('A friend request was received by: ' + eventData.senderUsername);
-});
-```
-
-> This will print out `A friend request was received by: [USERNAME OF THE SENDER]` anytime a friend request is received on the connected account that is currently instanciated.
-
-**EventType** can be multiple events, ranging from notification types to friend information changing, invite detection and way more. Optionally, you can also set another parameter `logAllEvents` to true if you want the console to log any events you are listening to currently when they happen.
-
-**Here is the current list of supported events:**
-
--   `User_Online`, `User_Update`, `User_Location`, `User_Offline`, `Friend_Online`, `Friend_Active`, `Friend_Update`, `Friend_Location`, `Friend_Offline`, `Friend_Add`, `Friend_Delete`, `Notification`, `Notification_V2`, `Notification_V2_Update`, `Notification_V2_Delete`, `Show_Notification`, `Hide_Notification`, `Response_Notification`, `See_Notification`, `Clear_Notification`, `Content_Refresh`, `Group_Join`, `Group_Leave`, `Group_Member_Updated`, `Group_Role_Updated`, `Error`, `All`, `Friend`, `User`, `Group`, `Notification_V1_All`, `Notification_V2_All`, `Notification_All`, `Friend_Request`, `Request_Invite`, `Invite`, `Invite_Response`, `Request_Invite_Response`, `Vote_To_Kick`, `Group_Announcement`, `Group_Invite`, `Group_Informative`, `Group_Join_Request`
-
-## Example
-
-Here I am leaving you with a simple example of what you can do using this API, to get started!
-
-**Typescript :**
-
-```typescript
-import { RequestError, VRChatAPI } from 'vrc-ts';
+import { RequestError, VRChatAPI, VRCWebSocket, EventType, FriendOnline } from 'vrc-ts';
 
 async function main() {
-    const api = new VRChatAPI();
+    const api = new VRChatAPI({});
 
     try {
         await api.login();
-        console.debug(`Logged in successfully as ${api.currentUser!.displayName}!`);
+        console.log(`Logged in successfully as ${api.currentUser!.displayName}!`);
 
-        // Testing with a User ID (In this Case, Tupper):
+        // Instantiate WebSocket
+        const ws = new VRCWebSocket({
+            vrchatAPI: api,
+            eventsToListenTo: [EventType.Friend_Online],
+        });
+
+        ws.on(EventType.Friend_Online, (data: FriendOnline) => {
+            console.log(`Friend ${data.user.displayName} is online at ${data.location}.`);
+        });
+
+        // Fetching user information
         const tupperUserId = 'usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469';
-
-        // Searching for a user by User ID:
         const user = await api.userApi.getUserById({ userId: tupperUserId });
-        if (user) console.debug(`Found user: ${user.displayName}`);
+        if (user) console.log(`Found user: ${user.displayName}`);
 
-        // Let's list all the user's publically known groups:
+        // List user's public groups
         const groups = await api.userApi.getUserGroups({ userId: user.id });
-        console.debug(`Found ${groups.length} groups for ${user.displayName}:`);
-        groups.forEach((group) => console.debug(`- ${group.name}`));
+        console.log(`Found ${groups.length} groups for ${user.displayName}:`);
+        groups.forEach((group) => console.log(`- ${group.name}`));
 
-        // User's Bio and Status Description:
-        console.debug(`User's Bio: ${user.bio}`);
-        console.debug(`User's Status Description: ${user.statusDescription}`);
+        // User's Bio and Status Description
+        console.log(`User's Bio: ${user.bio}`);
+        console.log(`User's Status Description: ${user.statusDescription}`);
     } catch (error) {
         if (error instanceof RequestError) {
             console.error(`Failed to login: ${error.message}`);
@@ -360,18 +487,49 @@ async function main() {
 main();
 ```
 
-## Extra-Information
+---
+
+## Error Handling
+
+When making API calls, you may encounter errors. Use try-catch blocks to handle them gracefully.
+
+```typescript
+try {
+    const user = await api.userApi.getUserById({ userId: 'invalid_id' });
+} catch (error) {
+    if (error instanceof RequestError) {
+        console.error(`API Error: ${error.statusCode} - ${error.message}`);
+    } else {
+        console.error(`Unexpected Error: ${error}`);
+    }
+}
+```
+
+---
+
+## Extra Information
 
 💡 With the VRChat API, there are a few things to keep in mind.
 
-> [!TIP]  
-> ERROR 429 - Too Many Requests\
-> \
-> This error might pop if you try doing too many requests consecutively. You might not be able to do any request or some specific request(s) for a moment.\
-> VRChat do no disclose the rate limit of their API, so be careful with them.\
-> Additionally, if you decide to NOT use the cookies, make sure you know what you are doing. Creating multiple logged in session can **quickly** give you an error 429 - Too Many Requests!
+### Handling Rate Limits (Error 429)
+
+VRChat's API may return a 429 error if too many requests are made in a short period. To avoid this:
+
+-   Implement request throttling in your application.
+-   Use the built-in cookies manager to maintain session state.
+-   Avoid creating multiple sessions in quick succession.
 
 > [!TIP]
+> **Error 429 - Too Many Requests**<br>
+> This error might occur if you make too many requests consecutively. You might not be able to make any requests or some specific requests for a moment.<br>
+> VRChat does not disclose the rate limit of their API, so be cautious.<br>
+> Additionally, if you decide **not** to use cookies, ensure you understand the implications. Creating multiple logged-in sessions can quickly result in a 429 error.
+
+### Compliance with VRChat's Terms of Service
+
+Ensure that your application complies with VRChat's [TERMS OF SERVICE](https://hello.vrchat.com/legal).
+
+> [!NOTE]
 >
 > ## INFORMATION FROM VRCHAT FAQ:
 >
@@ -384,6 +542,43 @@ main();
 > > However, our community has created unofficial documentation of our API. While this project is not officially sanctioned, the project tends to be accurate and respectful of our rules. \
 > > \
 > > Please see our latest API usage guidelines at the bottom of our Creators Guidelines. \
+
+> [!WARNING]
+> **Disclaimer**<br>
+> This project is not affiliated with VRChat Inc. Use of this package must comply with VRChat's [Terms of Service](https://hello.vrchat.com/legal) and [Community Guidelines](https://hello.vrchat.com/community-guidelines). I am not responsible for any misuse of this package.
+
+---
+
+## Environment Variables
+
+Ensure you have a `.env` file in your project's root directory with the following variables:
+
+### Required Variables
+
+| Variable          | Description          |
+| ----------------- | -------------------- |
+| `VRCHAT_USERNAME` | Your VRChat username |
+| `VRCHAT_PASSWORD` | Your VRChat password |
+
+### 2FA Variables (One of the following is required)
+
+| Variable            | Description                                   |
+| ------------------- | --------------------------------------------- |
+| `EMAIL_2FA_CODE`    | The 6-digit code received via email           |
+| `TOTP_2FA_CODE`     | The 6-digit code from your authenticator app  |
+| `VRCHAT_2FA_SECRET` | Your 2FA secret for automatic TOTP generation |
+
+### Optional Variables
+
+| Variable          | Default Value                         | Description                                   |
+| ----------------- | ------------------------------------- | --------------------------------------------- |
+| `COOKIES_PATH`    | `'./cookies.json'`                    | Path to store cookies                         |
+| `USE_COOKIES`     | `true`                                | Whether to use cookies for session management |
+| `DEBUG`           | `false`                               | Enable debug logging                          |
+| `WEBCLIENT_DEBUG` | `false`                               | Enable web client debug logging               |
+| `USER_AGENT`      | `'ExampleProgram/0.0.1 my@email.com'` | User agent for HTTP requests                  |
+
+---
 
 ## Contributing
 
@@ -399,6 +594,30 @@ For more information on plans and the wiki, head to the repo 😉
 
 Feel free to contact me on Discord under the same username if you have any questions.
 
+---
+
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
+
+---
+
+## Changelog
+
+For a detailed list of changes, please refer to the [CHANGELOG](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGELOG.md).
+
+---
+
+## Contact
+
+If you have any questions or need assistance, feel free to reach out via GitHub issues or contact me on Discord.
+
+---
+
+## Final Notes
+
+By using `vrc-ts`, you're leveraging a powerful and flexible wrapper for the VRChat API. Whether you're building bots, applications, or services, this package aims to simplify your development process.
+
+Happy coding!
+
+---

@@ -1,3 +1,4 @@
+import { EmailOtpRequired, InvalidUserAgent, TOTPRequired } from '../errors';
 import { VRChatAPI } from '../VRChatAPI';
 
 // export async function authenticationAPITest(vrchat: VRChatAPI) {
@@ -35,10 +36,25 @@ describe('Authentication API Test', () => {
     });
 
     test('Authentication API Test with Wrong Username/Password', async () => {
-        const vrchat = new VRChatAPI('', '');
+        const vrchat = new VRChatAPI({
+            username: 'wrong',
+            password: 'wrong',
+            userAgent: 'ExampleApp/1.0.0 Email@example.com',
+        });
         await expect(async () => {
             await vrchat.login();
         }).rejects.toThrow(Error);
+    });
+
+    test('Authentication API Test with Wrong User Agent', async () => {
+        const vrchat = new VRChatAPI({
+            username: 'wrong',
+            password: 'wrong',
+            userAgent: 'ExampleProgram/0.0.1 my@email.com',
+        });
+        await expect(async () => {
+            await vrchat.login();
+        }).rejects.toThrow(InvalidUserAgent);
     });
 });
 
@@ -56,77 +72,24 @@ describe('Authentication Expected to get 2FA', () => {
     });
 
     test('Should Receive Request to TOTP', async () => {
-        // Example function that logs multiple messages
-        async function logMessages() {
-            const vrchat = new VRChatAPI(process.env.VRC_ACCOUNT_TOTP_USERNAME, process.env.VRC_ACCOUNT_TOTP_PASSWORD);
-            // await expect(async () => {
-
-            // }).rejects.toThrow(TOTPRequired);
-            await vrchat.login();
-        }
-
-        // Call the function
-        await logMessages();
-
-        // Define the type for each call
-        type ConsoleLogCall = [string | Error];
-
-        // Type-safe extraction of logged messages
-        const allLogs: string[] = consoleLogSpy.mock.calls.map((call: ConsoleLogCall): string => {
-            const log = call[0];
-            if (log instanceof Error) {
-                return log.message; // Extract message from Error
-            } else if (typeof log === 'string') {
-                return log; // Keep string messages as-is
-            } else {
-                throw new Error('Unexpected log type'); // Handle unexpected types safely
-            }
+        const vrchat = new VRChatAPI({
+            username: process.env.VRC_ACCOUNT_TOTP_USERNAME,
+            password: process.env.VRC_ACCOUNT_TOTP_PASSWORD,
+            userAgent: 'ExampleApp/1.0.0 Email@example.com',
         });
-
-        // Print all logs for debugging
-        console.log('Captured logs:', allLogs);
-
-        // Optionally assert on specific logs
-        expect(allLogs).toContain(`Bad or no 2FA secret was provided in 'VRCHAT_2FA_SECRET' !`);
+        await expect(async () => {
+            await vrchat.login();
+        }).rejects.toThrow(TOTPRequired);
     });
 
     test('Should Receive Request to Email OTP', async () => {
-        // Example function that logs multiple messages
-        async function logMessages() {
-            const vrchat = new VRChatAPI(
-                process.env.VRC_ACCOUNT_EMAIL_OTP_USERNAME,
-                process.env.VRC_ACCOUNT_EMAIL_OTP_PASSWORD
-            );
-            console.log('account username: ', process.env.VRC_ACCOUNT_EMAIL_OTP_USERNAME);
-
-            // await expect(async () => {
-
-            // }).rejects.toThrow(TOTPRequired);
-            await vrchat.login();
-        }
-
-        // Call the function
-        await logMessages();
-
-        // Define the type for each call
-        type ConsoleLogCall = [string | Error];
-
-        // Type-safe extraction of logged messages
-        const allLogs: string[] = consoleLogSpy.mock.calls.map((call: ConsoleLogCall): string => {
-            const log = call[0];
-            if (log instanceof Error) {
-                return log.message; // Extract message from Error
-            } else if (typeof log === 'string') {
-                return log; // Keep string messages as-is
-            } else {
-                throw new Error('Unexpected log type'); // Handle unexpected types safely
-            }
+        const vrchat = new VRChatAPI({
+            username: process.env.VRC_ACCOUNT_EMAIL_OTP_USERNAME,
+            password: process.env.VRC_ACCOUNT_EMAIL_OTP_PASSWORD,
+            userAgent: 'ExampleApp/1.0.0 Email@example.com',
         });
-
-        // Print all logs for debugging
-        console.log('Captured logs:', allLogs);
-
-        // Optionally assert on specific logs
-        expect(allLogs).toContain(`Bad or no 2FA code was provided in 'EMAIL_2FA_CODE' in .env file. !`);
+        await expect(async () => {
+            await vrchat.login();
+        }).rejects.toThrow(EmailOtpRequired);
     });
 });
