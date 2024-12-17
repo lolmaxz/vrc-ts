@@ -1,4 +1,4 @@
-# Changelog 1.0.7 [ - December 17rd, 2024 - ]
+# Changelog 1.0.8 [ - December 17rd, 2024 - ]
 
 ## Added
 
