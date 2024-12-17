@@ -197,6 +197,7 @@ export type APIPaths = {
         selectAvatar: subSectionType;
         selectFallbackAvatar: subSectionType;
         listFavoritedAvatars: subSectionType;
+        getImpostorQueueStats: subSectionType;
     };
     beta: {
         getIOSClosedBetaInformation: subSectionType;
@@ -217,6 +218,7 @@ export type APIPaths = {
         getTiliaSyncData: subSectionType;
         getBalance: subSectionType;
         getLicenses: subSectionType;
+        getInfoPush: subSectionType;
     };
     favorites: {
         listFavorites: subSectionType;
@@ -318,6 +320,12 @@ export type APIPaths = {
         getJamInfo: subSectionType;
         getJamSubmissions: subSectionType;
     };
+    medias: {
+        getUserIcons: subSectionType;
+        getUserEmojis: subSectionType;
+        getUserPhotos: subSectionType;
+        getUserStickers: subSectionType;
+    };
     notifications: {
         listNotifications: subSectionType;
         acceptFriendRequest: subSectionType;
@@ -337,6 +345,9 @@ export type APIPaths = {
         getPlayerModeration: subSectionType;
         deletePlayerModeration: subSectionType;
         unmoderateUser: subSectionType;
+    };
+    prints: {
+        listPrints: subSectionType;
     };
     system: {
         fetchAPIConfig: subSectionType;
@@ -441,7 +452,8 @@ export type AdminTags =
     | 'admin_moderator'
     | 'admin_official_thumbnail'
     | 'admin_scripting_access'
-    | 'admin_world_access';
+    | 'admin_world_access'
+    | 'admin_age_verification_enabled'; // new tag
 
 export type SystemTags =
     | 'system_avatar_access'
@@ -556,7 +568,7 @@ export type BaseId = `${string}-${string}-${string}-${string}-${string}`;
 export type UserIdType = string; // Because of literal types, it's not possible to use both types at the same time. :/ (I think)
 export type FriendRequestIdType = `frq_${string}-${string}-${string}-${string}-${string}`;
 export type UserNoteIdType = `unt_${string}-${string}-${string}-${string}-${string}`;
-export type PlayerModerationObjectIdType = `pmod_${string}-${string}-${string}-${string}-${string}`;
+export type PlayerModerationObjectIdType = `omu_${string}-${string}-${string}-${string}-${string}`; // According to result from VRChat's API, this is the correct ID type, instead of `pmod_xx-xx-xx-xx-xx`
 export type PermissionIdType = `prms_${string}-${string}-${string}-${string}-${string}`;
 
 export type WorldIdType = `wrld_${string}-${string}-${string}-${string}-${string}`;
@@ -602,6 +614,8 @@ export type JamIdType = `jam_${string}-${string}-${string}-${string}-${string}`;
 export type JamSubmissionIdType = `jsub_${string}-${string}-${string}-${string}-${string}`;
 
 export type FeedbackIdType = `feedback_${string}-${string}-${string}-${string}-${string}`;
+
+export type PrintIdType = `prnt_${string}-${string}-${string}-${string}-${string}`;
 
 //* -- VRCHAT GENERIC TYPES -- *//
 /**

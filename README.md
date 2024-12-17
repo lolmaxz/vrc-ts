@@ -1,35 +1,43 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
-Latest version: **v1.0.6**<br>
+Latest version: **v1.0.7**<br>
 Changelogs: [CHANGELOG Link](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGELOG.md)
 
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically. Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
 
-## Important note about 1.0.6
+## Important notes if updating from prior to 1.0.6
+
 <details>
 <summary>⚠️ Please Read This If You Are Updating From 1.0.5 or Lower</summary>
 
 -   The .env file is now more optional. If you don't have a .env file, the library will still work. You can set the User-Agent, Email OTP code and TOTP code directly in the VRChatApi class as parameters when you instantiate it, as well as the cookies path and if you want to use cookies!
 -   The VRChatApi class's parameters is now an object of multiple optional options.
 -   ⚠️ If you used to instantiate it like this:
+
 ```ts
 const api = new VRChatAPI();
 ```
+
 or
+
 ```ts
-const api = new VRChatAPI("username", "password");
+const api = new VRChatAPI('username', 'password');
 ```
 
 You will now have to instantiate it like this:
+
 ```ts
 const api = new VRChatAPI({});
 ```
+
 or
+
 ```ts
-const api = new VRChatAPI({username: "username", password: "password"});
+const api = new VRChatAPI({ username: 'username', password: 'password' });
 ```
 
 ### This change was made to make the library more flexible and to allow for more options in the future and also to be more in line with the rest of the library's structure.
+
 </details>
 
 ---
@@ -79,8 +87,7 @@ Install the project dependencies:
 npm install vrc-ts
 ```
 
-> [!IMPORTANT]
-> **Environment Setup**<br>
+> [!IMPORTANT] > **Environment Setup**<br>
 > Ensure you have a `.env` file in your project's root directory with the required variables.
 
 ---
@@ -94,7 +101,7 @@ Here’s how you can use `vrc-ts` in your project:
 ```typescript
 import { RequestError, VRChatAPI } from 'vrc-ts';
 
-const api = new VRChatAPI({userAgent: 'ExampleProgram/0.0.1'});
+const api = new VRChatAPI({ userAgent: 'ExampleProgram/0.0.1' });
 main();
 
 async function main() {
@@ -116,7 +123,7 @@ async function main() {
 ```javascript
 const { RequestError, VRChatAPI } = require('vrc-ts');
 
-const api = new VRChatAPI({userAgent: 'ExampleProgram/0.0.1'});
+const api = new VRChatAPI({ userAgent: 'ExampleProgram/0.0.1' });
 main();
 
 async function main() {
@@ -176,18 +183,18 @@ Add it as an optional parameter when instantiating the VRChatAPI class:
 const api = new VRChatAPI({ useCookies: true, cookiePath: './cookies.json' });
 ```
 
-> [!NOTE]
-> **Cookies Path**<br>
+> [!NOTE] > **Cookies Path**<br>
 > If the `COOKIES_PATH` is omitted, cookies will be saved to the default path `./cookies.json`.
 >
 > **Cookies Usage**<br>
 > Cookies are used to maintain session state. If you disable cookies, you may need to re-authenticate on each application start.
-> 
+>
 > This is useful for applications that require a fresh login each time. Otherwise you might get quickly rate limited. (Error 429)
 >
 > ⚠️ Important to note that if you are using cookies, you should be careful with the cookies file. It contains your session information and should be kept secure and private at all times.
 
 ---
+
 ## Authenticating
 
 VRChat requires two-factor authentication (2FA). Depending on your setup (Email OTP or TOTP), follow the steps below:
@@ -211,8 +218,7 @@ VRChat requires two-factor authentication (2FA). Depending on your setup (Email 
 
 3. Restart your application within **15 minutes** to complete authentication.
 
-> [!NOTE]
-> **Email OTP Validity**<br>
+> [!NOTE] > **Email OTP Validity**<br>
 > The Email OTP code is valid for **15 minutes**. Ensure you use it within this time frame.
 
 ### Using TOTP
@@ -234,7 +240,7 @@ VRChat requires two-factor authentication (2FA). Depending on your setup (Email 
 
 3. Restart your application within **30 seconds** to complete authentication.
 
-> [!NOTE] 
+> [!NOTE]
 > **TOTP Code Validity**<br>
 > The TOTP code is valid for **30 seconds**. Ensure you use it promptly.
 
@@ -250,8 +256,7 @@ For automatic 2FA code generation:
 
 2. The application will generate TOTP codes automatically, removing the need for manual entry.
 
-> [!CAUTION]
-> **Security Warning**<br>
+> [!CAUTION] > **Security Warning**<br>
 > Make sure to **never share or commit** your passwords or 2FA secrets. Keep them secure.
 
 ---
@@ -271,8 +276,7 @@ For automatic 2FA code generation:
     const api = new VRChatAPI({});
     ```
 
-> [!NOTE]
-> **Additional .env Options**<br>
+> [!NOTE] > **Additional .env Options**<br>
 > For more options with the `.env` file, check the `.env.example` file in the project.
 
 ---
@@ -287,7 +291,7 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 **Avatars API**:
 
--   `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`
+-   `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`, `getImpostorQueueStats`
 
 **Beta API**:
 
@@ -295,7 +299,7 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 **Economy API**:
 
--   `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`, `getProductListing`, `getTiliaTOS`, `getOwnPurchases`, `getOwnTransactions`, `getTiliaSyncData`, `getBalance`, `getLicenses`, `getUserProductListings`, `listTokenBundles`, `getTiliaStatus`
+-   `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`, `getProductListing`, `getTiliaTOS`, `getOwnPurchases`, `getOwnTransactions`, `getTiliaSyncData`, `getBalance`, `getLicenses`, `getUserProductListings`, `listTokenBundles`, `getTiliaStatus`, `getInfoPush`
 
 **Favorites API**:
 
@@ -337,6 +341,10 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 -   `searchPlayerModerations`, `moderateUser`, `clearAllPlayerModerations`, `getPlayerModeration`, `deletePlayerModeration`, `unmoderateUser`
 
+**Prints API**:
+
+-   `listPrints`
+
 **System API**:
 
 -   `fetchAPIConfig`, `currentOnlineUsers`, `currentSystemTime`
@@ -349,8 +357,7 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 -   `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
 
-> [!CAUTION]
-> **Usage Disclaimer**<br>
+> [!CAUTION] > **Usage Disclaimer**<br>
 > Some endpoints may not yet be fully implemented or require more testing. Use them at your own discretion. VRChat's API is not officially documented, and this project relies on community efforts.
 
 > [!TIP]  
@@ -406,8 +413,7 @@ ws.on(EventType.Friend_Online, (data) => {
 });
 ```
 
-> [!WARNING]
-> **Authentication Required**<br>
+> [!WARNING] > **Authentication Required**<br>
 > A valid `authToken` is required. Ensure you authenticate with the API before initializing the WebSocket.
 
 ### Specifying Events to Listen To
@@ -519,8 +525,7 @@ VRChat's API may return a 429 error if too many requests are made in a short per
 -   Use the built-in cookies manager to maintain session state.
 -   Avoid creating multiple sessions in quick succession.
 
-> [!TIP]
-> **Error 429 - Too Many Requests**<br>
+> [!TIP] > **Error 429 - Too Many Requests**<br>
 > This error might occur if you make too many requests consecutively. You might not be able to make any requests or some specific requests for a moment.<br>
 > VRChat does not disclose the rate limit of their API, so be cautious.<br>
 > Additionally, if you decide **not** to use cookies, ensure you understand the implications. Creating multiple logged-in sessions can quickly result in a 429 error.
@@ -543,8 +548,7 @@ Ensure that your application complies with VRChat's [TERMS OF SERVICE](https://h
 > > \
 > > Please see our latest API usage guidelines at the bottom of our Creators Guidelines. \
 
-> [!WARNING]
-> **Disclaimer**<br>
+> [!WARNING] > **Disclaimer**<br>
 > This project is not affiliated with VRChat Inc. Use of this package must comply with VRChat's [Terms of Service](https://hello.vrchat.com/legal) and [Community Guidelines](https://hello.vrchat.com/community-guidelines). I am not responsible for any misuse of this package.
 
 ---

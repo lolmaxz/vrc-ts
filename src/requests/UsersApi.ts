@@ -79,6 +79,7 @@ export class UsersApi extends BaseApi {
         bioLinks,
         userIcon,
         pronouns,
+        ageVerificationStatus,
     }: User.updateUserByIdRequest): Promise<User.CurrentUser> {
         const body: User.dataKeysUpdateUser = {};
 
@@ -90,6 +91,7 @@ export class UsersApi extends BaseApi {
         if (bioLinks) body.bioLinks = bioLinks;
         if (userIcon) body.userIcon = userIcon;
         if (pronouns) body.pronouns = pronouns;
+        if (ageVerificationStatus) body.ageVerificationStatus = ageVerificationStatus;
 
         if (statusDescription) {
             if (statusDescription.length > 32) throw new Error('Status description must be 32 characters or less!');

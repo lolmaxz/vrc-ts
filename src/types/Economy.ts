@@ -237,7 +237,12 @@ export type SyncData = {
 };
 
 export type Balance = {
+    /** The balance of your account */
     balance: number;
+    /** The field is true if you haven't done any transaction yet */
+    noTransactions?: boolean;
+    /** This field is true if you have interacted with the Tilia system */
+    tiliaResponse: boolean;
 };
 
 export enum TiliaTypes {
@@ -546,7 +551,7 @@ export type BalanceResult = {
 };
 
 export type TOS = {
-    /** If you have accepted the Tilia TOS or not */
+    /** If you have accepted the latest Tilia TOS or not */
     signed_tos: boolean;
 };
 

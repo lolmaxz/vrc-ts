@@ -21,6 +21,7 @@ import { JamsApi } from './requests/JamsApi';
 import { NotificationsApi } from './requests/NotificationsApi';
 import { PermissionsApi } from './requests/PermissionsApi';
 import { PlayerModerationApi } from './requests/PlayerModerationApi';
+import { PrintsApi } from './requests/PrintsApi';
 import { SystemApi } from './requests/SystemApi';
 import { UsersApi } from './requests/UsersApi';
 import { WorldsApi } from './requests/WorldsApi';
@@ -73,6 +74,7 @@ export class VRChatAPI {
     notificationApi: NotificationsApi = new NotificationsApi(this);
     permissionApi: PermissionsApi = new PermissionsApi(this);
     playermoderationApi: PlayerModerationApi = new PlayerModerationApi(this);
+    printsApi: PrintsApi = new PrintsApi(this);
     systemApi: SystemApi = new SystemApi(this);
     userApi: UsersApi = new UsersApi(this);
     worldApi: WorldsApi = new WorldsApi(this);
