@@ -5,7 +5,7 @@ Changelogs: [CHANGELOG Link](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGEL
 
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically. Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
 
-## Important note about 1.0.6
+## Important notes if updating from prior to 1.0.6
 <details>
 <summary>⚠️ Please Read This If You Are Updating From 1.0.5 or Lower</summary>
 
@@ -287,7 +287,7 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 **Avatars API**:
 
--   `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`
+-   `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`, `getImpostorQueueStats`
 
 **Beta API**:
 
@@ -295,7 +295,7 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 **Economy API**:
 
--   `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`, `getProductListing`, `getTiliaTOS`, `getOwnPurchases`, `getOwnTransactions`, `getTiliaSyncData`, `getBalance`, `getLicenses`, `getUserProductListings`, `listTokenBundles`, `getTiliaStatus`
+-   `listSteamTransactions`, `getSteamTransaction`, `getCurrentSubscriptions`, `listSubscriptions`, `getLicenseGroup`, `getProductListing`, `getTiliaTOS`, `getOwnPurchases`, `getOwnTransactions`, `getTiliaSyncData`, `getBalance`, `getLicenses`, `getUserProductListings`, `listTokenBundles`, `getTiliaStatus`, `getInfoPush`
 
 **Favorites API**:
 
@@ -336,6 +336,10 @@ Here is the full list of endpoints by category that this wrapper implements. For
 **Playermoderations API**:
 
 -   `searchPlayerModerations`, `moderateUser`, `clearAllPlayerModerations`, `getPlayerModeration`, `deletePlayerModeration`, `unmoderateUser`
+
+**Prints API**:
+
+-   `listPrints`
 
 **System API**:
 

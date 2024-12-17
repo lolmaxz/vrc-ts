@@ -83,7 +83,7 @@ export type CurrentUser = {
     developerType: DeveloperType;
     last_login: string;
     last_platform: string;
-    ageVerificationStatus: AgeVerificationStatus | string;
+    ageVerificationStatus: AgeVerificationStatus;
     ageVerified: boolean;
     isAdult: boolean;
     allowAvatarCopying: boolean;
@@ -117,10 +117,21 @@ export type CurrentUser = {
     last_mobile?: string;
 };
 
+/**
+ * ### Age Verification Status
+ * ##### This enum represents the possible age verification statuses for a user.
+ *
+ * .
+ *
+ * **Here are the possible values:**
+ * * Hidden : "hidden" - The user's age verification status is hidden.
+ * * Age_Verified : "verified" - The user's age is verified.
+ * * Verified_18_Plus : "18+" - The user is verified to be 18 years or older.
+ */
 export enum AgeVerificationStatus {
     Hidden = 'hidden',
-    Age_Verified = 'age_verified', //! PLACEHOLDER
-    Verified_18_Plus = 'verified_18_plus', //! PLACEHOLDER
+    Age_Verified = 'verified',
+    Verified_18_Plus = '18+',
 }
 
 export type currentUserOrTwoFactorType = twoFactorAuthResponseType | CurrentUser;
@@ -490,6 +501,11 @@ export type dataKeysUpdateUser = {
     userIcon?: FileIdType;
     /** The user's preferred pronouns. */
     pronouns?: string;
+    /** The age verification status of the user.
+     *
+     * You need to have been age verified to set this to "verified" or "18+".
+     */
+    ageVerificationStatus?: AgeVerificationStatus;
 };
 
 /** Information required to update a user's information. */

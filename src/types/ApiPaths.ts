@@ -23,6 +23,7 @@ export const ApiPaths: APIPaths = {
         selectAvatar: { path: "/avatars/{avatarId}/select", method: "PUT", cookiesNeeded: ["authCookie"] },
         selectFallbackAvatar: { path: "/avatars/{avatarId}/selectFallback", method: "PUT", cookiesNeeded: ["authCookie"] },
         listFavoritedAvatars: { path: "/avatars/favorites", method: "GET", cookiesNeeded: ["authCookie"] },
+        getImpostorQueueStats: { path: "/avatars/impostor/queue/stats", method: "GET", cookiesNeeded: ["authCookie"], notImplemented: true },
     },
     beta: {
         getIOSClosedBetaInformation: { path: "/beta/ios-closed-beta", method: "GET", cookiesNeeded: ["authCookie"] },
@@ -37,12 +38,13 @@ export const ApiPaths: APIPaths = {
         getUserProductListings: { path: "/user/{userId}/listings", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         listTokenBundles: { path: "/tokenBundles", method: "GET", cookiesNeeded: ["authCookie"] },
         getTiliaStatus: { path: "/tilia/status", method: "GET", cookiesNeeded: ["authCookie"] },
-        getTiliaTOS: { path: "/user/{userId}/tilia/tos", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"], requiresData:true },
+        getTiliaTOS: { path: "/user/{userId}/tilia/tos", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getBalance: { path: "/user/{userId}/balance", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
         getOwnPurchases: { path: "/economy/purchases", method: "GET", cookiesNeeded: ["authCookie"] },
         getOwnTransactions: { path: "/economy/transactions", method: "GET", cookiesNeeded: ["authCookie"] },
         getTiliaSyncData: { path: "/tilia/sync", method: "PUT", cookiesNeeded: ["authCookie"] },
         getLicenses: { path: "/licenses/{licenseId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["licenseId"] },
+        getInfoPush: { path: "/infoPush", method: "GET", cookiesNeeded: ["authCookie"], notImplemented: true },
     },
     favorites: {
         listFavorites: { path: "/favorites", method: "GET", cookiesNeeded: ["authCookie"] },
@@ -144,6 +146,12 @@ export const ApiPaths: APIPaths = {
         getJamInfo: { path: "/jams/{jamId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["jamId"] },
         getJamSubmissions: { path: "/jams/{jamId}/submissions", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["jamId"] },
     },
+    medias: {
+        getUserIcons: { path: "/files", method: "GET", cookiesNeeded: ["authCookie"], notImplemented: true },
+        getUserEmojis: { path: "/files", method: "GET", cookiesNeeded: ["authCookie"], notImplemented: true },
+        getUserPhotos: { path: "/files", method: "GET", cookiesNeeded: ["authCookie"], notImplemented: true },
+        getUserStickers: { path: "/files", method: "GET", cookiesNeeded: ["authCookie"], notImplemented: true },
+    },
     notifications: {
         listNotifications: { path: "/auth/user/notifications", method: "GET", cookiesNeeded: ["authCookie"] },
         acceptFriendRequest: { path: "/auth/user/notifications/{notificationId}/accept", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["notificationId"] },
@@ -163,6 +171,9 @@ export const ApiPaths: APIPaths = {
         getPlayerModeration: { path: "/auth/user/playermoderations/{playerModerationId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["playerModerationId"] },
         deletePlayerModeration: { path: "/auth/user/playermoderations/{playerModerationId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["playerModerationId"] },
         unmoderateUser: { path: "/auth/user/unplayermoderate", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true },
+    },
+    prints: {
+        listPrints: { path: "/prints/user/{userId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["userId"] },
     },
     system: {
         fetchAPIConfig: { path: "/config", method: "GET", cookiesNeeded: ["none"] },

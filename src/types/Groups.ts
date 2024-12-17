@@ -45,6 +45,7 @@ export type Group = {
     roles?: GroupRole[];
     badges?: string[]; // new attribute
     isRepresenting?: boolean; // new attribute
+    ageVerificationSlotsAvailable?: boolean; // new attribute
 };
 
 export type LimitedGroup = {

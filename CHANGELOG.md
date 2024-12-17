@@ -1,3 +1,30 @@
+# Changelog 1.0.7 [ - December 17rd, 2024 - ]
+
+## Added
+
+-   **ADDED PRINTS API ENDPOINTS**
+-   **[PRINTS API]** `listPrints` endpoint added
+-   **[AVATAR API]** **Added new Endpoint** `getImpostorQueueStats`
+-   **[ECONOMY API]** **Added new Endpoint** `getInfoPush`
+-   **[FILE API]** **Added new Type** `FileEmojis`
+-   **[FILE API]** **Added new Enum** `AnimationStyle`
+-   **[FILE API]** **Added new Enum** `MaskType`
+-   **[FILE API]** **Added new Enum** `PerformanceTypes`
+-   **[FILE API]** **Added new Enum** `MediaType` // Will be used in a future version
+
+## Updated
+
+-   **[USER API]** Fixed new Enum for Age Verification types. `AgeVerificationStatus`
+-   **[USER API]** You can now update your Verification Status on your own profile if you are verified.
+-   **[ECONOMY API]** **UPDATED TYPE** `Balance` - Added attribute `noTransactions`and`tiliaResponse``
+-   **[FILE API]** **UPDATED TYPE** `UnityPackageAvatar` - Added attribute `performanceRating` and `impostorizerVersion`
+-   **GENERICS** **Added new Tag** `admin_age_verification_enabled`
+-   **GENERICS** **Added new ID Type** `PrintIdType` - New ID type for prints
+-   **GENERICS** **Updated ID Type** `PlayerModerationObjectIdType` - Fixed the format
+-   **[GROUP API]** **UPDATED TYPE** `Group` - Added attribute `ageVerificationSlotsAvailable`
+
+This update is perfect to start automating age verification using VRChat's new Age Verification system.
+
 # Changelog 1.0.6 [ - December 5rd, 2024 - ]
 
 ## Changes to VRChatApi Class

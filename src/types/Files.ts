@@ -27,7 +27,18 @@ export type UnityPackageAvatar = {
     variant?: string;
     pluginUrl?: string;
     pluginUrlObject?: object;
+    performanceRating?: PerformanceTypes;
+    impostorizerVersion?: string;
 };
+
+export enum PerformanceTypes {
+    None = 'None',
+    Excellent = 'Excellent',
+    Good = 'Good',
+    Medium = 'Medium',
+    Poor = 'Poor',
+    Very_Poor = 'VeryPoor',
+}
 
 export enum fileDataStatus {
     waiting = 'waiting',
@@ -162,6 +173,50 @@ export type FileAnalysis = {
     uncompressedSize: number;
 };
 
+export type FileEmojis = File & {
+    animationStyle: AnimationStyle;
+    maskTag: MaskType;
+};
+
+export enum AnimationStyle {
+    MONEY = 'money',
+    LIKE = 'like',
+    DISLIKE = 'dislike',
+    PIZZA = 'pizza',
+    SPLASH = 'splash',
+    CLOUD = 'cloud',
+    FIRE = 'fire',
+    SNOW = 'snow',
+    NOISE = 'noise',
+    BATS = 'bats',
+    CRYING = 'crying',
+    SNOWBALL = 'snowball',
+    MISTLETOE = 'mistletoe',
+    ZZZ = 'zzz',
+    STOP = 'stop',
+    CONFETTI = 'confetti',
+    AURA = 'aura',
+    BEES = 'bees',
+    BOUNCE = 'bounce',
+    IDEA = 'idea',
+    LASERS = 'lasers',
+    MAGNET = 'magnet',
+    ORBIT = 'orbit',
+    RAIN = 'rain',
+    ROTATE = 'rotate',
+    SHAKE = 'shake',
+    SPIN = 'spin',
+}
+
+export enum MaskType {
+    SQUARE = 'square',
+    CIRCLE = 'circle',
+    STAR = 'star',
+    HEART = 'heart',
+    FLOWER = 'flower',
+    POW = 'pow',
+}
+
 // !-- Requests --! //
 
 /** Information required to request a list of files. */
@@ -258,3 +313,10 @@ export type FileVersionAnalysisSecurityRequest = FileId & VersionId;
 
 /** The data for requesting to show a file version's Standard Data */
 export type FileVersionAnalysisStandardRequest = FileId & VersionId;
+
+export enum MediaType {
+    ICONS = 'icons',
+    PHOTOS = 'gallery',
+    EMOJIS = 'emojis',
+    STICKERS = 'stickers',
+}
