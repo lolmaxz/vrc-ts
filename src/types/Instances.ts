@@ -67,6 +67,8 @@ export type Instance = {
     hasCapacityForYou?: boolean;
     /** The time the instance was closed at. */
     closedAt?: string;
+    /** If the instance requires to be age verified or not. */
+    ageGate: boolean;
 };
 
 export type InstanceShortName = {

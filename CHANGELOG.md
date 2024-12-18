@@ -1,3 +1,13 @@
+# Changelog 1.0.10 [ - December 18rd, 2024 - ]
+
+## Updated
+
+-   **[INSTANCE API]** **UPDATED TYPE** `Instance` - Added attribute `ageGate` - This will tell you if the instance has an age gate or not
+-   **[USER API]** **ADJUSTED FUNCTION** `isVRCPlusSubcriber` and `getVRCRankTags` - These functions can now be used by LimitedUser and LimitedUserFriend
+
+-   ⚠️ **Updated VRChatAPI Constructor to now include the possibility to give a 2FA Secret code to it to automatically log-in. New Attribute name is `TwoFactorAuthSecret`.** This is useful if you have 2FA enabled on your account. This will allow you to log in without having to manually enter the 2FA code every time you log in. This is a security risk, so use it with caution. This is an alternative to using the .env file to store the 2FA code. This is useful if you want to use the library in a script that runs automatically and you don't want to have to enter the 2FA code every time you run the script or if you have a user input the 2FA code every time they run the script, or similar. If you specify the 2FA Secret in the constructor, it will take over whatever you've put in the .env file.
+-   Readme updated to reflect this change.
+
 # Changelog 1.0.9 [ - December 17rd, 2024 - ]
 
 ## Fixes

@@ -35,6 +35,7 @@ export type VRCApiParams = {
     userAgent?: string;
     EmailOTPCode?: string;
     TOTPCode?: string;
+    TwoFactorAuthSecret?: string;
     useCookies?: boolean;
     cookiePath?: string;
 };
@@ -58,6 +59,7 @@ export class VRChatAPI {
     currentUser: CurrentUser | null = null;
     TOTPCode: string = process.env.TOTP_2FA_CODE || '';
     EmailOTPCode: string = process.env.EMAIL_2FA_CODE || '';
+    TwoFactorAuthSecret = process.env.VRCHAT_2FA_SECRET || '';
     useCookies: boolean = process.env.USE_COOKIES === 'true' || false;
 
     authApi: AuthApi = new AuthApi(this);
@@ -79,7 +81,16 @@ export class VRChatAPI {
     userApi: UsersApi = new UsersApi(this);
     worldApi: WorldsApi = new WorldsApi(this);
 
-    constructor({ username, password, userAgent, EmailOTPCode, TOTPCode, useCookies, cookiePath }: VRCApiParams) {
+    constructor({
+        username,
+        password,
+        userAgent,
+        EmailOTPCode,
+        TOTPCode,
+        TwoFactorAuthSecret,
+        useCookies,
+        cookiePath,
+    }: VRCApiParams) {
         if (username) {
             this.username = username;
         } else {
@@ -105,6 +116,12 @@ export class VRChatAPI {
             this.TOTPCode = TOTPCode;
         } else {
             this.TOTPCode = process.env.TOTP_2FA_CODE || '';
+        }
+
+        if (TwoFactorAuthSecret) {
+            this.TwoFactorAuthSecret = TwoFactorAuthSecret;
+        } else {
+            this.TwoFactorAuthSecret = process.env.VRCHAT_2FA_SECRET || '';
         }
 
         if (useCookies) {

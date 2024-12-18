@@ -1,6 +1,6 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
-Latest version: **v1.0.9**<br>
+Latest version: **v1.0.10**<br>
 Changelogs: [CHANGELOG Link](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGELOG.md)
 
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically. Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
@@ -240,7 +240,7 @@ VRChat requires two-factor authentication (2FA). Depending on your setup (Email 
 
 3. Restart your application within **30 seconds** to complete authentication.
 
-> [!NOTE]
+> [!NOTE]  
 > **TOTP Code Validity**<br>
 > The TOTP code is valid for **30 seconds**. Ensure you use it promptly.
 
@@ -252,6 +252,14 @@ For automatic 2FA code generation:
 
     ```dotenv
     VRCHAT_2FA_SECRET=YOUR_32_CHARACTER_SECRET
+    ```
+
+    or
+
+    Add it as an optional parameter when instantiating the VRChatAPI class:
+
+    ```typescript
+    const api = new VRChatAPI({ TwoFactorAuthSecret: 'YOUR_32_CHARACTER_SECRET' });
     ```
 
 2. The application will generate TOTP codes automatically, removing the need for manual entry.
