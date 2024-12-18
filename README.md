@@ -240,7 +240,8 @@ VRChat requires two-factor authentication (2FA). Depending on your setup (Email 
 
 3. Restart your application within **30 seconds** to complete authentication.
 
-> [!NOTE] > **TOTP Code Validity**<br>
+> [!NOTE]
+> **TOTP Code Validity**<br>
 > The TOTP code is valid for **30 seconds**. Ensure you use it promptly.
 
 ### Using `VRCHAT_2FA_SECRET`
