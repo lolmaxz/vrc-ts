@@ -1,6 +1,6 @@
 {
     "name": "vrc-ts",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "description": "A Complete VRChat Wrapper in TypeScript",
     "type": "module",
     "main": "./dist/index.cjs",
@@ -11,7 +11,7 @@
     ],
     "scripts": {
         "build": "tsup src/index.ts --format cjs,esm --dts --clean --sourcemap",
-        "test": "jest --verbose",
+        "test": "jest --verbose --silent=false",
         "dev": "ts-node src/main.ts",
         "check-exports": "attw --pack .",
         "prepare": "tsc",

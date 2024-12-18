@@ -87,27 +87,45 @@ export class AuthApi extends BaseApi {
      */
     public async verify2FACodeTOTP(): Promise<verify2FATOTPResponse> {
         let code = '';
-        const envCode = process.env.TOTP_2FA_CODE;
+        const TOTPCode = process.env.TOTP_2FA_CODE || this.baseClass.TOTPCode || '';
 
         // we use .env file for generating the code here
-        if (!envCode || envCode.length !== 6) {
+        if (!TOTPCode || TOTPCode.length !== 6) {
             // we generate the code
-            if (
-                process.env.VRCHAT_2FA_SECRET === undefined ||
-                (process.env.VRCHAT_2FA_SECRET && process.env.VRCHAT_2FA_SECRET.length < 32)
-            ) {
-                throw new TOTPRequired("Bad or no 2FA secret was provided in 'VRCHAT_2FA_SECRET' !");
+            if (this.baseClass.TwoFactorAuthSecret === '') {
+                if (
+                    process.env.VRCHAT_2FA_SECRET === undefined ||
+                    (process.env.VRCHAT_2FA_SECRET && process.env.VRCHAT_2FA_SECRET.length < 32)
+                ) {
+                    throw new TOTPRequired(
+                        "No TOTP Given + Bad or no 2FA secret was provided in 'VRCHAT_2FA_SECRET' or in the Instanciation of the API !"
+                    );
+                }
             }
             // secret was correctly set now we compute it
             console.log('Using generated 2FA code from secret key...');
 
-            code = totp(process.env.VRCHAT_2FA_SECRET);
+            let key = '';
+            if (this.baseClass.TwoFactorAuthSecret !== '') {
+                key = this.baseClass.TwoFactorAuthSecret;
+            } else {
+                key = process.env.VRCHAT_2FA_SECRET as string;
+            }
+
+            code = totp(key);
         } else {
             // we use the code from .env file
-            if (process.env.TOTP_2FA_CODE === undefined || process.env.TOTP_2FA_CODE.length !== 6) {
-                throw new TOTPRequired("Bad or no 2FA code was provided in 'TOTP_2FA_CODE' !");
+            if (this.baseClass.TOTPCode === '') {
+                if (process.env.TOTP_2FA_CODE === undefined || process.env.TOTP_2FA_CODE.length !== 6) {
+                    throw new TOTPRequired(
+                        "Bad or no 2FA code was provided in 'TOTP_2FA_CODE' or in the Instanciation of the API !"
+                    );
+                }
+
+                code = process.env.TOTP_2FA_CODE;
+            } else {
+                code = this.baseClass.TOTPCode;
             }
-            code = process.env.TOTP_2FA_CODE;
         }
 
         if (!this.regexCode.test(code))
@@ -140,11 +158,13 @@ export class AuthApi extends BaseApi {
      */
     public async verify2FAEmailCode(): Promise<verify2FAEmailResponse> {
         let code = '';
-        const envCode = process.env.EMAIL_2FA_CODE;
+        const envCode = this.baseClass.EmailOTPCode || process.env.EMAIL_2FA_CODE || '';
 
         // we use the code from .env file
         if (!envCode || envCode.length !== 6)
-            throw new EmailOtpRequired("Bad or no 2FA code was provided in 'EMAIL_2FA_CODE' in .env file. !");
+            throw new EmailOtpRequired(
+                "Bad or no 2FA code was provided in 'EMAIL_2FA_CODE' in .env file or in the API !"
+            );
         if (this.baseClass.instanceCookie.isSameEmailCode())
             throw new EmailOtpRequired(
                 'The provided 2FA code is the same as the one from the last request! Please provide a new one.'

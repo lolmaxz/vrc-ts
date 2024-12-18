@@ -251,7 +251,9 @@ export type VRCRankResult = {
  *
  * *Complete rewrite of this part, now way more optimized.*
  */
-export function getVRCRankTags(user: User.User | User.CurrentUser | User.LimitedUser): VRCRankResult {
+export function getVRCRankTags(
+    user: User.User | User.CurrentUser | User.LimitedUser | User.LimitedUserFriend
+): VRCRankResult {
     // the highest vrcrank we can find in the user's tag is the rank of the user we should return
     // Determine if the user is a troll
     const isTroll = user.tags.includes(User.VRCRanks.Nuisance) || user.tags.includes('system_probable_troll');
@@ -277,6 +279,6 @@ export function getVRCRankTags(user: User.User | User.CurrentUser | User.Limited
  * @param user The User object to check if it is a VRChat User with a current VRC+ subscription.
  * @returns `true` if the user is a VRChat User with a current VRC+ subscription, `false` otherwise.
  */
-export function isVRCPlusSubcriber(user: User.User): boolean {
+export function isVRCPlusSubcriber(user: User.User | User.LimitedUser | User.LimitedUserFriend): boolean {
     return user.tags.includes('system_supporter');
 }
