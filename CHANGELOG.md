@@ -1,3 +1,9 @@
+# Changelog 1.0.9 [ - December 17rd, 2024 - ]
+
+## Fixes
+
+-   [WEBSOCKET] Fixed an issue where the websocket would not get the User-Agent from the VRChatApi class
+
 # Changelog 1.0.8 [ - December 17rd, 2024 - ]
 
 ## Added
