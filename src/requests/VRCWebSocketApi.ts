@@ -166,7 +166,7 @@ export class VRCWebSocket extends WebSocket {
     constructor({ vrchatAPI, eventsToListenTo = [], logAllEvents = false }: WebSocketParameters) {
         super(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
             headers: {
-                'user-agent': process.env.USER_AGENT || 'ExampleProgram/0.0.1 my@email.com',
+                'user-agent': vrchatAPI.headerAgent || 'ExampleProgram/0.0.1 my@email.com',
             },
         });
 
