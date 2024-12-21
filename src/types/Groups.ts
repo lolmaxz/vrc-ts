@@ -926,7 +926,12 @@ export type joinGroupRequest = GroupId;
 export type leaveGroupRequest = GroupId;
 
 /** Information Required to request to get a group's members. */
-export type listGroupMembersRequest = GroupId & Quantity & Offset & groupMemberSort;
+export type listGroupMembersRequest = GroupId &
+    Quantity &
+    Offset &
+    groupMemberSort & {
+        roleId?: GroupRoleIdType;
+    };
 
 /** Information Required to request to get a group's member. */
 export type getGroupMemberRequest = GroupId & UserId;

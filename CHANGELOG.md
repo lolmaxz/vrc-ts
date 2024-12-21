@@ -1,3 +1,10 @@
+# Changelog 1.0.11 [ - December 21rd, 2024 - ]
+
+## Updated
+
+-   **[GROUP API]** **UPDATED REQUEST** `listGroupMembers` - Added parameter `roleId` - This will allow you to filter the members of a group by a specific role
+-   **WEBSOCKET** - Better wording for the console logs when the websocket is connected or reconnected
+
 # Changelog 1.0.10 [ - December 18rd, 2024 - ]
 
 ## Updated

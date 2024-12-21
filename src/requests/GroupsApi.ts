@@ -715,7 +715,7 @@ export class GroupsApi extends BaseApi {
      * Returns a List of all other Group Members. This endpoint will never return the user calling the endpoint.
      *
      * Information about the user calling the endpoint must be found in the myMember field of the Group object.
-     * @param listGroupMembersRequest - { groupId, n, offset, sort }
+     * @param listGroupMembersRequest - { groupId, n, offset, sort, roleId }
      * @returns
      */
     public async listGroupMembers({
@@ -723,6 +723,7 @@ export class GroupsApi extends BaseApi {
         n,
         offset,
         sort,
+        roleId,
     }: Group.listGroupMembersRequest): Promise<Group.GroupMember[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
@@ -731,6 +732,7 @@ export class GroupsApi extends BaseApi {
         parameters.append('n', n?.toString() || '60');
         if (offset && offset >= 0) parameters.append('offset', offset.toString());
         if (sort) parameters.append('sort', sort);
+        if (roleId) parameters.append('roleId', roleId);
 
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.listGroupMembers,
