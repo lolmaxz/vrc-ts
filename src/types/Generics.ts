@@ -1,4 +1,4 @@
-import { createAvatarOption, updateAvatarOption } from './Avatars';
+import { createAvatarOption, dataKeysCreateImpostor, dataKeysDeleteImpostor, updateAvatarOption } from './Avatars';
 import {
     GetLicenseGroupRequest,
     GetLicenseRequest,
@@ -198,6 +198,8 @@ export type APIPaths = {
         selectFallbackAvatar: subSectionType;
         listFavoritedAvatars: subSectionType;
         getImpostorQueueStats: subSectionType;
+        generateImpostor: subSectionType;
+        deleteImpostor: subSectionType;
     };
     beta: {
         getIOSClosedBetaInformation: subSectionType;
@@ -432,7 +434,9 @@ export type dataSetKeys =
     | dataKeysCreateGroupInstance
     | dataKeysGetUserSubmittedFeedback
     | dataKeysUpdateUserNote
-    | dataKeysRespondToNotificationRequest;
+    | dataKeysRespondToNotificationRequest
+    | dataKeysCreateImpostor
+    | dataKeysDeleteImpostor;
 
 export type dataKeys2Fa = {
     code: string;

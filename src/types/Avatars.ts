@@ -1,5 +1,5 @@
 import { UnityPackageAvatar } from './Files';
-import { AllTags, AvatarIdType, SearchOrderOptions, SearchSortingOptions, UserIdType } from './Generics';
+import { AllTags, AvatarIdType, BaseId, SearchOrderOptions, SearchSortingOptions, UserIdType } from './Generics';
 
 //! --- Avatars --- !//
 
@@ -56,6 +56,28 @@ export enum AvatarReleaseStatus {
     Hidden = 'hidden',
     All = 'all',
 }
+
+/**
+ * Impostor Creation Status
+ **/
+export type ImpostorCreation = {
+    created_at: string;
+    id: BaseId;
+    progress: unknown[];
+    requesterUserId: string;
+    state: string; // Always seems to be "QUEUED"
+    subjectId: AvatarIdType;
+    subjectType: string; // Always seems to be "avatar"
+    type: 'IMPOSTORIZE'; // Always seems to be "IMPOSTORIZE"
+    updated_at: string;
+};
+
+/**
+ * Impostor Deletion Status
+ **/
+export type ImpostorDeletion = {
+    removed: number;
+};
 
 //! --- Requests --- !//
 
@@ -204,4 +226,12 @@ export type listFavoritedAvatarsOption = {
     platform?: string;
     /** The UserId of the user who uploaded the avatar */
     userId?: UserIdType;
+};
+
+export type dataKeysCreateImpostor = {
+    avatarId: AvatarIdType;
+};
+
+export type dataKeysDeleteImpostor = {
+    avatarId: AvatarIdType;
 };

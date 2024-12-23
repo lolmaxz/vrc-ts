@@ -1,3 +1,12 @@
+# Changelog 1.0.12 [ - December 22rd, 2024 - ]
+
+## Updated
+
+-   **WEBSOCKET** - Added a new constructor parameter `customURL` and `customUserAgent` - This will allow you to specify a custom URL and User-Agent for the websocket connection. The custom URL will override the default URL for the websocket connection. The custom User-Agent will override the default User-Agent for the websocket connection.
+
+-   **[AVATAR API]** **ADDED NEW ENDPOINT** `generateImpostor` - This will allow you to generate an impostor for a specific avatar, requires an avatarId
+-   **[AVATAR API]** **ADDED NEW ENDPOINT** `deleteImpostor` - This will allow you to delete an impostor for a specific avatar, requires an avatarId
+
 # Changelog 1.0.11 [ - December 21rd, 2024 - ]
 
 ## Updated

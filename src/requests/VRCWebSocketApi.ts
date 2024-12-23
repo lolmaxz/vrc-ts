@@ -112,17 +112,21 @@ export enum EventType {
 
 type WebSocketParameters = {
     /** The VRChat API instance */
-    vrchatAPI: VRChatAPI;
+    vrchatAPI?: VRChatAPI;
     /** An array of events to listen to. If empty or ommited, then it will listen to all events. */
     eventsToListenTo?: EventType[];
     /** If true, then it will log all events to the console. */
     logAllEvents?: boolean;
+    /** The custom URL to connect the WebSocket to. */
+    customURL?: string;
+    /** The custom User Agent to connect with. */
+    customUserAgent?: string;
 };
 
 export class VRCWebSocket extends WebSocket {
     private heartbeatInterval: NodeJS.Timeout | null = null;
     public lastPingTimestamp: number | null = null;
-    private baseClass: VRChatAPI;
+    private baseClass?: VRChatAPI;
     badLoginDetected = false;
     lastPing: number = Date.now();
     private reconnectAttempts = 0;
@@ -163,12 +167,31 @@ export class VRCWebSocket extends WebSocket {
      *
      * .
      */
-    constructor({ vrchatAPI, eventsToListenTo = [], logAllEvents = false }: WebSocketParameters) {
-        super(`wss://vrchat.com/?authToken=${vrchatAPI.instanceCookie.getAuthCookieKey()}`, {
-            headers: {
-                'user-agent': vrchatAPI.headerAgent || 'ExampleProgram/0.0.1 my@email.com',
-            },
-        });
+    constructor({
+        vrchatAPI,
+        eventsToListenTo = [],
+        logAllEvents = false,
+        customURL,
+        customUserAgent,
+    }: WebSocketParameters) {
+        if (!vrchatAPI && !customURL) {
+            throw new Error('You need to provide either a VRChat API instance or a custom URL to connect to!');
+        }
+        if (customURL && !customUserAgent && !vrchatAPI) {
+            throw new Error(
+                'You need to provide a custom User Agent if you are using a custom URL and no VRChat API instance!'
+            );
+        }
+        super(
+            customURL || vrchatAPI !== undefined
+                ? `wss://vrchat.com/?authToken=${vrchatAPI?.instanceCookie.getAuthCookieKey()}`
+                : '',
+            {
+                headers: {
+                    'user-agent': customUserAgent || vrchatAPI?.headerAgent || 'ExampleProgram/0.0.1 my@email.com',
+                },
+            }
+        );
 
         this.eventsToListenTo = eventsToListenTo;
 
@@ -332,7 +355,9 @@ export class VRCWebSocket extends WebSocket {
     }
 
     private onOpen(): void {
-        console.log('WebSocket Client Connecting as ' + this.baseClass.username + ' ...');
+        console.log(
+            'WebSocket Client Connected' + (this.baseClass !== undefined ? 'as ' + this.baseClass.username : '')
+        );
         this.startHeartbeat();
 
         // Reset reconnection attempts on a successful connection
@@ -521,7 +546,7 @@ export class VRCWebSocket extends WebSocket {
 
         setTimeout(() => {
             this.reconnectAttempts++;
-            console.log('Reconnecting...');
+            console.log('Reconnected!');
             super.resume();
             super.on('open', this.onOpen.bind(this));
             super.on('message', this.onMessage.bind(this));

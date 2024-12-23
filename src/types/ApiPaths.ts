@@ -24,6 +24,8 @@ export const ApiPaths: APIPaths = {
         selectFallbackAvatar: { path: "/avatars/{avatarId}/selectFallback", method: "PUT", cookiesNeeded: ["authCookie"] },
         listFavoritedAvatars: { path: "/avatars/favorites", method: "GET", cookiesNeeded: ["authCookie"] },
         getImpostorQueueStats: { path: "/avatars/impostor/queue/stats", method: "GET", cookiesNeeded: ["authCookie"], notImplemented: true },
+        generateImpostor: { path: "/avatars/{avatarId}/impostor/enqueue", method: "POST", cookiesNeeded: ["authCookie"], requiredQueryParams: ["avatarId"] },
+        deleteImpostor: { path: "/avatars/{avatarId}/impostor", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["avatarId"] },
     },
     beta: {
         getIOSClosedBetaInformation: { path: "/beta/ios-closed-beta", method: "GET", cookiesNeeded: ["authCookie"] },

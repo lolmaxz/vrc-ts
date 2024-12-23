@@ -1,6 +1,6 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
-Latest version: **v1.0.11**<br>
+Latest version: **v1.0.12**<br>
 Changelogs: [CHANGELOG Link](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGELOG.md)
 
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically. Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
@@ -297,7 +297,7 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 **Avatars API**:
 
--   `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`, `getImpostorQueueStats`
+-   `getOwnAvatar`, `searchAvatars`, `createAvatar`, `getAvatar`, `updateAvatar`, `deleteAvatar`, `selectAvatar`, `selectFallbackAvatar`, `listFavoritedAvatars`, `getImpostorQueueStats`, `generateImpostor`, `deleteImpostor`
 
 **Beta API**:
 
@@ -391,7 +391,6 @@ const api = new VRChatAPI({});
 const ws = new VRCWebSocket({
     vrchatAPI: api,
     eventsToListenTo: [EventType.All],
-    logAllEvents: false,
 });
 
 // Listening to friend online events
@@ -410,7 +409,6 @@ const api = new VRChatAPI({});
 const ws = new VRCWebSocket({
     vrchatAPI: api,
     eventsToListenTo: [EventType.All],
-    logAllEvents: false,
 });
 
 // Listening to friend online events
@@ -424,7 +422,7 @@ ws.on(EventType.Friend_Online, (data) => {
 
 ### Specifying Events to Listen To
 
-You can specify which events you want to listen to:
+You can specify which events you want to listen to (Default: `EventType.All`):
 
 ```typescript
 import { VRChatAPI, VRCWebSocket, EventType, friendRequestNotification } from 'vrc-ts';
@@ -448,6 +446,25 @@ ws.on(EventType.Friend_Request, (eventData: friendRequestNotification) => {
 > [!TIP]
 > Description of each events can be found [here](<https://github.com/lolmaxz/vrc-ts/wiki/VRC-WebSocket-API-(Draft-WIP)#3-event-types>).
 
+All Events logs is turned off by default. You can enable it by setting the `logAllEvents` parameter to `true` when initializing the WebSocket in the constructor.
+
+You can also start the websocket using a custom URL by setting the `customURL` parameter to the URL you want to use, as well as the User-Agent for the WebSocket, with the `customUserAgent` parameter.
+
+Here is an example of how to do it:
+```typescript
+import { VRChatAPI, VRCWebSocket } from 'vrc-ts';
+
+const api = new VRChatAPI({});
+
+const ws = new VRCWebSocket({
+    customURL: 'wss://customurl.com',
+    customUserAgent: 'CustomUserAgent/0.0.1'
+});
+```
+
+> [!IMPORTANT]
+> **WebSocket Connection**<br>
+> If you do not specify the VRChatAPI instance, you **NEED** to specify the `customUserAgent` parameter in the WebSocket constructor.
 ---
 
 ## Basic Example

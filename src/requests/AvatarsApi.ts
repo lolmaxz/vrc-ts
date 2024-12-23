@@ -261,4 +261,22 @@ export class AvatarsApi extends BaseApi {
 
         return await this.executeRequest<Avi.Avatar[]>(paramRequest);
     }
+
+    public async generateImpostor({ avatarId }: Avi.dataKeysCreateImpostor): Promise<Avi.ImpostorCreation> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.avatars.generateImpostor,
+            pathFormated: ApiPaths.avatars.generateImpostor.path.replace('{avatarId}', avatarId),
+        };
+
+        return await this.executeRequest<Avi.ImpostorCreation>(paramRequest);
+    }
+
+    public async deleteImpostor({ avatarId }: Avi.dataKeysDeleteImpostor): Promise<Avi.ImpostorDeletion> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.avatars.generateImpostor,
+            pathFormated: ApiPaths.avatars.generateImpostor.path.replace('{avatarId}', avatarId),
+        };
+
+        return await this.executeRequest<Avi.ImpostorDeletion>(paramRequest);
+    }
 }
