@@ -59,6 +59,15 @@ export enum AvatarReleaseStatus {
 
 /**
  * Impostor Creation Status
+ *
+ * Tells you how long it will take to create the impostor avatar.
+ **/
+export type ImpostorQueue = {
+    estimatedServiceDurationSeconds: number;
+};
+
+/**
+ * Impostor Creation Status
  **/
 export type ImpostorCreation = {
     created_at: string;

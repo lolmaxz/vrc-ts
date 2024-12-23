@@ -23,7 +23,7 @@ export const ApiPaths: APIPaths = {
         selectAvatar: { path: "/avatars/{avatarId}/select", method: "PUT", cookiesNeeded: ["authCookie"] },
         selectFallbackAvatar: { path: "/avatars/{avatarId}/selectFallback", method: "PUT", cookiesNeeded: ["authCookie"] },
         listFavoritedAvatars: { path: "/avatars/favorites", method: "GET", cookiesNeeded: ["authCookie"] },
-        getImpostorQueueStats: { path: "/avatars/impostor/queue/stats", method: "GET", cookiesNeeded: ["authCookie"], notImplemented: true },
+        getImpostorQueueStats: { path: "/avatars/impostor/queue/stats", method: "GET", cookiesNeeded: ["authCookie"] },
         generateImpostor: { path: "/avatars/{avatarId}/impostor/enqueue", method: "POST", cookiesNeeded: ["authCookie"], requiredQueryParams: ["avatarId"] },
         deleteImpostor: { path: "/avatars/{avatarId}/impostor", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["avatarId"] },
     },
