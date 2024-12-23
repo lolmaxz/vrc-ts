@@ -262,6 +262,21 @@ export class AvatarsApi extends BaseApi {
         return await this.executeRequest<Avi.Avatar[]>(paramRequest);
     }
 
+    /**
+     * Get the current average queue time for the impostor generation queue.
+     **/
+    public async getImpostorQueueStats(): Promise<Avi.ImpostorQueue> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.avatars.getImpostorQueueStats,
+            pathFormated: ApiPaths.avatars.getImpostorQueueStats.path,
+        };
+
+        return await this.executeRequest<Avi.ImpostorQueue>(paramRequest);
+    }
+
+    /**
+     * Generate an impostor for the avatar.
+     */
     public async generateImpostor({ avatarId }: Avi.dataKeysCreateImpostor): Promise<Avi.ImpostorCreation> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.generateImpostor,
@@ -271,6 +286,9 @@ export class AvatarsApi extends BaseApi {
         return await this.executeRequest<Avi.ImpostorCreation>(paramRequest);
     }
 
+    /**
+     * Delete the impostor for the avatar.
+     */
     public async deleteImpostor({ avatarId }: Avi.dataKeysDeleteImpostor): Promise<Avi.ImpostorDeletion> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.generateImpostor,

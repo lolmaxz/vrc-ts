@@ -1,3 +1,9 @@
+# Changelog 1.0.13 [ - December 22rd, 2024 - ]
+
+## Updated
+
+-   **[AVATAR API]** **ADDED NEW ENDPOINT** `getImpostorQueueStats` - This will allow you to get the state of the impostor queue and know how long it will take to generate an impostor at the current moment.
+
 # Changelog 1.0.12 [ - December 22rd, 2024 - ]
 
 ## Updated
