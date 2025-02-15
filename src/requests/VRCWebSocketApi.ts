@@ -918,6 +918,7 @@ export type NotificationV2GroupInformative = BaseNotificationV2 & {
 export type NotificationV2GroupAnnouncement = BaseNotificationV2 & {
     data: {
         groupName: string;
+        groupId: string;
         announcementTitle: string;
     };
 };
