@@ -465,6 +465,7 @@ export enum GroupMembershipStatus {
     Member = 'member',
     Requested = 'requested',
     Invited = 'invited',
+    Banned = 'banned',
 }
 
 /**
