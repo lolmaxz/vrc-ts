@@ -14,6 +14,8 @@
 
 -   **[GROUP API]** **UPDATED ENUM** `Group` - Added new attributes to enum `GroupPermissionEnum`: groupInstanceAgeGatedJoin, groupInstanceManage, groupDefaultRoleManage. This will allow you to know if a user has the permission to manage group instances, manage age-gated instances, and manage the default role of the group.
 
+-   **[GROUP API]** **UPDATED ENUM** `GroupMembershipStatus` - Added new value `banned` - This will allow you to know if a user is banned from a group.
+
 -   **[GENERICS]** **UPDATED WORLD TAGS** - Added "feature_prints_disabled", "feature_drones_disabled", "feature_pedestals_disabled" and "feature_stickers_disabled" "feature_emoji_disabled" to World Tags possible.
 
 -   **[WORLD API]** **UPDATED TYPE** `BaseWorld` - Added attribute `defaultContentSettings` - This will tell you the default content settings of the world. Aka, the new settings for world: **drones**, **emoji**, **pedestals**, **prints** and **stickers**.
