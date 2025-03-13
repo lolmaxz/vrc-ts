@@ -1,6 +1,6 @@
 {
     "name": "vrc-ts",
-    "version": "1.0.13",
+    "version": "1.0.14",
     "description": "A Complete VRChat Wrapper in TypeScript",
     "type": "module",
     "main": "./dist/index.cjs",
@@ -17,7 +17,8 @@
         "prepare": "tsc",
         "ci": "npm run build && npm run check-format && npm run check-exports",
         "check-build": "npm run build && npm run check-exports",
-        "full-build-check": "npm run build && npm run test && npm run check-exports"
+        "full-build-check": "npm run build && npm run test && npm run check-exports",
+        "publish": "npm run full-build-check && npm publish --force"
     },
     "keywords": [
         "vrchat",

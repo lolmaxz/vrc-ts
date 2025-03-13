@@ -399,4 +399,20 @@ export class WorldsApi extends BaseApi {
 
         return await this.executeRequest<Instance>(paramRequest);
     }
+
+    /**
+     * Return the resticted content of a world by the worldId.
+     * You can only access this endpoint if you are the owner of the world.
+     * @untested
+     */
+    public async getWorldRestrictedContent({
+        worldId,
+    }: Wrld.GetWorldRestrictedContentRequest): Promise<Wrld.WorldRestrictedContent> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.worlds.getContentRestricted,
+            pathFormated: ApiPaths.worlds.getContentRestricted.path.replace('{worldId}', worldId),
+        };
+
+        return await this.executeRequest<Wrld.WorldRestrictedContent>(paramRequest);
+    }
 }

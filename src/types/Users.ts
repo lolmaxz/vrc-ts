@@ -115,6 +115,8 @@ export type CurrentUser = {
     receiveMobileInvitations?: boolean;
     /** The last time the user logged in from a mobile device. */
     last_mobile?: string;
+    /** The user's past Platform History. */
+    platform_history?: PlatformHistoryEntity[];
 };
 
 /**
@@ -130,9 +132,15 @@ export type CurrentUser = {
  */
 export enum AgeVerificationStatus {
     Hidden = 'hidden',
-    Age_Verified = 'verified',
+    //Age_Verified = 'verified', //! No longer used
     Verified_18_Plus = '18+',
 }
+
+export type PlatformHistoryEntity = {
+    isMobile: boolean;
+    platform?: null;
+    recorded: string;
+};
 
 export type currentUserOrTwoFactorType = twoFactorAuthResponseType | CurrentUser;
 

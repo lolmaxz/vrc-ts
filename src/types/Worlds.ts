@@ -1,5 +1,12 @@
 import { UnityPackage } from './Files';
-import { InstanceIdType, SearchOrderOptions, SearchSortingOptions, UserIdType, WorldIdType } from './Generics';
+import {
+    ContentRestrictedType,
+    InstanceIdType,
+    SearchOrderOptions,
+    SearchSortingOptions,
+    UserIdType,
+    WorldIdType,
+} from './Generics';
 import { Instance } from './Instances';
 import { DeveloperType } from './Users';
 
@@ -20,6 +27,13 @@ export type BaseWorld = {
     version: number; // Min 0, Default: 0
     organization: string; // Min 1 chars, Default: vrchat
     previewYoutubeId?: string | null;
+    defaultContentSettings: {
+        drones?: false;
+        emoji?: false;
+        pedestals?: false;
+        prints?: false;
+        stickers?: false;
+    };
     /** Product being sold in this world
      *
      * Format: prod_d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4
@@ -89,6 +103,21 @@ export type WorldMetadata = {
 
 export type WorldPublishStatus = {
     canPublish: boolean;
+};
+
+export type WorldRestrictedContent = {
+    authorId: string;
+    authorName: string;
+    contentRestrictionId: ContentRestrictedType;
+    createdAt: string;
+    description: string;
+    disputed: boolean;
+    id: WorldIdType;
+    imageUrl: string;
+    isDmcaClaimed: boolean;
+    name: string;
+    thumbnailImageUrl: string;
+    updatedAt: string;
 };
 
 //! --- Request --- !//
@@ -237,4 +266,8 @@ export type GetWorldInstanceRequest = {
     worldId: WorldIdType;
     /** The instance id to get the instance. */
     instanceId?: InstanceIdType;
+};
+
+export type GetWorldRestrictedContentRequest = {
+    worldId: WorldIdType;
 };

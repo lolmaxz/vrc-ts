@@ -1,3 +1,31 @@
+# Changelog 1.0.14 [ - March 12th, 2025 - ]
+
+## Updated
+
+-   **[INSTANCE API]** **UPDATED TYPE** `Instance` - Added attribute `ios` to `platforms` - This will tell you the number of users on iOS in the instance.
+-   **[INSTANCE API]** **UPDATED TYPE** `Instance` - Added attribute `playerPersistenceEnabled` - This will tell you if player persistence is enabled in the instance.
+
+-   **[WORLD API]** **UPDATED TYPE** `World` - Added attribute `worldSignature` - This will tell you the world signature of the world. VRChat uses this to verify the integrity of the world.
+
+-   **INSTANCE CREATION** - Overhauled the instance creation process. Better control on instance creation id, world id, group, role restrictions, and more. This will allow you to create instances with more control and more options.
+
+-   **[USER API]** **UPDATED ENUM** `AgeVerificationStatus` - Deprecated `Age_Verified`, now it's only either `Hidden` or `Verified_18_Plus`. This will allow you to know if a user is verified or not. The old value `Age_Verified` was ambiguous and could be confused with the new `Verified_18_Plus` value. It was only used to know if a user was verified but not 18+.
+-   **[USER API]** **UPDATED TYPE** `User` - Added attribute `platform_history` - This will tell you the platforms the user has used in the past.
+
+-   **[GROUP API]** **UPDATED ENUM** `Group` - Added new attributes to enum `GroupPermissionEnum`: groupInstanceAgeGatedJoin, groupInstanceManage, groupDefaultRoleManage. This will allow you to know if a user has the permission to manage group instances, manage age-gated instances, and manage the default role of the group.
+
+-   **[GROUP API]** **UPDATED ENUM** `GroupMembershipStatus` - Added new value `banned` - This will allow you to know if a user is banned from a group.
+
+-   **[GENERICS]** **UPDATED WORLD TAGS** - Added "feature_prints_disabled", "feature_drones_disabled", "feature_pedestals_disabled" and "feature_stickers_disabled" "feature_emoji_disabled" to World Tags possible.
+
+-   **[WORLD API]** **UPDATED TYPE** `BaseWorld` - Added attribute `defaultContentSettings` - This will tell you the default content settings of the world. Aka, the new settings for world: **drones**, **emoji**, **pedestals**, **prints** and **stickers**.
+
+-   **[WORLD API]** **NEW ENDPOINT** - Added a new endpoint called `getContentResticted` - This will allow you to get the content restricted status of a world. You must be the owner of the world to use this endpoint and the world needs to have been restricted by VRChat. (DMCA)
+
+-   **TWEAKS** - Multiple fixes of types in Websocket events.
+
+-   **[FEATURE]** - Added a new method to the VRChatAPI class called `manualCookiesLoad` - This will allow you to manually load cookies from a file. This is useful if you want to load cookies from a file that is not in the default location or if you want to load cookies from a file or location, that is not in the default format (default `cookies.json`).
+
 # Changelog 1.0.13 [ - December 22rd, 2024 - ]
 
 ## Updated

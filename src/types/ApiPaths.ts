@@ -214,5 +214,6 @@ export const ApiPaths: APIPaths = {
         publishWorld: { path: "/worlds/{worldId}/publish", method: "PUT", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId"] },
         unpublishWorld: { path: "/worlds/{worldId}/publish", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId"] },
         getWorldInstance: { path: "/worlds/{worldId}/{instanceId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId", "instanceId"] },
+        getContentRestricted: {path: "/contentRestrictions/content/{worldId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["worldId"] },
     }
 }

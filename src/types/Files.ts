@@ -29,6 +29,8 @@ export type UnityPackageAvatar = {
     pluginUrlObject?: object;
     performanceRating?: PerformanceTypes;
     impostorizerVersion?: string;
+    /** The World Signature, for security reasons */
+    worldSignature?: string;
 };
 
 export enum PerformanceTypes {

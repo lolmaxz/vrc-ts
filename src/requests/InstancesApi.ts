@@ -1,6 +1,6 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { ApiPaths } from '../types/ApiPaths';
-import { RequestSuccess, executeRequestType } from '../types/Generics';
+import { GroupIdType, GroupRoleIdType, RequestSuccess, WorldIdType, executeRequestType } from '../types/Generics';
 import * as Inst from '../types/Instances';
 import { BaseApi } from './BaseApi';
 
@@ -171,6 +171,34 @@ export class InstanceApi extends BaseApi {
         roleIds,
         instanceCode,
     }: Inst.CreateGroupInstanceRequest): Promise<Inst.Instance> {
+        const body = this.getGroupInstanceCreationData(
+            worldId,
+            groupAccessType,
+            groupId,
+            region,
+            queueEnabled,
+            roleIds,
+            instanceCode || ''
+        );
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.instances.createGroupInstance,
+            pathFormated: ApiPaths.instances.createGroupInstance.path,
+            body: body,
+        };
+
+        return this.executeRequest<Inst.Instance>(paramRequest);
+    }
+
+    private getGroupInstanceCreationData(
+        worldId: WorldIdType,
+        groupAccessType: Inst.GroupAccessType,
+        groupId: GroupIdType,
+        region: Inst.InstanceRegionType,
+        queueEnabled = false,
+        roleIds: Inst.NonEmptyArray<GroupRoleIdType> | undefined,
+        instanceCode: number | string
+    ): Inst.dataKeysCreateGroupInstance {
         // gnerate a random code that is 1-5 digits long maximum
         if (!instanceCode) {
             instanceCode = Math.floor(Math.random() * 99999) + 1;
@@ -180,33 +208,56 @@ export class InstanceApi extends BaseApi {
             }
         }
 
-        // making sure all the role IDs are valid and starts with grol_
-        roleIds.forEach((roleId) => {
-            if (!roleId.startsWith('grol_')) {
-                throw new Error('The roleIds are supposed to start with "grol_"! Now cancelling the request.');
+        // Making sure if member type we need to provide roleIds
+        if (groupAccessType === Inst.GroupAccessType.Group_Members) {
+            if (!roleIds || roleIds.length === 0) {
+                throw new Error('You need to provide the roleIds parameter for a group members instance!');
             }
-        });
+        }
 
         const ownerId = groupId;
 
-        const body: Inst.dataKeysCreateGroupInstance = {
-            groupAccessType,
-            ownerId,
-            queueEnabled,
-            region,
-            roleIds,
-            type: 'group',
-            worldId,
-            instanceCode,
-        };
+        if (groupAccessType === Inst.GroupAccessType.Group_Public) {
+            const body: Inst.dataKeysCreateGroupInstance = {
+                groupAccessType: Inst.GroupAccessType.Group_Public,
+                ownerId,
+                queueEnabled,
+                region,
+                type: 'group',
+                worldId,
+                instanceCode,
+            };
 
-        const paramRequest: executeRequestType = {
-            currentRequest: ApiPaths.instances.createGroupInstance,
-            pathFormated: ApiPaths.instances.createGroupInstance.path,
-            body: body,
-        };
+            return body;
+        } else if (groupAccessType === Inst.GroupAccessType.Group_Plus) {
+            const body: Inst.dataKeysCreateGroupInstance = {
+                groupAccessType: Inst.GroupAccessType.Group_Plus,
+                ownerId,
+                queueEnabled,
+                region,
+                type: 'group',
+                worldId,
+                instanceCode,
+            };
 
-        return this.executeRequest<Inst.Instance>(paramRequest);
+            return body;
+        } else {
+            if (!roleIds || roleIds.length === 0) {
+                throw new Error('You need to provide the roleIds parameter for a group members instance!');
+            }
+            const body: Inst.dataKeysCreateGroupInstance = {
+                groupAccessType: Inst.GroupAccessType.Group_Members,
+                ownerId,
+                queueEnabled,
+                region,
+                type: 'group',
+                worldId,
+                instanceCode,
+                roleIds,
+            };
+
+            return body;
+        }
     }
 
     /**
