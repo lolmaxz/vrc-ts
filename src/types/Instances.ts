@@ -33,6 +33,8 @@ export type Instance = {
     platforms: {
         /** Number of PC players */
         standalonewindows: number;
+        /** Number of IOS players */
+        ios: number;
         /** Number of Quest/Mobile players */
         android: number;
     };
@@ -69,6 +71,8 @@ export type Instance = {
     closedAt?: string;
     /** If the instance requires to be age verified or not. */
     ageGate: boolean;
+    /** If player persistance is turned on in this instance */
+    playerPersistenceEnabled: boolean;
 };
 
 export type InstanceShortName = {
@@ -161,28 +165,54 @@ export type Friends_Invite_Type = {
     ownerId: string;
 };
 
-type NonEmptyArray<T> = [T, ...T[]];
+export type NonEmptyArray<T> = [T, ...T[]];
 
 export type CreateGroupInstanceRequest = {
     worldId: WorldIdType;
-    groupAccessType: GroupAccessType;
     /** The GROUP ID of the group you want to create an instance for. */
     groupId: GroupIdType;
     region: InstanceRegionType;
-    roleIds: NonEmptyArray<GroupRoleIdType>;
     queueEnabled?: boolean;
     instanceCode?: number | string;
+} & (CreateGroupInstanceRequestPublic | CreateGroupInstanceRequestPlus | CreateGroupInstanceRequestMembers);
+
+type CreateGroupInstanceRequestPublic = {
+    groupAccessType: GroupAccessType.Group_Public;
+    roleIds?: never;
+};
+
+type CreateGroupInstanceRequestPlus = {
+    groupAccessType: GroupAccessType.Group_Plus;
+    roleIds?: never;
+};
+
+type CreateGroupInstanceRequestMembers = {
+    groupAccessType: GroupAccessType.Group_Members;
+    roleIds: NonEmptyArray<GroupRoleIdType>;
 };
 
 export type dataKeysCreateGroupInstance = {
-    groupAccessType: GroupAccessType;
     ownerId: string;
     queueEnabled: boolean;
     region: InstanceRegionType;
-    roleIds: NonEmptyArray<GroupRoleIdType>;
     type: 'group';
     worldId: WorldIdType;
     instanceCode: number | string;
+} & (dataKeysCreateGroupInstancePublic | dataKeysCreateGroupInstancePlus | dataKeysCreateGroupInstanceMembers);
+
+export type dataKeysCreateGroupInstancePublic = {
+    groupAccessType: GroupAccessType.Group_Public;
+    roleIds?: never;
+};
+
+export type dataKeysCreateGroupInstancePlus = {
+    groupAccessType: GroupAccessType.Group_Plus;
+    roleIds?: never;
+};
+
+export type dataKeysCreateGroupInstanceMembers = {
+    groupAccessType: GroupAccessType.Group_Members;
+    roleIds: NonEmptyArray<GroupRoleIdType>;
 };
 
 /** The Required Parameters to get an instance. */

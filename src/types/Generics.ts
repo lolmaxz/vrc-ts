@@ -388,6 +388,7 @@ export type APIPaths = {
         publishWorld: subSectionType;
         unpublishWorld: subSectionType;
         getWorldInstance: subSectionType;
+        getContentRestricted: subSectionType;
     };
 };
 
@@ -492,7 +493,12 @@ export type WorldTags =
     | 'system_approved'
     | 'system_created_recently'
     | 'system_labs'
-    | 'system_updated_recently';
+    | 'system_updated_recently'
+    | 'feature_prints_disabled'
+    | 'feature_drones_disabled'
+    | 'feature_pedestals_disabled'
+    | 'feature_stickers_disabled'
+    | 'feature_emoji_disabled';
 
 export type LanguageTags =
     | 'language_eng'
@@ -621,6 +627,7 @@ export type FeedbackIdType = `feedback_${string}-${string}-${string}-${string}-$
 
 export type PrintIdType = `prnt_${string}-${string}-${string}-${string}-${string}`;
 
+export type ContentRestrictedType = `cr_${string}-${string}-${string}-${string}-${string}`;
 //* -- VRCHAT GENERIC TYPES -- *//
 /**
  * Search order options for searching avatars. Enums: SearchOrderOptions

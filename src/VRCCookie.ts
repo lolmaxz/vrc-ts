@@ -208,12 +208,14 @@ export class cookiesHandler {
 
     // add cookies
     async addCookies(cookies: VRCCookie[]): Promise<void> {
+        // TODO - when a cookie is expired we should remove it from the cookies array and throw an error
         this.cookies = this.cookies.concat(cookies);
         await this.saveCookies();
     }
 
     // add cookie
     async addCookie(cookie: VRCCookie): Promise<void> {
+        // TODO - when a cookie is expired we should remove it from the cookies array and throw an error
         this.cookies.push(cookie);
         console.log(`${C.green}Added cookie information: ${C.brightGreen + cookie.key} ${C.r}`);
 

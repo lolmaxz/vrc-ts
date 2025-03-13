@@ -27,7 +27,7 @@ import { UsersApi } from './requests/UsersApi';
 import { WorldsApi } from './requests/WorldsApi';
 import { ApiPaths } from './types/ApiPaths';
 import { CurrentUser, currentUserOrTwoFactorType } from './types/Users';
-import cookiesHandler from './VRCCookie';
+import cookiesHandler, { VRCCookie } from './VRCCookie';
 
 export type VRCApiParams = {
     username?: string;
@@ -166,13 +166,6 @@ export class VRChatAPI {
                     console.error('Unknown error loading cookies!');
                 }
             }
-        } else {
-            this.instanceCookie = new cookiesHandler({
-                username: this.username,
-                cookieFilePath: '',
-                vrcApi: this,
-                cookies: [],
-            });
         }
 
         try {
@@ -273,6 +266,20 @@ export class VRChatAPI {
                 throw new Error('Unknown error!');
             }
         }
+    }
+
+    /**
+     * Manually load cookies from an array of VRCCookies
+     * @param cookies
+     */
+    public async manualCookiesLoad(cookies: VRCCookie[]) {
+        // check for expired cookies
+        const expiredCookies = cookies.filter((cookie) => new Date(cookie.expires) < new Date());
+        if (expiredCookies.length > 0) {
+            throw new CookiesExpired('Some cookies are expired!');
+        }
+        await this.instanceCookie.addCookies(cookies);
+        this.cookiesLoaded = true;
     }
 
     arraysAreEqual<T>(array1: T[], array2: T[]): boolean {

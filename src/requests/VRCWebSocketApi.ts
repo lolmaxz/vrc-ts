@@ -1,3 +1,4 @@
+import { GroupIdType, InstanceIdType, NotificationIdType } from 'types/Generics';
 import WebSocket from 'ws';
 import { BaseMyMember, GroupPermissionEnum } from '../types/Groups';
 import { NotificationBase, NotificationTypes } from '../types/Notifications';
@@ -829,11 +830,11 @@ type ResponseNotificationType = {
 
 export type ResponseNotification = {
     /** example: not_00000000-0000-0000-000000000000 */
-    notificationId: string;
+    notificationId: NotificationIdType;
     /** exmaple: usr_00000000-0000-0000-000000000000 */
     receiverId: string;
     /** example: not_00000000-0000-0000-000000000000 */
-    responseId: string;
+    responseId: NotificationIdType;
 };
 
 type SeeNotificationType = {
@@ -843,7 +844,7 @@ type SeeNotificationType = {
 };
 
 export type SeeNotification = {
-    notificationId: string;
+    notificationId: NotificationIdType;
 };
 
 // hide notification type
@@ -855,7 +856,7 @@ type HideNotificationType = {
 
 type HideNotification = {
     /** The Id of the notification to hide */
-    notificationId: string;
+    notificationId: NotificationIdType;
 };
 
 type ClearNotificationType = {
@@ -867,11 +868,20 @@ type NotificationV2Type = {
     content: string;
 };
 
+export enum NotificationV2ResponseIcons {
+    Check = 'check',
+    Bell_Slash = 'bell-slash',
+}
+
 type NotificationV2ResponseType = {
     type: NotificationV2ResponseTypeEnum;
+    /** Can be a string composing multiple Ids, feel free to make checks on them */
     data: string;
-    icon: string;
+    /** name of the icon for this response */
+    icon: string | NotificationV2ResponseIcons; // !TODO We need to get more data for this
+    /** Text Explaining what this reponse will do */
     text: string;
+    /** The key string of this response. By example, acknoledging a Group announcement notification would be: notifications.default.response.acknowledge */
     textKey: string;
 };
 
@@ -886,10 +896,13 @@ type BaseNotificationV2 = {
     senderUsername?: string;
     receiverUserId?: string;
     relatedNotificationsId?: string;
+    /** The title of the group announcement */
     title: string;
     titleKey?: string;
+    /** The message of the group announcement */
     message: string;
     messageKey?: string;
+    /** Full URL to the image of this notification */
     imageUrl?: string;
 
     link: string;
@@ -918,6 +931,7 @@ export type NotificationV2GroupInformative = BaseNotificationV2 & {
 export type NotificationV2GroupAnnouncement = BaseNotificationV2 & {
     data: {
         groupName: string;
+        groupId: GroupIdType;
         announcementTitle: string;
     };
 };
@@ -1004,9 +1018,10 @@ export type InviteNotification = {
     receiverUserId?: string;
     message: string;
     details: {
-        // ! read bellow
-        /** Be careful, even tho vrchat identify this field as a worldId, it's actually an instanceId  */
-        worldId: string;
+        /** ## ⚠️ read bellow
+         *
+         * Be careful, even tho vrchat identify this field as a worldId, it's actually an instanceId  */
+        worldId: InstanceIdType;
         worldName: string;
     };
     created_at: string;
