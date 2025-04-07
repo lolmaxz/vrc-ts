@@ -293,8 +293,8 @@ export class GroupsApi extends BaseApi {
         };
 
         const paramRequest: executeRequestType = {
-            currentRequest: ApiPaths.groups.getGroupAnnouncement,
-            pathFormated: ApiPaths.groups.getGroupAnnouncement.path.replace('{groupId}', groupId),
+            currentRequest: ApiPaths.groups.getGroupPosts,
+            pathFormated: ApiPaths.groups.getGroupPosts.path.replace('{groupId}', groupId),
             body: body,
         };
 
@@ -426,7 +426,10 @@ export class GroupsApi extends BaseApi {
      * @returns The GroupMember object of the banned user.
      */
     //! I'm scared this might not be the right type! (docs says list of members, but that doesn't make sense..)
-    public async banGroupMember({ groupId, userId }: Group.banGroupMemberRequest): Promise<Group.GroupMember> {
+    public async banGroupMember({
+        groupId,
+        userId,
+    }: Group.banGroupMemberRequest): Promise<Group.GroupMemberLimitedBanResult> {
         if (userId.length <= 0) new BadRequestParameter('userId is too short!');
 
         const body: Group.dataKeysGroupBanMember = { userId };
@@ -437,7 +440,7 @@ export class GroupsApi extends BaseApi {
             body: body,
         };
 
-        return await this.executeRequest<Group.GroupMember>(paramRequest);
+        return await this.executeRequest<Group.GroupMemberLimitedBanResult>(paramRequest);
     }
 
     /**

@@ -1,3 +1,17 @@
+# Changelog 1.0.15 [ - April 6th, 2025 - ]
+
+## Updated
+
+-   **[GROUP API]** **FIXED REQUEST** `getGroupPosts` - Fixed endpoint URL that was using an outdated version.
+-   **[GROUP API]** **ADDED TYPE** `GroupMemberLimitedBanResult` - New type to handle data returned when querying banned group members.
+
+-   **[GENERICS]** **ADDED TYPES** - Added multiple player moderation ID types for better type safety.
+-   **[GENERICS]** **ADDED TYPE** `BadgeIdType` - Added type for Badge IDs to improve type checking.
+
+-   **[USER API]** **UPDATED DOCUMENTATION** - Enhanced descriptions for User Badge Data fields and usage.
+
+-   **UPCOMING** - Preparing changes for improved User Data Format and enhanced Group data control based on permissions.
+
 # Changelog 1.0.14 [ - March 12th, 2025 - ]
 
 ## Updated
