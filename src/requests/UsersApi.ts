@@ -54,6 +54,7 @@ export class UsersApi extends BaseApi {
      * Executes a request to get information about a user by their id.
      * @param userId The id of the user to get information about.
      * @returns the information about the user. If the user is not found then it will return undefined.
+     * TODO Add possible return type to be current user if the user id is the same as the current user.
      */
     async getUserById({ userId }: User.getUserByIdRequest): Promise<User.User> {
         const paramRequest: executeRequestType = {

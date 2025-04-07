@@ -1,5 +1,6 @@
 import {
     AllTags,
+    BadgeIdType,
     FeedbackIdType,
     FileIdType,
     InstanceIdType,
@@ -384,13 +385,21 @@ export enum VRCRanksName {
 }
 
 export type UserBadge = {
+    /** When the badge was assigned. */
     assignedAt: string;
+    /** The badge's description. */
     badgeDescription: string;
-    badgeId: string;
-    badgeImageUrl: string;
+    /** The badge's ID. */
+    badgeId: BadgeIdType;
+    /** The badge's name. */
     badgeName: string;
+    /** The badge's image URL. */
+    badgeImageUrl: string;
+    /** If the badge is hidden from the user's profile. */
     hidden: boolean;
+    /** If the badge is showcased on the user's profile. */
     showcased: boolean;
+    /** When the badge was last updated. */
     updated_at: string;
 };
 

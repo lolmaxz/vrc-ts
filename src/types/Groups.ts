@@ -406,6 +406,11 @@ export type GroupMember = {
     managerNotes?: string;
 };
 
+/**
+ *  Same as GroupMember but omitting the user object
+ */
+export type GroupMemberLimitedBanResult = Omit<GroupMember, 'user'>;
+
 export type GroupRole = {
     id: GroupRoleIdType;
     groupId: GroupIdType;
