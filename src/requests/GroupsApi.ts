@@ -1076,4 +1076,203 @@ export class GroupsApi extends BaseApi {
 
         return await this.executeRequest<Group.GroupPost>(paramRequest);
     }
+
+    /**
+     * Creates a Group Event.
+     * @param createGroupEventRequest - { groupId, category, description, endsAt, languages, platforms, roleIds, startsAt, title, tags }
+     * @returns {Group.GroupEvent} The GroupEvent object of the created event.
+     * @Note Images aren't supported yet by this library.
+     */
+    public async createGroupEvent({
+        groupId,
+        category,
+        description,
+        endsAt,
+        languages = [],
+        platforms = [],
+        roleIds = [],
+        startsAt,
+        title,
+        tags = [],
+        sendCreationNotification = true,
+    }: Group.createGroupEventRequest): Promise<Group.GroupEventBase> {
+        if (languages.length > 3) new BadRequestParameter('Languages must be at most 3!');
+        if (tags.length > 5) new BadRequestParameter('Tags must be at most 5!');
+        if (roleIds.length > 10) new BadRequestParameter('RoleIds must be at most 10!');
+        if (platforms.length > 10) new BadRequestParameter('Platforms must be at most 10!');
+        if (description && description.length > 1024)
+            new BadRequestParameter('Description must be at most 1024 characters!');
+        if (title && title.length > 64) new BadRequestParameter('Title must be at most 100 characters!');
+        if (endsAt && startsAt && new Date(endsAt) < new Date(startsAt))
+            new BadRequestParameter('EndsAt must be after StartsAt!');
+        if (endsAt && new Date(endsAt) < new Date()) new BadRequestParameter('EndsAt must be in the future!');
+        if (startsAt && new Date(startsAt) < new Date()) new BadRequestParameter('StartsAt must be in the future!');
+
+        const body: Group.dataKeyCreateGroupEventRequest = {
+            category,
+            description,
+            endsAt,
+            languages,
+            platforms,
+            roleIds,
+            startsAt,
+            title,
+            tags,
+            sendCreationNotification,
+            useInstanceOverflow: true,
+            accessType: 'group',
+            closeInstanceAfterEndMinutes: 5,
+            featured: false,
+            guestEarlyJoinMinutes: 5,
+            hostEarlyJoinMinutes: 60,
+            imageId: null,
+            isDraft: false,
+            parentId: null,
+        };
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.createGroupEvent,
+            pathFormated: ApiPaths.groups.createGroupEvent.path.replace('{groupId}', groupId),
+            body: body,
+        };
+
+        return await this.executeRequest<Group.GroupEventBase>(paramRequest);
+    }
+
+    /**
+     * Updates a Group Event.
+     * @param updateGroupEventRequest - { groupId, eventId, platforms, roleIds, category, description, title, startsAt, endsAt, languages, tags }
+     * @returns {Group.GroupEventBase} The GroupEventBase object of the updated event.
+     */
+    public async updateGroupEvent({
+        groupId,
+        eventId,
+        platforms = [],
+        roleIds = [],
+        category,
+        description,
+        title,
+        startsAt,
+        endsAt,
+        languages = [],
+        tags = [],
+    }: Group.updateGroupEventRequest): Promise<Group.GroupEventBase> {
+        if (languages.length > 3) new BadRequestParameter('Languages must be at most 3!');
+        if (roleIds.length > 10) new BadRequestParameter('RoleIds must be at most 10!');
+        if (platforms.length > 3) new BadRequestParameter('Platforms must be at most 3!');
+        if (description && description.length > 1024)
+            new BadRequestParameter('Description must be at most 1024 characters!');
+        if (title && title.length > 64) new BadRequestParameter('Title must be at most 100 characters!');
+        if (startsAt && endsAt && new Date(endsAt) < new Date(startsAt))
+            new BadRequestParameter('EndsAt must be after StartsAt!');
+        if (endsAt && new Date(endsAt) < new Date()) new BadRequestParameter('EndsAt must be in the future!');
+        if (startsAt && new Date(startsAt) < new Date()) new BadRequestParameter('StartsAt must be in the future!');
+
+        const body: Group.dataKeysEditGroupEvent = {
+            platforms,
+            roleIds,
+            category,
+            description,
+            title,
+            startsAt,
+            endsAt,
+            languages,
+            tags,
+        };
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.updateGroupEvent,
+            pathFormated: ApiPaths.groups.updateGroupEvent.path
+                .replace('{groupId}', groupId)
+                .replace('{calendarId}', eventId),
+            body: body,
+        };
+
+        return await this.executeRequest<Group.GroupEventBase>(paramRequest);
+    }
+
+    /**
+     * Deletes a Group Event.
+     * @param deleteGroupEventRequest - { groupId, eventId }
+     * @returns {Group.GroupEventBase} The GroupEventBase object of the deleted event.
+     */
+    public async deleteGroupEvent({ groupId, eventId }: Group.deleteGroupEventRequest): Promise<RequestSuccess> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.deleteGroupEvent,
+            pathFormated: ApiPaths.groups.deleteGroupEvent.path
+                .replace('{groupId}', groupId)
+                .replace('{calendarId}', eventId),
+        };
+
+        return await this.executeRequest<RequestSuccess>(paramRequest);
+    }
+
+    /**
+     * Returns a Group Event by ID.
+     * @param getGroupEventRequest - { groupId, eventId }
+     * @returns {Group.GroupEventBase} The GroupEventBase object of the requested event.
+     */
+    public async getGroupEvent({ groupId, eventId }: Group.getGroupEventRequest): Promise<Group.GroupEvent> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getGroupEvent,
+            pathFormated: ApiPaths.groups.getGroupEvent.path
+                .replace('{groupId}', groupId)
+                .replace('{calendarId}', eventId),
+        };
+
+        return await this.executeRequest<Group.GroupEvent>(paramRequest);
+    }
+
+    /**
+     * Returns a list of all Group Events.
+     * @param getGroupEventsRequest - { groupId }
+     * @returns {Group.GroupEventList} The GroupEventList object of the requested events.
+     */
+    public async getGroupEvents({ groupId }: Group.getGroupEventListRequest): Promise<Group.GroupEventList> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getGroupEvents,
+            pathFormated: ApiPaths.groups.getGroupEvents.path.replace('{groupId}', groupId),
+        };
+
+        return await this.executeRequest<Group.GroupEventList>(paramRequest);
+    }
+
+    /**
+     * Returns the next Group Event.
+     * @param getGroupNextEventRequest - { groupId }
+     * @returns {Group.GroupEventBase} The GroupEventBase object of the next event.
+     */
+    public async getGroupNextEvent({ groupId }: Group.dataKeyGetNextGroupEventRequest): Promise<Group.GroupEventBase> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getGroupNextEvent,
+            pathFormated: ApiPaths.groups.getGroupNextEvent.path.replace('{groupId}', groupId),
+        };
+
+        return await this.executeRequest<Group.GroupEventBase>(paramRequest);
+    }
+
+    /**
+     * Follows a Group Event.
+     * @param followGroupEventRequest - { groupId, eventId, isFollowing }
+     * @returns {Group.GroupEventBase} The GroupEventBase object of the followed event.
+     */
+    public async followGroupEvent({
+        groupId,
+        eventId,
+        isFollowing = true,
+    }: Group.followGroupEventRequest): Promise<Group.GroupEvent> {
+        const body: Group.dataKeyFollowGroupEventRequest = {
+            isFollowing,
+        };
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.followGroupEvent,
+            pathFormated: ApiPaths.groups.followGroupEvent.path
+                .replace('{groupId}', groupId)
+                .replace('{calendarId}', eventId),
+            body: body,
+        };
+
+        return await this.executeRequest<Group.GroupEvent>(paramRequest);
+    }
 }

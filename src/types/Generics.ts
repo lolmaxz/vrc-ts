@@ -13,10 +13,13 @@ import { dataKeysFavoriteTypes } from './Favorites';
 import { dataKeysCreateFile, dataKeysCreateFileVersion, dataKeysFinishFileDataUpload } from './Files';
 import {
     createGroupRequest,
+    dataKeyCreateGroupEventRequest,
+    dataKeyFollowGroupEventRequest,
     dataKeysAddGroupGalleryImage,
     dataKeysCreateGroupAnnouncement,
     dataKeysCreateGroupInvite,
     dataKeysCreateGroupRole,
+    dataKeysEditGroupEvent,
     dataKeysEditGroupPost,
     dataKeysGroupBanMember,
     dataKeysGroupCreateGallery,
@@ -157,7 +160,8 @@ export type querryParamsType =
     | 'productId'
     | 'licenseId'
     | 'jamId'
-    | 'noteId';
+    | 'noteId'
+    | 'calendarId';
 
 export type subSectionType = {
     path: string;
@@ -298,6 +302,13 @@ export type APIPaths = {
         createGroupRole: subSectionType;
         updateGroupRole: subSectionType;
         deleteGroupRole: subSectionType;
+        followGroupEvent: subSectionType;
+        getGroupEvents: subSectionType;
+        getGroupEvent: subSectionType;
+        getGroupNextEvent: subSectionType;
+        createGroupEvent: subSectionType;
+        updateGroupEvent: subSectionType;
+        deleteGroupEvent: subSectionType;
     };
     invites: {
         inviteUser: subSectionType;
@@ -437,7 +448,10 @@ export type dataSetKeys =
     | dataKeysUpdateUserNote
     | dataKeysRespondToNotificationRequest
     | dataKeysCreateImpostor
-    | dataKeysDeleteImpostor;
+    | dataKeysDeleteImpostor
+    | dataKeyCreateGroupEventRequest
+    | dataKeysEditGroupEvent
+    | dataKeyFollowGroupEventRequest;
 
 export type dataKeys2Fa = {
     code: string;
@@ -550,6 +564,78 @@ export type languageTagsShort =
     | 'ron'
     | 'vie';
 
+export enum LanguageTypes {
+    Afrikaans = 'afr',
+    American_Sign_Language = 'ase',
+    Arabic = 'ara',
+    Auslan_Australian_Sign_Language = 'asf',
+    Bengali = 'ben',
+    British_Sign_Language = 'bfi',
+    /** Needs more research ↓ */
+    Bulgarian = 'bul',
+    Czech = 'ces',
+    Mandarin = 'cmn',
+    Welsh = 'cym',
+    German = 'deu',
+    Danish = 'dan',
+    Dutch_Sign_Language = 'dse',
+    Greek = 'ell',
+    English = 'eng',
+    Esperanto = 'epo',
+    Estonian = 'est',
+    Filipino = 'fil',
+    Finnish = 'fin',
+    French = 'fra',
+    French_Sign_Language = 'fse',
+    Gaelic = 'gla',
+    Irish = 'gle',
+    German_Sign_Language = 'gsg',
+    Hebrew = 'heb',
+    Hindi = 'hin',
+    Hmong = 'hmn',
+    Croatian = 'hrv',
+    Hungarian = 'hun',
+    Armenian = 'hye',
+    Indonesian = 'ind',
+    Icelandic = 'isl',
+    Italian = 'ita',
+    Japanese = 'jpn',
+    Japanese_Sign_Language = 'jsl',
+    Korean = 'kor',
+    Korean_Sign_Language = 'kvk',
+    Latvian = 'lav',
+    Lithuanian = 'lit',
+    Luxembourgish = 'ltz',
+    Marathi = 'mar',
+    Macedonian = 'mkd',
+    Maltese = 'mlt',
+    Maori = 'mri',
+    Malay = 'msa',
+    Dutch = 'nld',
+    Norwegian = 'nor',
+    New_Zealand_Sign_Language = 'nzs',
+    Polish = 'pol',
+    Portuguese = 'por',
+    Romanian = 'ron',
+    Russian = 'rus',
+    Scots = 'sco',
+    Slovak = 'slk',
+    Slovenian = 'slv',
+    Spanish = 'spa',
+    Swedish = 'swe',
+    Telugu = 'tel',
+    Thai = 'tha',
+    Toki_Pona = 'tok',
+    Turkish = 'tur',
+    Teochew = 'tws',
+    Ukrainian = 'ukr',
+    Vietnamese = 'vie',
+    Wu = 'wuu',
+    Cantonese = 'yue',
+    Chinese = 'zho',
+    No_Linguistic_Content = 'zxx',
+}
+
 export type GroupAdminTags = 'admin_hide_member_count';
 
 export type UselessTags =
@@ -638,6 +724,8 @@ export type PrintIdType = `prnt_${string}-${string}-${string}-${string}-${string
 export type ContentRestrictedType = `cr_${string}-${string}-${string}-${string}-${string}`;
 
 export type BadgeIdType = `bdg_${string}-${string}-${string}-${string}-${string}`;
+
+export type CalendarIdType = `cal_${string}-${string}-${string}-${string}-${string}`;
 //* -- VRCHAT GENERIC TYPES -- *//
 /**
  * Search order options for searching avatars. Enums: SearchOrderOptions

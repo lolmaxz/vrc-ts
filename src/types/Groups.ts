@@ -1,5 +1,6 @@
 import {
     AllTags,
+    CalendarIdType,
     FileIdType,
     GroupAnnouncementIdType,
     GroupAuditLogIdType,
@@ -8,7 +9,9 @@ import {
     GroupIdType,
     GroupMemberIdType,
     GroupRoleIdType,
+    LanguageTags,
     languageTagsShort,
+    LanguageTypes,
     NotificationIdType,
     UserIdType,
 } from './Generics';
@@ -636,6 +639,95 @@ export enum GroupInviteResponse {
     Decline = 'deny',
 }
 
+export type GroupEventBase = {
+    /** Is Currently always going to be 'group' unless made by VRChat themselves. */
+    accessType: string;
+    /** The category of this event. Of Type CategoryType. */
+    category: EventCategoryType;
+    /** Default: 5 | Can't be modified at this time. */
+    closeInstanceAfterEndMinutes: number;
+    createdAt: string; // assuming date-time is a string in ISO format
+    deletedAt?: string; // assuming date-time is a string in ISO format
+    /** The description of the event. | Look out for \n for line skips */
+    description: string;
+    /** When the event ends. */
+    endsAt: string; // assuming date-time is a string in ISO format
+    /** If an event is featured, it will be advertised by VRChat. */
+    featured: boolean;
+    /** The number of minutes before the event starts that guests can join. Default: 5 | Can't be modified at this time. */
+    guestEarlyJoinMinutes: number;
+    /** The number of minutes before the host can join the event. Default: 60 | Can't be modified at this time. */
+    hostEarlyJoinMinutes: number;
+    /** The ID of the event. */
+    id: CalendarIdType;
+    /** URL to the image of the event. */
+    imageId?: FileIdType | null;
+    /** If this event is currently only a draft, it will not be visible to the public? Needs more testing. */
+    isDraft: boolean;
+    /** The languages of the event. Optional, can be empty. */
+    languages?: LanguageTags[] | null; // only languages full tags
+    /** Can be either a group or a user ID. If a group ID, the event is owned by a group. If a user ID, the event is owned by a user. Currently we only know about GroupID being used. */
+    ownerId: GroupIdType;
+    /** The platforms that are allowed to join this event. [PC_ONLY, ANDROID, IOS] */
+    platforms?: PlatformType[];
+    /** The Group Role IDs that are allowed to join this event. */
+    roleIds?: GroupRoleIdType[];
+    /** The scheduled time of this event. */
+    startsAt: string;
+    /** The tags of the event. Optional, can be empty. */
+    tags: string[];
+    /** The title of the event. */
+    title: string;
+    /** The type of the event. Currently only known to be 'event'. Can't be changed manually. */
+    type: string;
+    /** Last time the event was updated. */
+    updatedAt: string;
+    /** Expected to be used if attendees will overflow to another instance. Needs more testing? */
+    usesInstanceOverflow: boolean;
+};
+
+/** This type is used for Group Events specifically. when doing a GET request only, to know if a user is interested in the event. */
+export type GroupEvent = GroupEventBase & {
+    /** User Interest Data */
+    userInterest: {
+        createdAt: string; // assuming date-time is a string in ISO format
+        isFollowing: boolean;
+        updatedAt: string; // assuming date-time is a string in ISO format
+    };
+};
+
+export enum EventCategoryType {
+    Music = 'music',
+    Gaming = 'gaming',
+    Hangout = 'hangout',
+    Exploring = 'exploring',
+    Avatars = 'avatars',
+    FilmAndMedia = 'film_media',
+    Dance = 'dance',
+    Roleplaying = 'roleplaying',
+    Performance = 'performance',
+    Wellness = 'wellness',
+    Arts = 'arts',
+    Education = 'education',
+    Other = 'other',
+}
+
+export enum PlatformType {
+    PC_ONLY = 'standalonewindows',
+    ANDROID = 'android',
+    IOS = 'ios',
+}
+
+/** This type is used for Group Events specifically. Gets all the upcoming events for a group.*/
+export type GroupEventList = {
+    /** Whether or not there are more events to fetch. */
+    hasNext: boolean;
+    /** The events that are upcoming. */
+    results: GroupEvent[];
+    /** The total number of upcoming events. */
+    totalCount: number;
+};
+
 //! -- Request Types -- !//
 
 export type GroupId = {
@@ -1038,3 +1130,98 @@ export type dataKeysEditGroupPost = {
 export type editGroupPostRequest = GroupId & {
     notificationId: NotificationIdType;
 } & dataKeysEditGroupPost;
+
+export type EventId = {
+    /**
+     * The Event ID to use for the request.
+     * Example: `cal_12345678-1234-1234-1234-1234567890ab`
+     */
+    eventId: CalendarIdType;
+};
+
+export type dataKeyCreateGroupEventRequest = {
+    accessType: string;
+    category: EventCategoryType;
+    closeInstanceAfterEndMinutes: number;
+    description: string;
+    endsAt: string;
+    featured: boolean;
+    guestEarlyJoinMinutes: number;
+    hostEarlyJoinMinutes: number;
+    imageId: FileIdType | null;
+    isDraft: boolean;
+    /** The languages of the event. See LanguageTypes for possible values. Maximum of 3 languages. *[OPTIONAL]*.*/
+    languages: [LanguageTypes?, LanguageTypes?, LanguageTypes?];
+    /** The parentId of the event. We don't know what this is for yet, will always be set to null for now.*/
+    parentId: string | null;
+    /** The platforms of the event. See PlatformType for possible values. **[REQUIRED]**. Can be empty.*/
+    platforms: PlatformType[];
+    /** The roleIds of the event. **[REQUIRED]**. Can be empty.*/
+    roleIds: GroupRoleIdType[];
+    /** Whether or not to send a notification to all group members. Defaults to true. *[OPTIONAL]*.*/
+    sendCreationNotification: boolean;
+    startsAt: string;
+    /** The tags of the event. See AllTags for possible values. Maximum of 5 tags. *[OPTIONAL]*.*/
+    tags: [string?, string?, string?, string?, string?];
+    title: string;
+    /** Whether or not to use instance overflow. Defaults to true. We can't control this yet tho. *[OPTIONAL]*.*/
+    useInstanceOverflow: boolean;
+};
+/** Information Required to request to create a group's event. */
+export type createGroupEventRequest = GroupId & {
+    /** The category of the event. See EventCategoryType for possible values. **[REQUIRED]**.*/
+    category: EventCategoryType;
+    /** The description of the event. *[OPTIONAL]*.*/
+    description: string;
+    /** The end date of the event. **[REQUIRED]**.*/
+    endsAt: string;
+    /** The languages of the event. See LanguageTypes for possible values. Maximum of 3 languages. *[OPTIONAL]*.*/
+    languages: [LanguageTypes?, LanguageTypes?, LanguageTypes?];
+    /** The platforms of the event. See PlatformType for possible values. **[REQUIRED]**. Can be empty.*/
+    platforms: PlatformType[];
+    /** The roleIds of the event. **[REQUIRED]**. Can be empty.*/
+    roleIds: GroupRoleIdType[];
+    /** The start date of the event. **[REQUIRED]**.*/
+    startsAt: string;
+    /** The title of the event. **[REQUIRED]**.*/
+    title: string;
+    /** The tags of the event. Completely Customizable. Maximum of 5 tags. *[OPTIONAL]*. Can be empty.*/
+    tags: [string?, string?, string?, string?, string?];
+    /** Whether or not to send a notification to all group members. Defaults to true. *[OPTIONAL]*.*/
+    sendCreationNotification: boolean;
+};
+
+/** Data Keys Required to edit a group's event. */
+export type dataKeysEditGroupEvent = {
+    /** The platforms of the event. See PlatformType for possible values. **[REQUIRED]**.*/
+    platforms: PlatformType[];
+    /** The roleIds of the event. **[REQUIRED]**. If the same as before, you need to send the same roleIds.*/
+    roleIds: GroupRoleIdType[];
+    /** The category of the event. See CategoryType for possible values. **[REQUIRED]**.*/
+    category?: EventCategoryType;
+    /** The description of the event. *[OPTIONAL]*.*/
+    description?: string;
+    /** The name of the event. **[REQUIRED]**.*/
+    title?: string;
+    /** The start date of the event. **[REQUIRED]**.*/
+    startsAt?: string;
+    /** The end date of the event. **[REQUIRED]**.*/
+    endsAt?: string;
+    /** The language of the event. See LanguageTags for possible values. *[OPTIONAL]*.*/
+    languages?: LanguageTypes[];
+    /** The tags of the event. Completely Customizable. Maximum of 5 tags. *[OPTIONAL]*. Can be empty.*/
+    tags?: [string?, string?, string?, string?, string?];
+};
+
+export type updateGroupEventRequest = dataKeysEditGroupEvent & GroupId & EventId;
+export type deleteGroupEventRequest = GroupId & EventId;
+export type getGroupEventRequest = GroupId & EventId;
+export type getGroupEventListRequest = GroupId;
+
+export type groupEventNextRequest = GroupId;
+export type dataKeyGetNextGroupEventRequest = GroupId;
+export type dataKeyFollowGroupEventRequest = {
+    /** Whether or not to follow the event. **[REQUIRED]**. Default is true if not provided.*/
+    isFollowing: boolean;
+};
+export type followGroupEventRequest = GroupId & EventId & dataKeyFollowGroupEventRequest;

@@ -1,3 +1,37 @@
+# Changelog 1.0.16 [ - July 22nd, 2025 - ] Impostor + Calendar Update
+
+## Added
+
+-   **[GROUP API]** **ADDED NEW ENDPOINTS** `createGroupEvent`, `updateGroupEvent`, `deleteGroupEvent`, `getGroupEvent`, `getGroupEvents`, `getGroupNextEvent` and `followGroupEvent` - Complete Group Event management functionality with comprehensive validation and type safety.
+
+-   **[GROUP API]** **ADDED TYPES** `GroupEventBase`, `GroupEvent`, `GroupEventList`, `PlatformType`, `EventCategoryType` - Comprehensive type definitions for group events.
+
+-   **[GROUP API]** **ADDED ENUMS** `EventCategoryType`, `PlatformType` - Event categories (Music, Gaming, Hangout, etc.) and supported platforms (PC_ONLY, ANDROID, IOS).
+
+-   **[AVATAR API]** **ADDED NEW ENDPOINTS** `getImpostorQueueStats`, `generateImpostor`, `deleteImpostor` - Complete Impostor avatar management functionality.
+
+-   **[AVATAR API]** **ADDED TYPES** `ImpostorQueue`, `ImpostorCreation`, `ImpostorDeletion`, `dataKeysCreateImpostor`, `dataKeysDeleteImpostor` - Comprehensive type definitions for impostor functionality.
+
+-   **[AVATAR API]** **ADDED AVATAR STYLES** `AvatarStyle`, `AvatarStyleTypes` - Avatar style system with primary/secondary styles including Furry, Animal, Object, Human, Robot, Anime, Realistic, Cartoon, Sci-Fi, Fantasy, Pop Culture, Fashion.
+
+-   **[AVATAR API]** **ENHANCED AVATAR TYPE** `Avatar` - Added `style` property with comprehensive avatar styling support.
+
+-   **[API PATHS]** **ADDED IMPOSTOR PATHS** - Added complete API path definitions for all impostor-related endpoints.
+
+-   **[VALIDATION]** **ENHANCED VALIDATION** - Added comprehensive validation for all new group event and avatar endpoints with proper error handling and type safety.
+
+-   **[DOCUMENTATION]** **COMPREHENSIVE DOCUMENTATION** - Added detailed JSDoc documentation for all new endpoints, types, and enums with examples and usage guidelines.
+
+## Updated
+
+-   **[GROUP API]** **UPDATED VALIDATION** - Enhanced input validation for group events with array limits, character limits, and date validation.
+
+-   **[GROUP API]** **UPDATED DOCUMENTATION** - Enhanced method documentation with comprehensive parameter descriptions and usage notes.
+
+## Note
+
+-   Media endpoints will be coming in the future.
+
 # Changelog 1.0.15 [ - April 6th, 2025 - ]
 
 ## Updated

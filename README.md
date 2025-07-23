@@ -1,10 +1,19 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
-Latest version: **v1.0.15**<br>
+Latest version: **v1.0.16**<br>
 Changelogs: [CHANGELOG Link](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGELOG.md)
 
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically. Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
 
+### Why chose this library?
+- Most likely you are looking for an easy solution that works right out the box to start interacting with VRChat's API.
+- Built-in Cookies/sessions auto manager/renewer.
+- Automatic logging using 2FA TOTP Secret.
+- Perfect for containers.
+- Big Focus on Group types.
+- Overall type safety across the board.
+
+<br>
 <details>
 <summary>⚠️ Please Read This If You Are Updating From 1.0.5 or Lower</summary>
 
@@ -85,7 +94,8 @@ Install the project dependencies:
 npm install vrc-ts
 ```
 
-> [!IMPORTANT] > **Environment Setup**<br>
+> [!IMPORTANT] 
+> **Environment Setup**<br>
 > Ensure you have a `.env` file in your project's root directory with the required variables.
 
 ---
@@ -321,7 +331,7 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 **Groups API**:
 
--   `searchGroups`, `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `createGroupPost`, `getGroupPosts`, `deleteGroupPost`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup`, `deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`, `getGroupInstances`, `editGroupPost`
+-   `searchGroups`, `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `createGroupPost`, `getGroupPosts`, `deleteGroupPost`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup`, `deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`, `getGroupInstances`, `editGroupPost`, `createGroupEvent`, `updateGroupEvent`, `deleteGroupEvent`, `getGroupEvent`, `getGroupEvents`, `getGroupNextEvent`, `followGroupEvent`
 
 **Invites API**:
 
