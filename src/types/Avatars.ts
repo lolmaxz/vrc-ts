@@ -25,6 +25,10 @@ export type Avatar = {
      *
      * ## ⚠ Warning: Setting the release status to `hidden` will effectively delete your avatar and remove your access to it. be careful with this! */
     releaseStatus: AvatarReleaseStatus;
+    /** If the avatar is searchable or not */
+    searchable: boolean;
+    /** The style of the avatar. */
+    style: AvatarStyle;
     /** Default: `0`. Version of the avatar */
     version: number;
     /** - Default: `FALSE`. If the avatar is a featured avatar or not.
@@ -56,6 +60,28 @@ export enum AvatarReleaseStatus {
     Hidden = 'hidden',
     All = 'all',
 }
+
+export enum AvatarStyleTypes {
+    Furry = 'Furry',
+    Animal = 'Animal',
+    Object = 'Object',
+    Human = 'Human',
+    Robot = 'Robot',
+    Anime = 'Anime',
+    Realistic = 'Realistic',
+    Cartoon = 'Cartoon',
+    SciFi = 'Sci-Fi',
+    Fantasy = 'Fantasy',
+    PopCulture = 'Pop Culture',
+    Fashion = 'Fashion',
+}
+
+export type AvatarStyle = {
+    /** The style of the avatar. */
+    primary?: AvatarStyleTypes | null;
+    /** The secondary style of the avatar. */
+    secondary?: AvatarStyleTypes | null;
+};
 
 /**
  * Impostor Creation Status

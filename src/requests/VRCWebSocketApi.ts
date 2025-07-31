@@ -787,21 +787,21 @@ type AllWebSocketEventsTypes =
     | GroupRoleUpdatedType
     | WebSocketError;
 
-type WebSocketError = {
+export type WebSocketError = {
     type: 'error';
     err?: string;
     authToken?: string;
     ip?: string;
 };
 
-enum NotificationV2TypeEvents {
+export enum NotificationV2TypeEvents {
     Group_Announcement = 'group.announcement',
     Group_Invite = 'group.invite',
     Group_Informative = 'group.informative',
     Group_Join_Request = 'group.joinRequest',
 }
 
-enum CategoryV2Enum {
+export enum CategoryV2Enum {
     Social_Group = 'social.group',
 }
 

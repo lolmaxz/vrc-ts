@@ -1,10 +1,19 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
-Latest version: **v1.0.15**<br>
+Latest version: **v1.0.17**<br>
 Changelogs: [CHANGELOG Link](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGELOG.md)
 
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically. Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
 
+### Why chose this library?
+- Most likely you are looking for an easy solution that works right out the box to start interacting with VRChat's API.
+- Built-in Cookies/sessions auto manager/renewer.
+- Automatic logging using 2FA TOTP Secret.
+- Perfect for containers.
+- Big Focus on Group types.
+- Overall type safety across the board.
+
+<br>
 <details>
 <summary>⚠️ Please Read This If You Are Updating From 1.0.5 or Lower</summary>
 
@@ -85,7 +94,8 @@ Install the project dependencies:
 npm install vrc-ts
 ```
 
-> [!IMPORTANT] > **Environment Setup**<br>
+> [!IMPORTANT]  
+> **Environment Setup**<br>
 > Ensure you have a `.env` file in your project's root directory with the required variables.
 
 ---
@@ -181,7 +191,8 @@ Add it as an optional parameter when instantiating the VRChatAPI class:
 const api = new VRChatAPI({ useCookies: true, cookiePath: './cookies.json' });
 ```
 
-> [!NOTE] > **Cookies Path**<br>
+> [!NOTE]
+> **Cookies Path**<br>
 > If the `COOKIES_PATH` is omitted, cookies will be saved to the default path `./cookies.json`.
 >
 > **Cookies Usage**<br>
@@ -216,7 +227,8 @@ VRChat requires two-factor authentication (2FA). Depending on your setup (Email 
 
 3. Restart your application within **15 minutes** to complete authentication.
 
-> [!NOTE] > **Email OTP Validity**<br>
+> [!NOTE]
+> **Email OTP Validity**<br>
 > The Email OTP code is valid for **15 minutes**. Ensure you use it within this time frame.
 
 ### Using TOTP
@@ -262,7 +274,8 @@ For automatic 2FA code generation:
 
 2. The application will generate TOTP codes automatically, removing the need for manual entry.
 
-> [!CAUTION] > **Security Warning**<br>
+> [!CAUTION]
+> **Security Warning**<br>
 > Make sure to **never share or commit** your passwords or 2FA secrets. Keep them secure.
 
 ---
@@ -282,7 +295,8 @@ For automatic 2FA code generation:
     const api = new VRChatAPI({});
     ```
 
-> [!NOTE] > **Additional .env Options**<br>
+> [!NOTE]
+> **Additional .env Options**<br>
 > For more options with the `.env` file, check the `.env.example` file in the project.
 
 ---
@@ -321,7 +335,7 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 **Groups API**:
 
--   `searchGroups`, `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `createGroupPost`, `getGroupPosts`, `deleteGroupPost`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup`, `deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`, `getGroupInstances`, `editGroupPost`
+-   `searchGroups`, `createGroup`, `getGroupById`, `updateGroup`, `deleteGroup`, `createGroupPost`, `getGroupPosts`, `deleteGroupPost`, `getGroupAuditLogs`, `getGroupBans`, `banGroupMember`, `unbanGroupMember`, `createGroupGallery`, `getGroupGalleryImages`, `updateGroupGallery`, `deleteGroupGallery`, `addGroupGalleryImage`, `deleteGroupGalleryImage`, `getGroupInvitesSent`, `inviteUserToGroup`, `deleteUserInvite`, `joinGroup`, `leaveGroup`, `listGroupMembers`, `getGroupMember`, `updateGroupMember`, `kickGroupMember`, `addRoleToGroupMember`, `removeRoleFromGroupMember`, `listGroupPermissions`, `getGroupJoinRequests`, `cancelGroupJoinRequest`, `respondGroupJoinrequest`, `getGroupRoles`, `createGroupRole`, `updateGroupRole`, `deleteGroupRole`, `getGroupInstances`, `editGroupPost`, `createGroupEvent`, `updateGroupEvent`, `deleteGroupEvent`, `getGroupEvent`, `getGroupEvents`, `getGroupNextEvent`, `followGroupEvent`
 
 **Invites API**:
 
@@ -363,7 +377,8 @@ Here is the full list of endpoints by category that this wrapper implements. For
 
 -   `searchAllWorlds`, `createWorld`, `listActiveWorlds`, `listFavoritedWorlds`, `listRecentWorlds`, `getWorldbyID`, `updateWorld`, `deleteWorld`, `getWorldMetadata`, `getWorldPublishStatus`, `publishWorld`, `unpublishWorld`, `getWorldInstance`
 
-> [!CAUTION] > **Usage Disclaimer**<br>
+> [!CAUTION]
+> **Usage Disclaimer**<br>
 > Some endpoints may not yet be fully implemented or require more testing. Use them at your own discretion. VRChat's API is not officially documented, and this project relies on community efforts.
 
 > [!TIP]  
@@ -417,7 +432,8 @@ ws.on(EventType.Friend_Online, (data) => {
 });
 ```
 
-> [!WARNING] > **Authentication Required**<br>
+> [!WARNING]
+> **Authentication Required**<br>
 > A valid `authToken` is required. Ensure you authenticate with the API before initializing the WebSocket.
 
 ### Specifying Events to Listen To
@@ -571,7 +587,8 @@ Ensure that your application complies with VRChat's [TERMS OF SERVICE](https://h
 > > \
 > > Please see our latest API usage guidelines at the bottom of our Creators Guidelines. \
 
-> [!WARNING] > **Disclaimer**<br>
+> [!WARNING]
+> **Disclaimer**<br>
 > This project is not affiliated with VRChat Inc. Use of this package must comply with VRChat's [Terms of Service](https://hello.vrchat.com/legal) and [Community Guidelines](https://hello.vrchat.com/community-guidelines). I am not responsible for any misuse of this package.
 
 ---

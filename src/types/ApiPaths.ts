@@ -124,6 +124,14 @@ export const ApiPaths: APIPaths = {
         createGroupRole: { path: "/groups/{groupId}/roles", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"]  },
         updateGroupRole: { path: "/groups/{groupId}/roles/{groupRoleId}", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId", "groupRoleId"] },
         deleteGroupRole: { path: "/groups/{groupId}/roles/{groupRoleId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "groupRoleId"] },
+        followGroupEvent: {path: "/calendar/{groupId}/{calendarId}/follow", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId", "calendarId"] },
+        createGroupEvent: { path: "/calendar/{groupId}/event", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId"]  },
+        updateGroupEvent: { path: "/calendar/{groupId}/{calendarId}/event", method: "PUT", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["groupId", "calendarId"]  },
+        deleteGroupEvent: { path: "/calendar/{groupId}/{calendarId}", method: "DELETE", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "calendarId"]  },
+        getGroupEvent: { path: "/calendar/{groupId}/{calendarId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId", "calendarId"]  },
+        getGroupEvents: { path: "/calendar/{groupId}", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
+        getGroupNextEvent: { path: "/calendar/{groupId}/next", method: "GET", cookiesNeeded: ["authCookie"], requiredQueryParams: ["groupId"]  },
+
     },
     invites: {
         inviteUser: { path: "/invite/{userId}", method: "POST", cookiesNeeded: ["authCookie"], requiresData:true, requiredQueryParams: ["userId"] },
