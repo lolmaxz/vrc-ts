@@ -1,3 +1,9 @@
+# Changelog 1.0.17 [ - July 31st, 2025 - ] Enum Export Update
+
+## Added
+
+-   **[WEBSOCKET API]** **EXPORTED ENUMS** `NotificationV2TypeEvents`, `CategoryV2Enum` - Made WebSocket notification type enums publicly available for external use.
+
 # Changelog 1.0.16 [ - July 22nd, 2025 - ] Impostor + Calendar Update
 
 ## Added
