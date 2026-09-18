@@ -5,6 +5,7 @@ import {
     AvatarIdType,
     FavoriteAvatarTags,
     FavoriteGroupTags,
+    FavoriteGroupIdType,
     FavoriteIdType,
     FavoriteWorldTags,
     UserIdType,
@@ -39,8 +40,10 @@ export type Favorite = PossibleFavorite &
     };
 
 export type FavoriteGroup = BaseFavorite & {
+    id?: FavoriteGroupIdType;
     displayName: string;
-    visibility: FavoriteType;
+    type?: FavoriteType;
+    visibility: FavoriteGroupVisibility;
     ownerId: UserIdType;
     ownerDisplayName?: string;
     name?: string;
@@ -51,12 +54,21 @@ export enum FavoriteType {
     Friend = 'friend',
     Avatar = 'avatar',
     World = 'world',
+    VrcPlusWorld = 'vrcPlusWorld',
+}
+
+/** Visibility of a favorite group. Distinct from FavoriteType. */
+export enum FavoriteGroupVisibility {
+    Public = 'public',
+    Private = 'private',
+    Friends = 'friends',
 }
 
 export type FavoriteSingleGroupLimits = {
     avatar: number;
     friend: number;
     world: number;
+    vrcPlusWorld?: number;
 };
 
 export type FavoriteLimits = {
@@ -158,7 +170,7 @@ export type showFavoriteGroupRequest = favoriteGroupRequest;
 /** The data keys for creating a favorite group. */
 export type dataKeysFavoriteUpdate = {
     displayName?: string;
-    visibility?: FavoriteType;
+    visibility?: FavoriteGroupVisibility;
     tags?: (AllTags | allFavoriteTags)[];
 };
 
@@ -177,3 +189,40 @@ export type dataKeysFavoriteTypes =
     | dataKeysAddFavoriteAvatar
     | dataKeysAddFavoriteWorld
     | dataKeysFavoriteUpdate;
+
+export type FavoriteGroupSummary = {
+    displayName?: string;
+    id?: FavoriteGroupIdType;
+    name?: string;
+    numFavorites?: number;
+    visibility?: FavoriteGroupVisibility | string;
+};
+
+export type FavoriteGroupList = {
+    favoriteGroups?: FavoriteGroupSummary[];
+    maxFavoriteGroups?: number;
+    maxFavoritesPerGroup?: number;
+};
+
+export type FavoriteGroupContentsEntry = {
+    favoriteId?: string;
+    id?: string;
+    tags?: string[];
+    type?: FavoriteType | string;
+    avatar?: unknown;
+    world?: unknown;
+};
+
+export type FavoriteGroupContents = {
+    favorites?: FavoriteGroupContentsEntry[];
+    totalCount?: number;
+};
+
+export type getFavoriteGroupsByTypeRequest = {
+    favoriteGroupType: FavoriteType | 'vrcPlusWorld';
+    userId?: UserIdType;
+};
+
+export type getFavoriteGroupContentsRequest = getFavoriteGroupsByTypeRequest & {
+    favoriteGroupName: string;
+};

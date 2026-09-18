@@ -101,10 +101,15 @@ export class GroupsApi extends BaseApi {
      * @param getGroupByIdRequest - { groupId, includeRoles }
      * @returns {Group.Group} The Group object of the requested group.
      */
-    public async getGroupbyID({ groupId, includeRoles = false }: Group.getGroupByIdRequest): Promise<Group.Group> {
+    public async getGroupbyID({
+        groupId,
+        includeRoles = false,
+        purpose,
+    }: Group.getGroupByIdRequest): Promise<Group.Group> {
         const parameters: URLSearchParams = new URLSearchParams();
 
         parameters.append('includeRoles', includeRoles.toString());
+        if (purpose) parameters.append('purpose', purpose);
 
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupById,
@@ -374,6 +379,9 @@ export class GroupsApi extends BaseApi {
         offset,
         startDate,
         endDate,
+        actorIds,
+        eventTypes,
+        targetIds,
     }: Group.getGroupAuditLogsRequest): Promise<Group.GroupAudit> {
         const parameters: URLSearchParams = new URLSearchParams();
 
@@ -385,6 +393,9 @@ export class GroupsApi extends BaseApi {
         if (offset && offset >= 0) parameters.append('offset', offset.toString());
         if (startDate) parameters.append('startDate', startDate);
         if (endDate) parameters.append('endDate', endDate);
+        if (actorIds) parameters.append('actorIds', actorIds);
+        if (eventTypes) parameters.append('eventTypes', eventTypes);
+        if (targetIds) parameters.append('targetIds', targetIds);
 
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupAuditLogs,
@@ -393,6 +404,20 @@ export class GroupsApi extends BaseApi {
         };
 
         return await this.executeRequest<Group.GroupAudit>(paramRequest);
+    }
+
+    /**
+     * Returns the audit log event types this group has entries for.
+     */
+    public async getGroupAuditLogTypes({
+        groupId,
+    }: Group.getGroupAuditLogTypesRequest): Promise<Group.GroupAuditLogEventType[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getGroupAuditLogTypes,
+            pathFormated: ApiPaths.groups.getGroupAuditLogTypes.path.replace('{groupId}', groupId),
+        };
+
+        return await this.executeRequest<Group.GroupAuditLogEventType[]>(paramRequest);
     }
 
     /**
@@ -506,6 +531,7 @@ export class GroupsApi extends BaseApi {
         n,
         offset,
         approved,
+        v,
     }: Group.getGroupGalleryImagesRequest): Promise<Group.GroupGalleryImage[]> {
         const parameters: URLSearchParams = new URLSearchParams();
 
@@ -517,6 +543,7 @@ export class GroupsApi extends BaseApi {
 
         if (offset && offset >= 0) parameters.append('offset', offset.toString());
         if (approved) parameters.append('approved', approved.toString());
+        if (v !== undefined) parameters.append('v', v.toString());
 
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupGalleryImages,
@@ -691,11 +718,15 @@ export class GroupsApi extends BaseApi {
      * @param joinGroupRequest - { groupId }
      * @returns
      */
-    public async joinGroup({ groupId }: Group.joinGroupRequest): Promise<Group.GroupMember[]> {
+    public async joinGroup({ groupId, inviteId }: Group.joinGroupRequest): Promise<Group.GroupMember[]> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.joinGroup,
             pathFormated: ApiPaths.groups.joinGroup.path.replace('{groupId}', groupId),
         };
+
+        if (inviteId) {
+            paramRequest.body = { inviteId };
+        }
 
         return await this.executeRequest<Group.GroupMember[]>(paramRequest);
     }
@@ -747,22 +778,22 @@ export class GroupsApi extends BaseApi {
     }
 
     /**
-     * Returns a LimitedGroup Member.
+     * Returns a group member, or `null` when the user has no membership / invite / request for that group.
      * @param getGroupMemberRequest - { groupId, userId }
      * @returns
      */
-    public async getGroupMember({ groupId, userId }: Group.getGroupMemberRequest): Promise<Group.GroupMember> {
+    public async getGroupMember({ groupId, userId }: Group.getGroupMemberRequest): Promise<Group.GroupMember | null> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupMember,
             pathFormated: ApiPaths.groups.getGroupMember.path.replace('{groupId}', groupId).replace('{userId}', userId),
         };
 
-        return await this.executeRequest<Group.GroupMember>(paramRequest);
+        return await this.executeRequest<Group.GroupMember | null>(paramRequest);
     }
 
     /**
      * Updates a Group Member
-     * @param updateGroupMemberRequest - { groupId, userId, visibility, isSubscribedToAnnouncements, managerNotes }
+     * @param updateGroupMemberRequest - { groupId, userId, visibility, isSubscribedToAnnouncements, isSubscribedToEventAnnouncements, managerNotes }
      * @returns
      */
     public async updateGroupMember({
@@ -770,10 +801,11 @@ export class GroupsApi extends BaseApi {
         userId,
         visibility,
         isSubscribedToAnnouncements,
+        isSubscribedToEventAnnouncements,
         managerNotes,
     }: Group.updateGroupMemberRequest): Promise<Group.GroupMemberLimitedUser> {
         // At least one attribute must be set, otherwise the request will fail.
-        if (!visibility && !isSubscribedToAnnouncements && !managerNotes) {
+        if (!visibility && !isSubscribedToAnnouncements && !isSubscribedToEventAnnouncements && !managerNotes) {
             throw new Error('At least one attribute must be set!');
         }
 
@@ -781,6 +813,7 @@ export class GroupsApi extends BaseApi {
 
         if (visibility) body.visibility = visibility;
         if (isSubscribedToAnnouncements) body.isSubscribedToAnnouncements = isSubscribedToAnnouncements;
+        if (isSubscribedToEventAnnouncements) body.isSubscribedToEventAnnouncements = isSubscribedToEventAnnouncements;
         if (managerNotes) body.managerNotes = managerNotes;
 
         const paramRequest: executeRequestType = {
@@ -788,6 +821,7 @@ export class GroupsApi extends BaseApi {
             pathFormated: ApiPaths.groups.updateGroupMember.path
                 .replace('{groupId}', groupId)
                 .replace('{userId}', userId),
+            body: body,
         };
 
         return await this.executeRequest<Group.GroupMemberLimitedUser>(paramRequest);
@@ -1228,10 +1262,19 @@ export class GroupsApi extends BaseApi {
      * @param getGroupEventsRequest - { groupId }
      * @returns {Group.GroupEventList} The GroupEventList object of the requested events.
      */
-    public async getGroupEvents({ groupId }: Group.getGroupEventListRequest): Promise<Group.GroupEventList> {
+    public async getGroupEvents({
+        groupId,
+        n,
+        offset,
+        date,
+        after,
+        limit,
+        sort,
+    }: Group.getGroupEventListRequest): Promise<Group.GroupEventList> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.groups.getGroupEvents,
             pathFormated: ApiPaths.groups.getGroupEvents.path.replace('{groupId}', groupId),
+            queryOptions: this.calendarListParams({ n, offset, date, after, limit, sort }),
         };
 
         return await this.executeRequest<Group.GroupEventList>(paramRequest);
@@ -1274,5 +1317,166 @@ export class GroupsApi extends BaseApi {
         };
 
         return await this.executeRequest<Group.GroupEvent>(paramRequest);
+    }
+
+    /**
+     * Returns calendar events the current user has added / followed.
+     * This is the user calendar list. Following an event does not add fields to `CurrentUser`.
+     */
+    public async getFollowedCalendarEvents({
+        n,
+        offset,
+        date,
+    }: Group.getFollowedCalendarEventsRequest = {}): Promise<Group.GroupEventList> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getFollowedCalendarEvents,
+            pathFormated: ApiPaths.groups.getFollowedCalendarEvents.path,
+            queryOptions: this.calendarListParams({ n, offset, date }),
+        };
+
+        return await this.executeRequest<Group.GroupEventList>(paramRequest);
+    }
+
+    /**
+     * List the current user's calendar events for a month.
+     * This is not on `CurrentUser`. Use `?date=` for the month.
+     */
+    public async getCalendarEvents({
+        n,
+        offset,
+        date,
+    }: Group.getCalendarEventsRequest = {}): Promise<Group.GroupEventList> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getCalendarEvents,
+            pathFormated: ApiPaths.groups.getCalendarEvents.path,
+            queryOptions: this.calendarListParams({ n, offset, date }),
+        };
+
+        return await this.executeRequest<Group.GroupEventList>(paramRequest);
+    }
+
+    /** List featured calendar events for a month. */
+    public async getFeaturedCalendarEvents({
+        n,
+        offset,
+        date,
+    }: Group.getFeaturedCalendarEventsRequest = {}): Promise<Group.GroupEventList> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getFeaturedCalendarEvents,
+            pathFormated: ApiPaths.groups.getFeaturedCalendarEvents.path,
+            queryOptions: this.calendarListParams({ n, offset, date }),
+        };
+
+        return await this.executeRequest<Group.GroupEventList>(paramRequest);
+    }
+
+    /** Search calendar events by term. */
+    public async searchCalendarEvents({
+        searchTerm,
+        utcOffset,
+        n,
+        offset,
+    }: Group.searchCalendarEventsRequest): Promise<Group.GroupEventList> {
+        if (!searchTerm.trim()) throw new BadRequestParameter('searchTerm is required!');
+        const parameters = this.calendarListParams({ n, offset });
+        parameters.append('searchTerm', searchTerm);
+        if (utcOffset !== undefined) {
+            if (utcOffset < -12 || utcOffset > 12) throw new BadRequestParameter('utcOffset must be between -12 and 12!');
+            parameters.append('utcOffset', utcOffset.toString());
+        }
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.searchCalendarEvents,
+            pathFormated: ApiPaths.groups.searchCalendarEvents.path,
+            queryOptions: parameters,
+        };
+
+        return await this.executeRequest<Group.GroupEventList>(paramRequest);
+    }
+
+    /** Discover calendar events. Cursor-paginated; not the same shape as `GroupEventList`. */
+    public async discoverCalendarEvents({
+        n,
+        scope,
+        categories,
+        tags,
+        featuredResults,
+        nonFeaturedResults,
+        personalizedResults,
+        minimumInterestCount,
+        minimumRemainingMinutes,
+        upcomingOffsetMinutes,
+        nextCursor,
+    }: Group.discoverCalendarEventsRequest = {}): Promise<Group.CalendarEventDiscovery> {
+        const parameters: URLSearchParams = new URLSearchParams();
+        if (n) {
+            if (!(n >= 1 && n <= 100)) throw new BadRequestParameter('n must be between 1 and 100!');
+            parameters.append('n', n.toString());
+        }
+        if (scope) parameters.append('scope', scope);
+        if (categories) parameters.append('categories', categories);
+        if (tags) parameters.append('tags', tags);
+        if (featuredResults) parameters.append('featuredResults', featuredResults);
+        if (nonFeaturedResults) parameters.append('nonFeaturedResults', nonFeaturedResults);
+        if (personalizedResults) parameters.append('personalizedResults', personalizedResults);
+        if (minimumInterestCount !== undefined)
+            parameters.append('minimumInterestCount', minimumInterestCount.toString());
+        if (minimumRemainingMinutes !== undefined)
+            parameters.append('minimumRemainingMinutes', minimumRemainingMinutes.toString());
+        if (upcomingOffsetMinutes !== undefined)
+            parameters.append('upcomingOffsetMinutes', upcomingOffsetMinutes.toString());
+        if (nextCursor) parameters.append('nextCursor', nextCursor);
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.discoverCalendarEvents,
+            pathFormated: ApiPaths.groups.discoverCalendarEvents.path,
+            queryOptions: parameters,
+        };
+
+        return await this.executeRequest<Group.CalendarEventDiscovery>(paramRequest);
+    }
+
+    /** Download a calendar event as iCalendar (ICS) text. */
+    public async getGroupCalendarEventIcs({
+        groupId,
+        eventId,
+    }: Group.getGroupCalendarEventIcsRequest): Promise<string> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.groups.getGroupCalendarEventIcs,
+            pathFormated: ApiPaths.groups.getGroupCalendarEventIcs.path
+                .replace('{groupId}', groupId)
+                .replace('{calendarId}', eventId),
+            expectText: true,
+        };
+
+        return await this.executeRequest<string>(paramRequest);
+    }
+
+    private calendarListParams({
+        n,
+        offset,
+        date,
+        after,
+        limit,
+        sort,
+    }: {
+        n?: number;
+        offset?: number;
+        date?: string;
+        after?: string;
+        limit?: number;
+        sort?: string;
+    }): URLSearchParams {
+        const parameters: URLSearchParams = new URLSearchParams();
+        if (n) {
+            if (!(n >= 1 && n <= 100)) throw new BadRequestParameter('n must be between 1 and 100!');
+            parameters.append('n', n.toString());
+        }
+        if (offset && offset >= 0) parameters.append('offset', offset.toString());
+        if (date) parameters.append('date', date);
+        if (after) parameters.append('after', after);
+        if (limit !== undefined) parameters.append('limit', limit.toString());
+        if (sort) parameters.append('sort', sort);
+        return parameters;
     }
 }

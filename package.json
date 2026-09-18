@@ -1,6 +1,6 @@
 {
     "name": "vrc-ts",
-    "version": "1.0.17",
+    "version": "1.0.18",
     "description": "A Robust and Safe VRChat API Wrapper in TypeScript",
     "type": "module",
     "main": "./dist/index.cjs",
@@ -10,10 +10,12 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsup src/index.ts --format cjs,esm --dts --clean --sourcemap",
-        "test": "jest --verbose --silent=false",
+        "build": "tsup src/index.ts --format esm --format cjs --dts --clean --sourcemap",
+        "test": "jest --verbose --silent=false --forceExit",
         "dev": "ts-node src/main.ts",
         "check-exports": "attw --pack .",
+        "format": "prettier --write .",
+        "check-format": "prettier --check .",
         "prepare": "tsc",
         "ci": "npm run build && npm run check-format && npm run check-exports",
         "check-build": "npm run build && npm run check-exports",

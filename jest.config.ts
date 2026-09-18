@@ -5,6 +5,8 @@ const config: Config = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     setupFiles: ['./jest.setup.js'],
+    forceExit: true,
+    testTimeout: 20000,
 };
 
 export default config;

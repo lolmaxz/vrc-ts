@@ -198,4 +198,42 @@ export class FavoritesApi extends BaseApi {
 
         return await this.executeRequest<Fav.FavoriteLimits>(paramRequest);
     }
+
+    public async getFavoriteGroupsByType({
+        favoriteGroupType,
+        userId,
+    }: Fav.getFavoriteGroupsByTypeRequest): Promise<Fav.FavoriteGroupList> {
+        const parameters: URLSearchParams = new URLSearchParams();
+        if (userId) parameters.append('userId', userId);
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.favorites.getFavoriteGroupsByType,
+            pathFormated: ApiPaths.favorites.getFavoriteGroupsByType.path.replace(
+                '{favoriteGroupType}',
+                favoriteGroupType
+            ),
+            queryOptions: parameters.toString() ? parameters : undefined,
+        };
+
+        return await this.executeRequest<Fav.FavoriteGroupList>(paramRequest);
+    }
+
+    public async getFavoriteGroupContents({
+        favoriteGroupType,
+        favoriteGroupName,
+        userId,
+    }: Fav.getFavoriteGroupContentsRequest): Promise<Fav.FavoriteGroupContents> {
+        const parameters: URLSearchParams = new URLSearchParams();
+        if (userId) parameters.append('userId', userId);
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.favorites.getFavoriteGroupContents,
+            pathFormated: ApiPaths.favorites.getFavoriteGroupContents.path
+                .replace('{favoriteGroupType}', favoriteGroupType)
+                .replace('{favoriteGroupName}', favoriteGroupName),
+            queryOptions: parameters.toString() ? parameters : undefined,
+        };
+
+        return await this.executeRequest<Fav.FavoriteGroupContents>(paramRequest);
+    }
 }

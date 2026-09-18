@@ -3,15 +3,39 @@ import {
     BadgeIdType,
     FeedbackIdType,
     FileIdType,
+    GroupIdType,
     InstanceIdType,
     twoFactorAuthResponseType,
     UserIdType,
     UserNoteIdType,
     WorldIdType,
 } from './Generics';
-import { Group } from './Groups';
 
 //! --- Users --- !//
+
+/** How a profile banner is rendered. */
+export type ProfileBannerType = 'avatarBanner' | 'color' | 'customImage';
+
+/** Profile cosmetics returned on current user, public user, and search hits. */
+export type ProfileAppearance = {
+    /** How the profile banner is rendered. */
+    bannerType?: ProfileBannerType;
+    /** Hex color used when `bannerType` is `color`. */
+    bannerColor?: string;
+    /** Image used when `bannerType` is `customImage`. */
+    bannerUrl?: string;
+    /** Profile icon image URL. */
+    iconUrl?: string;
+    /** Cosmetic frame applied to the profile icon. Often empty or an `invt_` ID. */
+    iconFrame?: string;
+    /** Cosmetic nameplate effect. Often empty or an `invt_` ID. */
+    nameplateEffect?: string;
+    /** Cosmetic profile effect. Often empty or an `invt_` ID. */
+    profileEffect?: string;
+    /** Thumbnail variant of the profile picture override. */
+    profilePicOverrideThumbnail?: string;
+};
+
 /** The CurrentUserPresence object containing detailed information about the currently logged in user's presence. */
 export type CurrentUserPresence = {
     id?: UserIdType;
@@ -20,9 +44,13 @@ export type CurrentUserPresence = {
     userIcon?: FileIdType;
     travelingToInstance?: InstanceIdType;
     avatarThumbnail?: string;
+    /** Full-size current avatar image URL. */
+    avatarImageUrl?: string;
     world?: WorldIdType;
-    currentAvatarTags?: string[];
-    groups?: Group[];
+    /** Spec v1.21.0: presence copy is a string. User objects still use `string[]`. */
+    currentAvatarTags?: string | string[];
+    /** Group IDs, not full Group objects. */
+    groups?: GroupIdType[];
     travelingToWorld?: InstanceIdType;
     instanceType?: string;
     status?: string;
@@ -30,6 +58,11 @@ export type CurrentUserPresence = {
     profilePicOverride?: string;
     platform?: string;
     isRejoining?: string; // todo ? is documented but doesn't get sent anymore
+    /** Banner color hex or image identifier currently shown in presence. */
+    banner?: string;
+    iconFrame?: string;
+    nameplateEffect?: string;
+    profileEffect?: string;
 };
 
 /** The CurrentUser object containing detailed information about the currently logged in user. */
@@ -61,7 +94,10 @@ export type CurrentUser = {
     currentAvatarThumbnailImageUrl: string;
     currentAvatarTags?: string[];
     currentAvatar: string;
-    currentAvatarAssetUrl: string;
+    /** Previously required. VRChat no longer returns this on `/auth/user`.
+     * @deprecated This field is currently considered deprecated as it's not returned anymore.
+     */
+    currentAvatarAssetUrl?: string;
     fallbackAvatar?: string;
     accountDeletionDate?: string | null;
     accountDeletionLog?: Array<AccountDeletionLog>; // ensure it can be null or an array
@@ -93,6 +129,22 @@ export type CurrentUser = {
     isFriend: boolean;
     friendKey: string;
     last_activity?: string;
+    friendRequestStatus?: string;
+    instanceId?: InstanceIdType;
+    location?: InstanceIdType;
+    note?: string;
+    travelingToInstance?: InstanceIdType;
+    travelingToLocation?: InstanceIdType;
+    travelingToWorld?: InstanceIdType;
+    worldId?: WorldIdType;
+    /** Content-gating tags beginning with `content_`. */
+    contentFilters?: string[];
+    /** Opt out of Discord friend connections. */
+    hasDiscordFriendsOptOut?: boolean;
+    /** Opt out of the Mutuals feature. */
+    hasSharedConnectionsOptOut?: boolean;
+    /** Instance the user is queued for, if any. */
+    queuedInstance?: string | null;
     /** List of Online Friends.
      * @deprecated This field is currently considered deprecated as it's not returned anymore.
      */
@@ -101,9 +153,7 @@ export type CurrentUser = {
      * @deprecated This field is currently considered deprecated as it's not returned anymore.
      */
     activeFriends?: string[];
-    /** User's current presence.
-     * @deprecated This field is currently considered deprecated as it's not returned anymore it seems.
-     */
+    /** REST `/auth/user` may still include this; fuller presence comes from websocket events. */
     presence?: CurrentUserPresence;
     offlineFriends?: string[];
     /** If Booping is enabled for the user.
@@ -118,7 +168,35 @@ export type CurrentUser = {
     last_mobile?: string;
     /** The user's past Platform History. */
     platform_history?: PlatformHistoryEntity[];
-};
+    /** Profile badges currently shown on the user. */
+    badges?: UserBadge[];
+    /** Tutorial IDs the user has finished. */
+    completedTutorials?: string[];
+    /** Previously used pronouns. */
+    pronounsHistory?: string[];
+    /** Whether the user can sell Creator Economy products. */
+    isEconomyCreator?: boolean;
+    /** Whether this account is a temporary / guest account. */
+    isTemporary?: boolean;
+    /** When a temporary account expires. */
+    temporaryExpiryDate?: string | null;
+    /** Whether personalized recommendations are disabled. */
+    personalizationOptOut?: boolean;
+    /** Whether VRChat generated the account password. */
+    usesGeneratedPassword?: boolean;
+    /** Linked Apple account ID. Often empty. */
+    appleId?: string;
+    /** Linked Apple account metadata. Often an empty object. */
+    appleDetails?: object;
+    /** Linked Discord account ID. Often empty. */
+    discordId?: string;
+    /** Linked Discord account metadata. Often an empty object. */
+    discordDetails?: object;
+    /** Linked Twitch account ID. Often empty. */
+    twitchId?: string;
+    /** Linked Twitch account metadata. Often an empty object. */
+    twitchDetails?: object;
+} & ProfileAppearance;
 
 /**
  * ### Age Verification Status
@@ -139,7 +217,7 @@ export enum AgeVerificationStatus {
 
 export type PlatformHistoryEntity = {
     isMobile: boolean;
-    platform?: null;
+    platform?: string | null;
     recorded: string;
 };
 
@@ -149,7 +227,7 @@ export type currentUserOrTwoFactorType = twoFactorAuthResponseType | CurrentUser
 export type PastDisplayName = {
     displayName: string;
     updated_at: string;
-    reverted: boolean; // new
+    reverted?: boolean;
 };
 
 /** Typically "Deletion requested" or "Deletion canceled". Other messages like "Deletion completed" may exist, but are these are not possible to see as a regular user.
@@ -206,11 +284,11 @@ export type LimitedUser = {
     /** The user's Bio Links. (Socials and such) */
     bioLinks?: string[];
     /** The user's current avatar image URL. */
-    currentAvatarImageUrl: string;
+    currentAvatarImageUrl?: string;
     /** The user's current avatar tags. */
     currentAvatarTags?: string[];
-    /** The user's current avatar thumbnail image URL. */
-    currentAvatarThumbnailImageUrl: string;
+    /** The user's current avatar thumbnail image URL. Search hits often omit this. */
+    currentAvatarThumbnailImageUrl?: string;
     /** The user's developer type. */
     developerType: DeveloperType;
     /** The user's display name. */
@@ -234,7 +312,9 @@ export type LimitedUser = {
     tags: string[];
     /** The user's user icon. */
     userIcon?: FileIdType;
-};
+    /** The user's preferred pronouns. */
+    pronouns?: string;
+} & ProfileAppearance;
 
 export type LimitedUserFriend = {
     /** The user's Bio. */
@@ -265,27 +345,25 @@ export type LimitedUserFriend = {
     last_login: string;
     /** The user's last platform used. */
     last_platform: string;
+    last_activity?: string;
+    last_mobile?: string | null;
+    platform?: string;
+    discordId?: string;
     /** The user's profile picture override. */
     profilePicOverride: string;
     /** The user's set pronouns. */
-    pronouns: string;
+    pronouns?: string;
     /** The user's status. */
     status: UserStatus;
     /** The user's status description. */
     statusDescription: string;
     /** The user's tags. */
     tags: string[];
-    /**
-     * @ignore
-     * @deprecated This field seems deprecated and is not returned anymore.
-     */
-    imageUrl?: string; // todo undocumented. It seems this is not always returned
-    /** This is normally not available if you aren't friends with the user.
-     *
-     * @deprecated This field seems deprecated and is not returned anymore.
-     */
+    /** Still returned on the friends list. */
+    imageUrl?: string;
+    /** Friend location / instance. Offline friends may omit this. */
     location?: InstanceIdType;
-};
+} & ProfileAppearance;
 
 /** Base User type for the websocket when identifying a user object */
 export type UserBase = {
@@ -316,8 +394,39 @@ export type UserBase = {
 };
 
 // todo some undocumented stuff here, those fields are not sent to the websocket! (as researched)
-/** This Type represents a user in VRChat. Includes field that the websocket doesn't send */
-export type User = UserBase & {
+/** This Type represents a user in VRChat. Includes field that the websocket doesn't send.
+ * Public `GET /users/{userId}` omits several `UserBase` avatar/bio fields, so those are optional here. */
+export type User = {
+    id: UserIdType;
+    displayName: string;
+    userIcon?: FileIdType;
+    bio?: string;
+    bioLinks?: string[];
+    profilePicOverride?: string;
+    statusDescription: string;
+    badges?: UserBadge[];
+    currentAvatarImageUrl?: string;
+    currentAvatarThumbnailImageUrl?: string;
+    currentAvatarTags?: string[];
+    date_joined: Date;
+    developerType: DeveloperType;
+    friendKey: string;
+    isFriend: boolean;
+    last_activity: string;
+    last_login: string;
+    last_platform: string;
+    status: UserStatus;
+    allowAvatarCopying: boolean;
+    ageVerificationStatus: AgeVerificationStatus;
+    tags: AllTags[];
+    last_mobile?: string;
+    acceptedPrivacyVersion?: number;
+    acceptedTOSVersion?: number;
+    accountDeletionDate?: string | null;
+    accountDeletionLog?: AccountDeletionLog[] | null;
+    appleDetails?: object;
+    /** Present on some friends / self views. */
+    discordId?: string;
     friendRequestStatus?: string;
     instanceId?: InstanceIdType;
     location?: InstanceIdType;
@@ -328,7 +437,15 @@ export type User = UserBase & {
     travelingToWorld?: InstanceIdType;
     username?: string;
     worldId?: WorldIdType;
-};
+    /** The user's preferred pronouns. */
+    pronouns?: string;
+    /** Whether VRChat considers the user age-verified. */
+    ageVerified?: boolean;
+    /** Whether the user can sell Creator Economy products. */
+    isEconomyCreator?: boolean;
+    /** Current platform string. Can be `offline` or empty when the user is offline. */
+    platform?: string;
+} & ProfileAppearance;
 
 export type UserUpdateWebSocket = {
     id: UserIdType;
@@ -385,8 +502,8 @@ export enum VRCRanksName {
 }
 
 export type UserBadge = {
-    /** When the badge was assigned. */
-    assignedAt: string;
+    /** When the badge was assigned. Present on the owner view, omitted on public users. */
+    assignedAt?: string;
     /** The badge's description. */
     badgeDescription: string;
     /** The badge's ID. */
@@ -395,12 +512,16 @@ export type UserBadge = {
     badgeName: string;
     /** The badge's image URL. */
     badgeImageUrl: string;
-    /** If the badge is hidden from the user's profile. */
-    hidden: boolean;
+    /** If the badge is hidden from the user's profile. Present on the owner view, omitted on public users. */
+    hidden?: boolean;
     /** If the badge is showcased on the user's profile. */
     showcased: boolean;
-    /** When the badge was last updated. */
-    updated_at: string;
+    /** When the badge was last updated. Documented snake_case form; omitted on public users. */
+    updated_at?: string;
+    /** When the badge was last updated. CamelCase form returned on `/auth/user`. */
+    updatedAt?: string;
+    /** Whether this badge can stack or show a quantity. */
+    isQuantifiable?: boolean;
 };
 
 export type Feedback = {
@@ -495,6 +616,14 @@ export type SearchAllUsersRequest = {
 /** Information required to get a user by their ID. */
 export type getUserByIdRequest = UserId;
 
+/** `GET /profile/{userId}` query flags from official spec v1.21.0. */
+export type getPublicProfileRequest = UserId & {
+    /** Owner-only extras: status, current avatar, themes, gradients. Ignored for any other user. */
+    asSelf?: boolean;
+    /** Include `groups`, `publicWorlds`, `totalPublicWorldsCount`, and `worldFavoriteLists`. */
+    withGroupsAndWorlds?: boolean;
+};
+
 export type dataKeysUpdateUser = {
     /** The user's email address. */
     email?: string;
@@ -523,6 +652,12 @@ export type dataKeysUpdateUser = {
      * You need to have been age verified to set this to "verified" or "18+".
      */
     ageVerificationStatus?: AgeVerificationStatus;
+    /** Content-gating tags beginning with `content_`. */
+    contentFilters?: string[];
+    /** Opt out of Discord friend connections. */
+    hasDiscordFriendsOptOut?: boolean;
+    /** Opt out of the Mutuals feature. */
+    hasSharedConnectionsOptOut?: boolean;
 };
 
 /** Information required to update a user's information. */
@@ -589,3 +724,120 @@ export type getNoteFromUserRequest = {
 
 /** Information required to get a List of User's group instances. */
 export type getUserGroupInstancesRequest = UserId;
+
+export type getUserGroupInstancesForGroupRequest = UserId & {
+    groupId: GroupIdType;
+};
+
+/** Permissions the user has in each joined group. Live shape is refined from GET /users/{id}/groups/permissions. */
+export type UserGroupPermissions = Record<string, string[]>;
+
+export type UserTutorialStatus = {
+    completed: boolean;
+    completedAnyTutorial: boolean;
+    completedTutorials: string[];
+    tutorialKey: string;
+};
+
+/** Counts of shared friends/groups with another user. */
+export type UserMutuals = {
+    friends: number;
+    groups: number;
+};
+
+export type UserPrivateActivity = {
+    instanceId?: string;
+    last_activity?: string;
+    last_login?: string;
+    location?: string;
+    platform?: string;
+    state?: string;
+    worldId?: string;
+};
+
+/** Owner-only profile. Live GET /profile/{id}/private is this small payload, not CurrentUser. */
+export type UserPrivateProfile = {
+    activity: UserPrivateActivity;
+    friendRequestStatus: string;
+    id: UserIdType;
+    isFriend?: boolean;
+    note?: string | null;
+};
+
+/** Public profile page. Not a `User` object. Bio/badges/avatar live here after spec v1.21.0, not on `GET /users/{id}`. */
+export type UserPublicProfile = {
+    ageVerificationStatus?: string;
+    ageVerified?: boolean;
+    backgroundTextureId?: string;
+    backgroundType?: string;
+    backgroundGradientTop?: string;
+    backgroundGradientBottom?: string;
+    backgroundTemplateId?: string;
+    badges?: UserBadge[];
+    bio?: string;
+    bioLinks?: string[];
+    displayName?: string;
+    hasVrcPlus?: boolean;
+    id: UserIdType;
+    languages?: string[];
+    pronouns?: string;
+    isEconomyCreator?: boolean;
+    representedGroup?: {
+        groupId?: GroupIdType;
+        id?: GroupIdType;
+        name?: string;
+        shortCode?: string;
+        discriminator?: string;
+        iconUrl?: string;
+        bannerUrl?: string;
+    } | null;
+    status?: UserStatus;
+    statusDescription?: string;
+    themeButtonColor?: string;
+    themeIconColor?: string;
+    themeId?: string;
+    themeSubtextColor?: string;
+    trustTags?: string[];
+    /** Present when `asSelf=true` on your own profile. */
+    currentAvatar?: string;
+    currentAvatarName?: string;
+    currentAvatarAuthorName?: string;
+    currentAvatarImageUrl?: string;
+    currentAvatarThumbnailImageUrl?: string;
+    currentAvatarTags?: string[];
+    iconType?: string;
+    bannerCustomUrl?: string;
+    userIcon?: string;
+    themes?: unknown[];
+    groups?: {
+        count?: number;
+        list?: Array<{
+            iconUrl?: string;
+            id?: GroupIdType;
+            name?: string;
+        }>;
+    };
+    publicWorlds?: unknown[];
+    totalPublicWorldsCount?: number;
+    worldFavoriteLists?: Array<{
+        count?: number;
+        id?: string;
+        name?: string;
+        thumbnails?: string[];
+    }>;
+} & ProfileAppearance;
+
+export type PersistenceExists = {
+    exists: boolean;
+};
+
+export type UserClientConfig = {
+    accessReduceDecorAnim?: boolean;
+    configString?: string;
+};
+
+export type AgeVerificationStatusResult = {
+    status?: string;
+};
+
+export type getUserClientConfigRequest = UserId;

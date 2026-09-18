@@ -289,8 +289,12 @@ export class WorldsApi extends BaseApi {
         authorId,
         authorName,
         capacity,
+        recommendedCapacity,
         description,
+        disabledPropAbilities,
         imageUrl,
+        previewYoutubeId,
+        urlList,
         name,
         platform,
         releaseStatus,
@@ -304,9 +308,13 @@ export class WorldsApi extends BaseApi {
         if (assetVersion) body.assetVersion = assetVersion;
         if (authorId) body.authorId = authorId;
         if (authorName) body.authorName = authorName;
-        if (capacity) body.capacity = capacity;
-        if (description) body.description = description;
+        if (capacity !== undefined) body.capacity = capacity;
+        if (recommendedCapacity !== undefined) body.recommendedCapacity = recommendedCapacity;
+        if (description !== undefined) body.description = description;
+        if (disabledPropAbilities) body.disabledPropAbilities = disabledPropAbilities;
         if (imageUrl) body.imageUrl = imageUrl;
+        if (previewYoutubeId !== undefined) body.previewYoutubeId = previewYoutubeId;
+        if (urlList) body.urlList = urlList;
         if (name) body.name = name;
         if (platform) body.platform = platform;
         if (releaseStatus) body.releaseStatus = releaseStatus;

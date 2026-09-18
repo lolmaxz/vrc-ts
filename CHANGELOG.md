@@ -1,3 +1,126 @@
+# Changelog 1.0.18 [ - September 13th, 2026 - ] Live user/group type sync
+
+## Added
+
+-   **[USER API]** **ADDED TYPE** `ProfileAppearance`, `ProfileBannerType` - Shared profile cosmetics (`bannerType`, `bannerColor`, `bannerUrl`, `iconUrl`, `iconFrame`, `nameplateEffect`, `profileEffect`, `profilePicOverrideThumbnail`) used on `CurrentUser`, `User`, `LimitedUser`, and `LimitedUserFriend`.
+-   **[USER API]** **ADDED REQUEST** `getUserAllGroupPermissions`, `getInvitedGroups`, `getBlockedGroups`, `getUserGroupInstancesForGroup`, `getUserTutorialStatus`, `getMutuals` / `getMutualFriends` / `getMutualGroups`, `getPublicProfile`, `getPrivateProfile`, `checkUserPersistenceExists`.
+-   **[USER API]** **ADDED REQUEST** `getUserClientConfig`, `getAgeVerificationStatus` - Official spec v1.21.0.
+-   **[INVENTORY API]** **ADDED REQUEST** `getCosmeticIndex`, `getUserCosmetics` - Published cosmetics by kind, and cosmetics a user holds.
+-   **[FAVORITE API]** **ADDED REQUEST** `getFavoriteGroupsByType`, `getFavoriteGroupContents`.
+-   **[ECONOMY API]** **ADDED REQUEST** `getEconomyStatus`, `getEconomyBalance` (`/user/{userId}/economy/balance`, distinct from `/user/{userId}/balance`), `getProductListingProducts`.
+-   **[BETA API]** **ADDED REQUEST** `getBeta`, `getBetaRegistration`.
+-   **[SYSTEM API]** **ADDED REQUEST** `getFrontendBranches`.
+-   **[WORLD API]** **ADDED TYPE** `UnavailableWorld` - Placeholder when a favorite group points at a world the API will not describe.
+-   **[GROUP API]** **ADDED TYPE** `UserGroup` - Membership view returned by `GET /users/{userId}/groups` (`groupId`, `memberVisibility`, `mutualGroup`, nameplate fields, optional `storeId` / `lastPostReadAt` / `lastPostCreatedAt`).
+-   **[GROUP API]** **ADDED ENUM** `GroupEventOccurrenceKind`, `GroupEventRecurrenceFrequency` and type `GroupEventRecurrence`.
+-   **[GROUP API]** **ADDED TYPE** `GroupAuditTargetId`, `GroupAuditLogData`, `GroupEventAccessType`, `GroupCalendarKind`, `GroupEventRecurrenceDay`, `GroupEventRecurrenceEndType`, `GroupInstanceAccessType`.
+-   **[GROUP API]** **ADDED REQUEST** `getGroupAuditLogTypes` - `GET /groups/{groupId}/auditLogTypes`.
+-   **[GROUP API]** **ADDED REQUEST** `getFollowedCalendarEvents` - `GET /calendar/following`. Following an event does not add fields to `CurrentUser`; the calendar list is this endpoint.
+-   **[GROUP API]** **ADDED REQUEST** `getCalendarEvents` - `GET /calendar`. User month calendar (`?date=`).
+-   **[GROUP API]** **ADDED REQUEST** `getFeaturedCalendarEvents` - `GET /calendar/featured`.
+-   **[GROUP API]** **ADDED REQUEST** `searchCalendarEvents` - `GET /calendar/search`.
+-   **[GROUP API]** **ADDED REQUEST** `discoverCalendarEvents` - `GET /calendar/discover`. Returns `CalendarEventDiscovery` (`nextCursor` + `results`), not `GroupEventList`.
+-   **[GROUP API]** **ADDED REQUEST** `getGroupCalendarEventIcs` - `GET /calendar/{groupId}/{calendarId}.ics` (ICS text).
+-   **[GROUP API]** **ADDED ENUM** `CalendarEventDiscoveryScope`, `CalendarEventDiscoveryInclusion` and type `CalendarEventDiscovery`.
+-   **[INSTANCE API]** **ADDED REQUEST** `closeInstance` - `DELETE /instances/{worldId}:{instanceId}` with `hardClose` / `closedAt` (same as VRCX).
+-   **[INSTANCE API]** **ADDED REQUEST** `getRecentLocations` - `GET /instances/recent`.
+-   **[INSTANCE API]** **ADDED TYPE** `InstanceContentSettings` - drones / emoji / pedestals / prints / props / stickers.
+-   **[INSTANCE API]** **ADDED ENUM** `InstanceAvatarPerformance` - `None` / `Poor` / `Medium` / `Good` (website create UI + live `Medium`).
+-   **[INVENTORY API]** **ADDED API** Inventory GETs plus share/update/delete: `/inventory`, item, user item, drops, template, collections, spawn, cloning.
+-   **[INVENTORY API]** **ADDED TYPE** `Inventory`, `InventoryItem`, `InventoryDrop`, `InventoryTemplate`, `InventorySpawn` and inventory enums. `GET /inventory/collections` returns `string[]` collection names.
+-   **[PROPS API]** **ADDED API** `listProps`, `getProp`, `getPropPublishStatus`.
+-   **[PROPS API]** **ADDED TYPE** `Prop`, `PropUnityPackage`, `PropPublishStatus`, `PropReleaseStatus`.
+-   **[PRINTS API]** **ADDED REQUEST** `getPrint`, `deletePrint`. Upload/edit stay unimplemented (multipart file).
+-   **[FAVORITE API]** **ADDED ENUM** `FavoriteGroupVisibility` - Favorite group visibility is `public` / `private` / `friends`, not `FavoriteType`.
+
+## Updated
+
+-   **[AUTH API]** **UPDATED** Rate-limited logins (`401` + `Retry-After`, or `429`) are no longer reported as invalid credentials. A `429` "hold your horses" email-OTP cooldown is treated as `EmailOtpRequired`.
+-   **[USER API]** **UPDATED TYPE** `CurrentUser` - Added `badges`, `completedTutorials`, `pronounsHistory`, `isEconomyCreator`, `isTemporary`, `temporaryExpiryDate`, `personalizationOptOut`, `usesGeneratedPassword`, and linked-account `apple` / `discord` / `twitch` fields.
+-   **[USER API]** **UPDATED TYPE** `CurrentUser` - `currentAvatarAssetUrl` is now optional / deprecated; `/auth/user` no longer returns it.
+-   **[USER API]** **UPDATED TYPE** `CurrentUser` - Added privacy opt-outs, `contentFilters`, `queuedInstance`, and activity fields (`friendRequestStatus`, `instanceId`, `location`, `note`, `travelingTo*`, `worldId`). `presence` is no longer marked deprecated (REST may still send it; websocket is the fuller source).
+-   **[USER API]** **UPDATED TYPE** `CurrentUserPresence` - `groups` is `GroupIdType[]` (not `Group[]`). Added `avatarImageUrl`, `banner`, `iconFrame`, `nameplateEffect`, and `profileEffect`. Spec v1.21.0 types presence `currentAvatarTags` as a string; REST still may send an array, so the field is `string | string[]`.
+-   **[USER API]** **UPDATED TYPE** `PastDisplayName.reverted` - Optional.
+-   **[FAVORITE API]** **UPDATED ENUM** `FavoriteType` - Added `vrcPlusWorld`.
+-   **[INVENTORY API]** **UPDATED ENUM** `InventoryItemType` - Added `profileBackground`. `InventoryFlag` added `global`, `global_visible`, `vrc_plus_exclusive`. `InventoryEquipSlot` added `iconFrame`, `nameplateEffect`, `profileEffect`.
+-   **[INVENTORY API]** **UPDATED REQUEST** `getInventory` - Optional `seen` / `isNavBar`.
+-   **[GROUP API]** **UPDATED REQUEST** `getGroupbyID` - Optional `purpose`. `getGroupEvents` optional `after` / `limit` / `sort`. `getGroupGalleryImages` optional `v`.
+-   **[ECONOMY API]** **UPDATED TYPE** `Balance.tiliaResponse` - Optional (`GET /user/{id}/economy/balance` may send only `{ balance }`).
+-   **[PROPS API]** **UPDATED REQUEST** `listProps` - `userId` / author remains optional (spec v1.21.0 no longer requires it).
+-   **[USER API]** **UPDATED TYPE** `User` - Added `pronouns`, `ageVerified`, `isEconomyCreator`, and `platform`.
+-   **[USER API]** **UPDATED TYPE** `User` - Official optional fields `acceptedPrivacyVersion` / `acceptedTOSVersion` / `accountDeletion*` / `appleDetails`, plus live `discordId`. `GET /users/{ownId}` still sends extra CurrentUser-only fields; use `getCurrentUser` for the authenticated view.
+-   **[USER API]** **UPDATED TYPE** `User` - Public `GET /users/{userId}` omits several `UserBase` fields (`userIcon`, `bio`, `bioLinks`, `profilePicOverride`, `badges`, current-avatar URLs/tags), so those are optional on `User`.
+-   **[USER API]** **UPDATED TYPE** `LimitedUser` - Added `pronouns` and the shared profile cosmetics.
+-   **[USER API]** **UPDATED TYPE** `LimitedUser` - `currentAvatarImageUrl` / `currentAvatarThumbnailImageUrl` are optional (`searchAllUsers` often omits them).
+-   **[USER API]** **ADDED FUNCTION** `normalizeUserImageFields` - When VRChat omits avatar URLs, copy profile `iconUrl` (or override thumbnail) into `currentAvatarThumbnailImageUrl` / `currentAvatarImageUrl`. JSON `null` `bio` / `statusDescription` / `profilePicOverride` become `''`.
+-   **[USER API]** **UPDATED REQUEST** `getUserById` / `searchAllUsers` - Run `normalizeUserImageFields` so consumers that still read `currentAvatarThumbnailImageUrl` (Hephia linking embeds) get a usable https URL.
+-   **[USER API]** **UPDATED REQUEST** `getPublicProfile` - Optional `asSelf` / `withGroupsAndWorlds` (official spec v1.21.0). Bio, badges, and avatar images live on this profile object, not on public `GET /users/{id}`.
+-   **[USER API]** **UPDATED FUNCTION** `getVRCRankTags` - Missing `tags` is treated as `[]` (Visitor) instead of throwing.
+-   **[USER API]** **UPDATED TYPE** `LimitedUserFriend` - `pronouns` optional. Added `discordId`, `last_activity`, `last_mobile`, `platform`.
+-   **[USER API]** **UPDATED TYPE** `LimitedUserFriend` - `imageUrl` / `location` are still returned on the friends list (not deprecated).
+-   **[USER API]** **UPDATED TYPE** `UserBadge` - `assignedAt`, `hidden`, and `updated_at` are optional (owner-only). Added `updatedAt` and `isQuantifiable`.
+-   **[USER API]** **UPDATED TYPE** `ProfileBannerType` - Added `avatarBanner`.
+-   **[USER API]** **UPDATED TYPE** `PlatformHistoryEntity.platform` - Live values are platform strings, not only `null`.
+-   **[USER API]** **UPDATED REQUEST** `getUserGroups` - Now returns `UserGroup[]` instead of full `Group[]`.
+-   **[USER API]** **UPDATED REQUEST** `updateUserInfo` - Body now accepts `contentFilters`, `hasDiscordFriendsOptOut`, and `hasSharedConnectionsOptOut`.
+-   **[GROUP API]** **UPDATED TYPE** `UserGroup` - `id` is the membership id (`gmem_`), `groupId` is `grp_`. Invited rows omit `memberVisibility` / `mutualGroup` and send `membershipStatus`.
+-   **[GROUP API]** **UPDATED TYPE** `RepresentedGroup` - `iconId` / `bannerId` allow `null`. Added `nameplateId` and `nameplateUrl`.
+-   **[GROUP API]** **UPDATED TYPE** `Group` / `LimitedGroup` - Added `nameplateId` / `nameplateUrl`. `iconId` / `bannerId` allow `null`. `LimitedGroup.rules` is optional. Mutual-groups list also omits `galleries` / `isSearchable` and may send `lastPostCreatedAt` / `privacy`.
+-   **[GROUP API]** **UPDATED TYPE** `Group` - Added `allowGroupJoinPrompt`, `transferTargetId`, `ageVerificationBetaCode` / `ageVerificationBetaSlots`. `GroupMember.user` may be `null`. Optional `storeId`.
+-   **[GROUP API]** **UPDATED TYPE** `GroupGallery` - `roleIdsToView` may be `null`. `roleIdsToSubmit` / `roleIdsToAutoApprove` / `roleIdsToManage` optional on group GET.
+-   **[GROUP API]** **UPDATED TYPE** `GroupRole` - `updatedAt` optional. `defaultRole` optional (present on create; omitted on update/delete/group role lists). `productId` on paid roles.
+-   **[GROUP API]** **UPDATED ENUM** `GroupPermissionEnum` - Added live `/permissions` values: `group-calendar-manage`, `group-instance-announcement-create`, `group-instance-calendar-link`, `group-instance-bypass-avatar-performance`. `GroupPermissionsTags` now matches the enum. `GroupPermission.dependsOn` optional.
+-   **[GROUP API]** **UPDATED TYPE** `GroupEventBase` - Added live calendar fields `durationInMs`, `interestedUserCount`, `occurrenceKind`, `recurrence`, `seriesId`, `imageUrl`. `languages` is `LanguageTypes[]` (`eng`), not `language_eng` tags. Search hits omit several host/overflow/timestamp fields, so those are optional. `GroupEventList.hasNext` optional.
+-   **[GROUP API]** **UPDATED TYPE** `GroupEvent.userInterest` - Optional; create/update/GET often omit it.
+-   **[GROUP API]** **UPDATED REQUEST** `getGroupEvents` / `getFollowedCalendarEvents` - Optional `date`, `n`, `offset`.
+-   **[GROUP API]** **UPDATED ENUM** `GroupAuditLogEventType` - Live strings: `group.member.role.assign` / `unassign` (not `group.role.*`). Added `group.post.update`, `group.calendarEvent.create` / `delete`, `group.instance.close`. Instance audit data may include `calendarEntryId`.
+-   **[GROUP API]** **UPDATED TYPE** `GroupAudit` - `targetId` is `GroupAuditTargetId` (`usr_` / `grol_` / `not_` / `cal_` / `grp_` / `gpos_` / `wrld_…:…`). `data` is `GroupAuditLogData`. Role audit data includes `isSelfAssignable` / `isAddedOnJoin`.
+-   **[GROUP API]** **UPDATED REQUEST** `getGroupAuditLogs` - Optional `actorIds`, `eventTypes`, `targetIds` filters.
+-   **[GROUP API]** **UPDATED TYPE** `MyMember` - `managerNotes` is optional. Added `isSubscribedToEventAnnouncements`.
+-   **[GROUP API]** **UPDATED TYPE** `GroupMember` - Several membership fields are optional (list/join-request payloads omit them). `joinedAt` allows `null`. Added `acceptedByDisplayName` / `acceptedById`, `hasJoinedFromPurchase`, `lastPostReadAt`, `mRoleIds`, `isSubscribedToEventAnnouncements`.
+-   **[GROUP API]** **UPDATED REQUEST** `getGroupMember` - Returns `GroupMember | null`. Live `GET /groups/{groupId}/members/{userId}` is JSON `null` when the user is not a member / invite / join request.
+-   **[GROUP API]** **UPDATED TYPE** `GroupMemberLimitedUser` - Added profile cosmetics (`banner`, `currentAvatarImageUrl`, `iconFrame`, `nameplateEffect`, `profileEffect`, `userIcon`). Thumbnails allow `null`.
+-   **[GROUP API]** **UPDATED TYPE** `GroupMemberLimitedUser` - `id` is `UserIdType` (`usr_`). `profilePicOverride` / `currentAvatarTags` optional. Added `bannerType` / `bannerColor` / `bannerUrl`.
+-   **[GROUP API]** **UPDATED REQUEST** `updateGroupMember` - Body now accepts `isSubscribedToEventAnnouncements`. The built body is actually sent (it was previously dropped).
+-   **[GROUP API]** **UPDATED REQUEST** `joinGroup` - Optional `inviteId` body.
+-   **[WORLD API]** **UPDATED TYPE** `World` / `LimitedWorld` - Added `disabledPropAbilities`, `isHypeTrainEligible`, `storeId`. `namespace` / `pendingUpload` optional. `LimitedWorld` also has `defaultContentSettings` and `visits`.
+-   **[WORLD API]** **UPDATED TYPE** `World.instances` - Live `/worlds/{id}` returns `[instanceId, userCount]` tuples, not `Instance[]`. Added `SlimWorldInstance` for `slimInstances`.
+-   **[WORLD API]** **UPDATED TYPE** `World.instances` - Live tuples are length 3. `LimitedWorld` date fields are strings.
+-   **[WORLD API]** **UPDATED TYPE** `World.defaultContentSettings` - Boolean flags, added `props`.
+-   **[WORLD API]** **UPDATED REQUEST** `updateWorld` - Body now accepts `recommendedCapacity`, `disabledPropAbilities`, `previewYoutubeId`, and `urlList`.
+-   **[WORLD API]** **FIXED REQUEST** `updateWorld` - Empty `description` / `0` capacity values are now sent so a restore can undo a test edit.
+-   **[INSTANCE API]** **UPDATED TYPE** `Instance` - Live instance payload: `type`, `minimumAvatarPerformance`, `contentSettings`, `displayName`, `description`, `hardClose`, `instancePersistenceEnabled`, `calendarEntryId`, `categoryId`, `vibeIds`, languages, `userIcons`, `disabledPropAbilities`. `world` is `World`. `nonce` optional. `ageGate` is `boolean | null` and optional. `type` is `InstanceType`, `groupAccessType` is `GroupAccessType`, `minimumAvatarPerformance` is `InstanceAvatarPerformance`.
+-   **[INSTANCE API]** **UPDATED ENUM** `InstanceRegionType` - Added `usw`.
+-   **[INSTANCE API]** **UPDATED REQUEST** `generateGroupInstance` / `dataKeysCreateGroupInstance` - Optional `ageGate`, `minimumAvatarPerformance`, and official create extras (`contentSettings`, persistence, display name, etc.).
+-   **[INSTANCE API]** **UPDATED REQUEST** `generateNormalInstance` - Optional `ageGate` appends `~ageGate` to the instance id.
+-   **[INSTANCE API]** **FIXED REQUEST** `getInstance` / `getInstanceByShortName` - Return `Instance`, not `InstanceShortName`.
+-   **[AVATAR API]** **UPDATED TYPE** `Avatar` - API currently sends `styles` (not required `style`). Added `acknowledgements`, `attribution`, `listingDate`, `performance`. `unityPackageUrlObject.unityPackageUrl` optional.
+-   **[AVATAR API]** **UPDATED TYPE** `Avatar` - `styles.supplementary`, listing/product fields (`productId`, prices, `publishedListings`, `pendingUpload`, `lock`, `activeAssetReviewId`). Date fields are strings.
+-   **[AVATAR API]** **UPDATED REQUEST** `createAvatar` - Optional `thumbnailImageUrl`, `assetVersion`, `platform`.
+-   **[AVATAR API]** **FIXED REQUEST** `searchAvatars` - Query filters (`user=me`, `releaseStatus`, etc.) were built but never sent.
+-   **[AVATAR API]** **FIXED REQUEST** `updateAvatar` - Empty `description` is now sent.
+-   **[FILE API]** **UPDATED TYPE** `UnityPackage` - `id` / `assetVersion` optional. Added `variant` / `worldSignature`.
+-   **[FILE API]** **UPDATED TYPE** `UnityPackageAvatar` - Added `scanStatus`.
+-   **[FILE API]** **UPDATED TYPE** `File` versions - `delta` / `file` / `signature` optional. `FileData.md5` optional.
+-   **[FILE API]** **UPDATED ENUM** `MIMEType` - Added `application/x-prop`.
+-   **[INVENTORY API]** **UPDATED TYPE** `InventoryItem` - Live extras: `ancestor` / `firstAncestor` clone lineage, `metadata.propKind` / `viewfinderBundleId`, `userAttributes.primary`, `attribution.creator`. `templateId` may be `invt_` or `clt_`.
+-   **[INVENTORY API]** **UPDATED ENUM** `InventoryItemType` - Added live types `accessory`, `avatarlook`, `iconFrame`, `nameplateEffect`, `profileEffect`, plus official `warpeffect`. `InventoryEquipSlot` added `warp`.
+-   **[INVENTORY API]** **UPDATED TYPE** `InventoryTemplate` - Optional `productId` / `publishedListings`.
+-   **[INVENTORY API]** **FIXED REQUEST** `shareInventoryItemPedestal` - Official query is `itemId` + `duration`, not `id`.
+-   **[PROPS API]** **UPDATED TYPE** `Prop` - Optional `kind` (number).
+-   **[PRINTS API]** **UPDATED TYPE** `Prints` - `ownerId` / `sharedBy` optional (official list/get omit them).
+-   **[FAVORITE API]** **UPDATED TYPE** `FavoriteGroup` - Added `id` / `type`. `visibility` uses `FavoriteGroupVisibility`.
+-   **[FAVORITE API]** **UPDATED TYPE** `FavoriteSingleGroupLimits` - Added `vrcPlusWorld`.
+-   **[ECONOMY API]** **UPDATED TYPE** `Subscription` / `TokenBundle` - Added store product IDs (`appleProductId`, `googleProductId`, plus `googlePlanId` / `picoSku` on subscriptions). `oculusSku` optional.
+-   **[PERMISSION API]** **UPDATED TYPE** `Permission` - Added `description`. `data.tags` optional. `data.max` optional.
+-   **[AUTH API]** **UPDATED TYPE** `checkUserExistResponse` - `nameOk` optional (not always returned).
+-   **[BETA API]** **UPDATED TYPE** `BetaIOSInformation` - Added `betaAppId`.
+-   **[SYSTEM API]** **FIXED REQUEST** `fetchAPIConfig` - Was calling the invite-message path (`requiresData`), which threw "No path was provided!". Now uses `GET /config`. Allowed before login.
+-   **[SYSTEM API]** **UPDATED TYPE** `APIConfig` - `dis-countdown` is a string. Added documented official fields (`CampaignStatus`, age-verification flags, `avatarPerfLimiter`, `availableLanguageCodes`, `constants.LANGUAGE`, iOS/build limits, economy pause fields, etc.). Announcements are an array.
+-   **[CORE]** **UPDATED TYPE** `APIErrorBody` - Live errors are either `{ error: { message, status_code } }` (`APIRequestError`) or `{ error: string }` (`APIRequestErrorMessage`). `BaseApi` parses both (and empty/non-JSON 404s) without `unknown` casts.
+-   **[GENERICS]** **UPDATED TYPE** `SystemTags` - Added `system_no_captcha` and `show_social_rank`.
+-   **[GENERICS]** **UPDATED TYPE** `GroupAdminTags` / `languageTagsShort` - Live group tags `admin_featured_events_enabled`, `admin_vrc_event_*`, and language `ase`.
+
 # Changelog 1.0.17 [ - July 31st, 2025 - ] Enum Export Update
 
 ## Added

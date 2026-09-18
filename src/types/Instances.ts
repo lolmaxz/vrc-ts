@@ -4,6 +4,27 @@ import { GroupIdType, GroupRoleIdType, InstanceIdType, WorldIdType } from './Gen
 import { LimitedUser, LimitedUserFriend } from './Users';
 import { World } from './Worlds';
 
+/** Content toggles on an instance (and world `defaultContentSettings`). */
+export type InstanceContentSettings = {
+    drones?: boolean;
+    emoji?: boolean;
+    pedestals?: boolean;
+    prints?: boolean;
+    props?: boolean;
+    stickers?: boolean;
+};
+
+/**
+ * Minimum avatar performance rating required to join.
+ * Website create UI: None / Poor / Medium / Good.
+ */
+export enum InstanceAvatarPerformance {
+    None = 'None',
+    Poor = 'Poor',
+    Medium = 'Medium',
+    Good = 'Good',
+}
+
 export type Instance = {
     id: InstanceIdType;
     /** The full ID of the instance + world */
@@ -43,36 +64,60 @@ export type Instance = {
     roleRestricted: boolean;
     secureName: string; // The short code to access the instance (for short link to share outside vrchat website, only the code part, not the full link!)
     shortName?: string | null; // todo research more. for now we only know that this can be null
-    world: unknown; // todo this will be a world type when it's completed
-    clientNumber: 'unknown'; // todo research more. for now we only know that this can be a string or "unknown" (Deprecated apparently?)
-    /** The type of instance */
+    world: World;
+    clientNumber: string; // Usually `"unknown"`.
+    /** Photon region for this instance. */
     photonRegion: InstanceRegionType;
-    /** The type of instance */
-    region: InstanceRegionType; // The region of the instance
+    /** The region of the instance */
+    region: InstanceRegionType;
     /**
      * Default to false. Only in the case of a invite type instance. If set to true, will make a invite instance into a invite+ instance type!
      */
     canRequestInvite: boolean;
     permanent: boolean; // todo research more
-    groupAccessType?: string; // todo research more
+    groupAccessType?: GroupAccessType;
     strict: boolean; // todo research more
-    /** Required to generate an instance that isn't public */
-    nonce: string;
+    /** Required to generate an instance that isn't public. Omitted on many group instances. */
+    nonce?: string;
     /** This users field is present on instances created by the requesting user. */
     users?: (LimitedUser | LimitedUserFriend)[];
     hidden?: string; // hidden field is only present if InstanceType is hidden aka "Friends+", and is instance creator. // TODO research more
     friends?: string; //friends field is only present if InstanceType is friends aka "Friends", and is instance creator. // TODO research more
     private?: string; // private field is only present if InstanceType is private aka "Invite" or "Invite+", and is instance creator. // TODO research more
-    /** If this instance has been hard closed or not. */
+    /** Legacy spelling. Prefer `hardClose`. */
     hardclose?: boolean;
+    /** If this instance has been hard closed or not. */
+    hardClose?: boolean | null;
     /** If this instance has enough capacity for you to join. */
     hasCapacityForYou?: boolean;
     /** The time the instance was closed at. */
-    closedAt?: string;
-    /** If the instance requires to be age verified or not. */
-    ageGate: boolean;
+    closedAt?: string | null;
+    /** If the instance requires to be age verified or not. Live group create/GET can send `null`. */
+    ageGate?: boolean | null;
     /** If player persistance is turned on in this instance */
     playerPersistenceEnabled: boolean;
+    /** Instance access type: `public`, `hidden`, `friends`, `private`, `group`. */
+    type?: InstanceType;
+    /** Minimum avatar performance rating to join. `None` / `Poor` / `Medium` / `Good`. */
+    minimumAvatarPerformance?: InstanceAvatarPerformance | null;
+    /** Whether instance-level persistence is enabled. */
+    instancePersistenceEnabled?: boolean | null;
+    /** Per-instance content toggles. */
+    contentSettings?: InstanceContentSettings;
+    displayName?: string | null;
+    description?: string | null;
+    calendarEntryId?: string | null;
+    categoryId?: string | null;
+    vibeIds?: string[];
+    /** Creator user id when present. */
+    creatorId?: string | null;
+    disabledPropAbilities?: string[];
+    creationLanguages?: string[];
+    languages?: string[];
+    languagesIso639?: string[];
+    languageRatio?: Record<string, number>;
+    dominantLanguage?: string;
+    userIcons?: string[];
 };
 
 export type InstanceShortName = {
@@ -102,13 +147,15 @@ export enum InstanceType {
  * ## Different type of Instance Region Type
  * These are all the different region type for an instance.
  *
- * ### @enum {string} - **US_WEST** -> US West Server
- * - **US_EAST** -> US East Server
+ * ### @enum {string} - **US_WEST** -> US West (`us`). Website label: USW.
+ * - **USW** -> Alternate US West code (`usw`) used by some clients.
+ * - **US_EAST** -> US East Server (`use`)
  * - **EU** -> Europe Server
  * - **JP** -> Japan Server
  */
 export enum InstanceRegionType {
     US_WEST = 'us',
+    USW = 'usw',
     US_EAST = 'use',
     EU = 'eu',
     JP = 'jp',
@@ -148,6 +195,8 @@ export type CreateRegularInstanceRequest = {
     worldId: WorldIdType;
     region: InstanceRegionType;
     instanceCode?: number | string;
+    /** Appends `~ageGate` to the instance id (18+ / age verification). */
+    ageGate?: boolean;
 } & (PublicType | Friends_Invite_Type);
 
 export type PublicType = {
@@ -167,6 +216,25 @@ export type Friends_Invite_Type = {
 
 export type NonEmptyArray<T> = [T, ...T[]];
 
+/** Optional POST /instances fields shared with official CreateInstance + VRCX. */
+export type CreateGroupInstanceExtras = {
+    /** 18+ age verification. Also encoded as `~ageGate` on the instance id. */
+    ageGate?: boolean;
+    /** Website + VRCX: None / Poor / Medium / Good. */
+    minimumAvatarPerformance?: InstanceAvatarPerformance;
+    contentSettings?: InstanceContentSettings;
+    displayName?: string;
+    description?: string;
+    playerPersistenceEnabled?: boolean;
+    instancePersistenceEnabled?: boolean | null;
+    canRequestInvite?: boolean;
+    hardClose?: boolean;
+    closedAt?: string;
+    calendarEntryId?: string;
+    categoryId?: string;
+    vibeIds?: string[];
+};
+
 export type CreateGroupInstanceRequest = {
     worldId: WorldIdType;
     /** The GROUP ID of the group you want to create an instance for. */
@@ -174,7 +242,8 @@ export type CreateGroupInstanceRequest = {
     region: InstanceRegionType;
     queueEnabled?: boolean;
     instanceCode?: number | string;
-} & (CreateGroupInstanceRequestPublic | CreateGroupInstanceRequestPlus | CreateGroupInstanceRequestMembers);
+} & CreateGroupInstanceExtras &
+    (CreateGroupInstanceRequestPublic | CreateGroupInstanceRequestPlus | CreateGroupInstanceRequestMembers);
 
 type CreateGroupInstanceRequestPublic = {
     groupAccessType: GroupAccessType.Group_Public;
@@ -198,7 +267,8 @@ export type dataKeysCreateGroupInstance = {
     type: 'group';
     worldId: WorldIdType;
     instanceCode: number | string;
-} & (dataKeysCreateGroupInstancePublic | dataKeysCreateGroupInstancePlus | dataKeysCreateGroupInstanceMembers);
+} & CreateGroupInstanceExtras &
+    (dataKeysCreateGroupInstancePublic | dataKeysCreateGroupInstancePlus | dataKeysCreateGroupInstanceMembers);
 
 export type dataKeysCreateGroupInstancePublic = {
     groupAccessType: GroupAccessType.Group_Public;
@@ -235,6 +305,21 @@ export type SendSelfInviteRequest = {
 /** The Required Parameters to get an instance by short name. */
 export type GetInstanceByShortName = {
     shortName: string;
+};
+
+/** Close an instance. Same path as VRCX: DELETE /instances/{worldId}:{instanceId}. */
+export type CloseInstanceRequest = {
+    worldId: WorldIdType;
+    instanceId: InstanceIdType;
+    /** Immediate kick when true. VRCX default is false (soft close). */
+    hardClose?: boolean;
+    /** If set, users cannot join after this time. Omit to close immediately. */
+    closedAt?: string;
+};
+
+export type GetRecentLocationsRequest = {
+    n?: number;
+    offset?: number;
 };
 
 export enum InstanceAccessNormalType {

@@ -1,4 +1,4 @@
-export { VRCRankResult, getVRCRankTags, isVRCPlusSubcriber } from 'requests/UsersApi';
+export { VRCRankResult, getVRCRankTags, isVRCPlusSubcriber, normalizeUserImageFields } from 'requests/UsersApi';
 export * from 'VRChatAPI';
 
 export * from 'types/ApiPaths';
@@ -12,11 +12,14 @@ export * from 'types/Friends';
 export * from 'types/Generics';
 export * from 'types/Groups';
 export * from 'types/Instances';
+export * from 'types/Inventory';
 export * from 'types/Invites';
 export * from 'types/Jams';
 export * from 'types/Notifications';
 export * from 'types/Permissions';
 export * from 'types/PlayerModeration';
+export * from 'types/Prints';
+export * from 'types/Props';
 export * from 'types/System';
 export * from 'types/Users';
 export * from 'types/Worlds';

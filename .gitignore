@@ -145,11 +145,8 @@ cookies_*.json
 # Build files
 /dist
 
-tests/*
 jest.config.js
-jest.setup.js
 fixup.bat
 
-**./*.test.*
+# Deprecated root tests/ folder (never used in the publish check)
 tests/
-./src/tests/*.test.*

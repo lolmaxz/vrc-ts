@@ -1,9 +1,9 @@
 import { AllTags, FileIdType, UnityPackageIdType, UserIdType } from './Generics';
 
 export type UnityPackage = {
-    id: UnityPackageIdType; // Pattern: (unp)_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+    id?: UnityPackageIdType; // Pattern: (unp)_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
     unityVersion: string; // Min 1 chars, Default: 5.3.4p1
-    assetVersion: number; // Min 0
+    assetVersion?: number; // Min 0
     platform: string; // Can be various values like standalonewindows, android, or specific Unity versions
     assetUrl?: string; // Min 1 chars
     assetUrlObject?: object;
@@ -13,6 +13,8 @@ export type UnityPackage = {
     impostorUrl?: string; // ! to test
     scanStatus?: string; // ! to test
     unitySortNumber?: number; // Min 0
+    variant?: string;
+    worldSignature?: string;
 };
 
 export type UnityPackageAvatar = {
@@ -31,6 +33,7 @@ export type UnityPackageAvatar = {
     impostorizerVersion?: string;
     /** The World Signature, for security reasons */
     worldSignature?: string;
+    scanStatus?: string;
 };
 
 export enum PerformanceTypes {
@@ -63,6 +66,7 @@ export type File = {
         | 'image/tiff'
         | 'application/x-avatar'
         | 'application/x-world'
+        | 'application/x-prop'
         | 'application/gzip'
         | 'application/x-rsync-signature'
         | 'application/x-rsync-delta'
@@ -73,9 +77,9 @@ export type File = {
     versions: {
         created_at: Date;
         deleted?: boolean;
-        delta: FileData;
-        file: FileData;
-        signature: FileData;
+        delta?: FileData;
+        file?: FileData;
+        signature?: FileData;
         status: fileDataStatus;
         version: number;
     }[];
@@ -84,7 +88,7 @@ export type File = {
 export type FileData = {
     category: 'multipart' | 'queued' | 'simple';
     fileName: string;
-    md5: string;
+    md5?: string;
     sizeInBytes: number;
     status: fileDataStatus;
     uploadId: string;
@@ -111,6 +115,7 @@ export enum MIMEType {
     TIFF = 'image/tiff',
     AVATAR = 'application/x-avatar',
     WORLD = 'application/x-world',
+    PROP = 'application/x-prop',
     GZIP = 'application/gzip',
     RSYNC_SIGNATURE = 'application/x-rsync-signature',
     RSYNC_DELTA = 'application/x-rsync-delta',

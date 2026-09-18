@@ -174,6 +174,8 @@ export class EconomyApi extends BaseApi {
         getAll,
         n,
         offset,
+        active,
+        receiverId,
     }: Eco.GetOwnPurchasesRequest): Promise<Eco.Purchase[]> {
         const queryOptions = new URLSearchParams();
         if (buyerId) queryOptions.append('buyerId', buyerId);
@@ -181,6 +183,8 @@ export class EconomyApi extends BaseApi {
         if (getAll) queryOptions.append('getAll', getAll.toString());
         if (n) queryOptions.append('n', n.toString());
         if (offset) queryOptions.append('offset', offset.toString());
+        if (active !== undefined) queryOptions.append('active', active.toString());
+        if (receiverId) queryOptions.append('receiverId', receiverId);
 
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.economy.getOwnPurchases,
@@ -274,5 +278,34 @@ export class EconomyApi extends BaseApi {
         };
 
         return await this.executeRequest<Eco.License>(paramRequest);
+    }
+
+    public async getEconomyStatus(): Promise<Eco.EconomyStatus> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.economy.getEconomyStatus,
+            pathFormated: ApiPaths.economy.getEconomyStatus.path,
+        };
+
+        return await this.executeRequest<Eco.EconomyStatus>(paramRequest);
+    }
+
+    public async getEconomyBalance({ userId }: Eco.getEconomyBalanceRequest): Promise<Eco.Balance> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.economy.getEconomyBalance,
+            pathFormated: ApiPaths.economy.getEconomyBalance.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<Eco.Balance>(paramRequest);
+    }
+
+    public async getProductListingProducts({
+        productId,
+    }: Eco.getProductListingProductsRequest): Promise<Eco.Product[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.economy.getProductListingProducts,
+            pathFormated: ApiPaths.economy.getProductListingProducts.path.replace('{productId}', productId),
+        };
+
+        return await this.executeRequest<Eco.Product[]>(paramRequest);
     }
 }

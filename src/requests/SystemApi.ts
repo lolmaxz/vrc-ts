@@ -22,8 +22,8 @@ export class SystemApi extends BaseApi {
      */
     public async fetchAPIConfig(): Promise<Sys.APIConfig> {
         const paramRequest: executeRequestType = {
-            currentRequest: ApiPaths.invites.updateInviteMessage,
-            pathFormated: ApiPaths.invites.updateInviteMessage.path,
+            currentRequest: ApiPaths.system.fetchAPIConfig,
+            pathFormated: ApiPaths.system.fetchAPIConfig.path,
         };
 
         return await this.executeRequest<Sys.APIConfig>(paramRequest);
@@ -88,5 +88,14 @@ export class SystemApi extends BaseApi {
         };
 
         return await this.executeRequest<string>(paramRequest);
+    }
+
+    public async getFrontendBranches(): Promise<Sys.FrontendBranches> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.system.getFrontendBranches,
+            pathFormated: ApiPaths.system.getFrontendBranches.path,
+        };
+
+        return await this.executeRequest<Sys.FrontendBranches>(paramRequest);
     }
 }

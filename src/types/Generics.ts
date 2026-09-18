@@ -19,6 +19,7 @@ import {
     dataKeysCreateGroupAnnouncement,
     dataKeysCreateGroupInvite,
     dataKeysCreateGroupRole,
+    dataKeysJoinGroup,
     dataKeysEditGroupEvent,
     dataKeysEditGroupPost,
     dataKeysGroupBanMember,
@@ -44,6 +45,7 @@ import {
 } from './Invites';
 import { dataKeysRespondToNotificationRequest } from './Notifications';
 import { dataKeysModerateUserRequest, dataKeysUnModerateUser } from './PlayerModeration';
+import { dataKeysShareInventoryItemDirect, dataKeysUpdateInventoryItem } from './Inventory';
 import { dataKeysGetUserSubmittedFeedback, dataKeysUpdateUser, dataKeysUpdateUserNote } from './Users';
 import { dataKeysCreateWorld, dataKeysUpdateWorld } from './Worlds';
 
@@ -58,6 +60,8 @@ export type executeRequestType = {
     pathFormated: string;
     queryOptions?: URLSearchParams;
     body?: dataSetKeys;
+    /** ICS and a few empty 200s are not JSON. */
+    expectText?: boolean;
 };
 
 export type AuthenticationResponse = {
@@ -101,12 +105,56 @@ export type RequestSuccess = {
     };
 };
 
-export type APIRequestError = {
-    error: {
-        message: string;
-        status_code: number;
-    };
+/** Nested error object used by most VRChat JSON failures. */
+export type APIRequestErrorDetail = {
+    message: string;
+    status_code: number;
 };
+
+/** Standard VRChat error: `{ error: { message, status_code } }`. */
+export type APIRequestError = {
+    error: APIRequestErrorDetail;
+};
+
+/** Some live 404s send `{ error: string, status_code? }` instead of a nested object. */
+export type APIRequestErrorMessage = {
+    error: string;
+    status_code?: number;
+};
+
+export type APIErrorBody = APIRequestError | APIRequestErrorMessage;
+
+export function isAPIRequestError(body: APIErrorBody): body is APIRequestError {
+    return typeof body.error === 'object' && body.error !== null;
+}
+
+export function isAPIRequestErrorMessage(body: APIErrorBody): body is APIRequestErrorMessage {
+    return typeof body.error === 'string';
+}
+
+export function getAPIErrorMessage(body: APIErrorBody): string {
+    return isAPIRequestErrorMessage(body) ? body.error : body.error.message;
+}
+
+/** Parse a VRChat error body. Returns `null` for empty text, invalid JSON, or an unknown shape. */
+export function parseAPIErrorBody(text: string): APIErrorBody | null {
+    if (!text) return null;
+    try {
+        const parsed = JSON.parse(text) as APIErrorBody;
+        if (!parsed || typeof parsed !== 'object' || !('error' in parsed)) {
+            return null;
+        }
+        if (typeof parsed.error === 'string') {
+            return parsed;
+        }
+        if (parsed.error && typeof parsed.error === 'object' && typeof parsed.error.message === 'string') {
+            return parsed;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
 
 export interface APIResponse<T> extends Omit<Response, 'ok' | 'json'> {
     ok: boolean;
@@ -126,7 +174,7 @@ export type QueryParamsList = { name: string; value: string }[];
 
 export type VRCResponseValidType = twoFactorAuthResponseType | RequestSuccess | AuthenticationResponse;
 
-export type VRCResponseError = APIRequestError | error2FABase;
+export type VRCResponseError = APIErrorBody | error2FABase;
 
 export type VRCAPIResponse = API<VRCResponseValidType, VRCResponseError>;
 
@@ -161,7 +209,13 @@ export type querryParamsType =
     | 'licenseId'
     | 'jamId'
     | 'noteId'
-    | 'calendarId';
+    | 'calendarId'
+    | 'printId'
+    | 'propId'
+    | 'inventoryItemId'
+    | 'inventoryTemplateId'
+    | 'betaName'
+    | 'itemType';
 
 export type subSectionType = {
     path: string;
@@ -207,6 +261,8 @@ export type APIPaths = {
     };
     beta: {
         getIOSClosedBetaInformation: subSectionType;
+        getBeta: subSectionType;
+        getBetaRegistration: subSectionType;
     };
     economy: {
         listSteamTransactions: subSectionType;
@@ -225,6 +281,9 @@ export type APIPaths = {
         getBalance: subSectionType;
         getLicenses: subSectionType;
         getInfoPush: subSectionType;
+        getEconomyStatus: subSectionType;
+        getEconomyBalance: subSectionType;
+        getProductListingProducts: subSectionType;
     };
     favorites: {
         listFavorites: subSectionType;
@@ -236,6 +295,8 @@ export type APIPaths = {
         updateFavoriteGroup: subSectionType;
         clearFavoriteGroup: subSectionType;
         getFavoriteLimits: subSectionType;
+        getFavoriteGroupsByType: subSectionType;
+        getFavoriteGroupContents: subSectionType;
     };
     files: {
         listFiles: subSectionType;
@@ -273,6 +334,7 @@ export type APIPaths = {
         deleteGroupPost: subSectionType;
         editGroupPost: subSectionType;
         getGroupAuditLogs: subSectionType;
+        getGroupAuditLogTypes: subSectionType;
         getGroupBans: subSectionType;
         banGroupMember: subSectionType;
         unbanGroupMember: subSectionType;
@@ -303,6 +365,12 @@ export type APIPaths = {
         updateGroupRole: subSectionType;
         deleteGroupRole: subSectionType;
         followGroupEvent: subSectionType;
+        getFollowedCalendarEvents: subSectionType;
+        getCalendarEvents: subSectionType;
+        getFeaturedCalendarEvents: subSectionType;
+        searchCalendarEvents: subSectionType;
+        discoverCalendarEvents: subSectionType;
+        getGroupCalendarEventIcs: subSectionType;
         getGroupEvents: subSectionType;
         getGroupEvent: subSectionType;
         getGroupNextEvent: subSectionType;
@@ -327,6 +395,8 @@ export type APIPaths = {
         getInstanceByShortName: subSectionType;
         createNormalInstance: subSectionType;
         createGroupInstance: subSectionType;
+        closeInstance: subSectionType;
+        getRecentLocations: subSectionType;
     };
     jams: {
         getJamsList: subSectionType;
@@ -361,6 +431,28 @@ export type APIPaths = {
     };
     prints: {
         listPrints: subSectionType;
+        getPrint: subSectionType;
+        deletePrint: subSectionType;
+    };
+    inventory: {
+        getInventory: subSectionType;
+        getInventoryItem: subSectionType;
+        getUserInventoryItem: subSectionType;
+        getInventoryDrops: subSectionType;
+        getInventoryTemplate: subSectionType;
+        getInventoryCollections: subSectionType;
+        spawnInventoryItem: subSectionType;
+        shareInventoryItemPedestal: subSectionType;
+        shareInventoryItemDirect: subSectionType;
+        updateInventoryItem: subSectionType;
+        deleteInventoryItem: subSectionType;
+        getCosmeticIndex: subSectionType;
+        getUserCosmetics: subSectionType;
+    };
+    props: {
+        listProps: subSectionType;
+        getProp: subSectionType;
+        getPropPublishStatus: subSectionType;
     };
     system: {
         fetchAPIConfig: subSectionType;
@@ -370,6 +462,7 @@ export type APIPaths = {
         checkAPIHealth: subSectionType;
         currentOnlineUsers: subSectionType;
         currentSystemTime: subSectionType;
+        getFrontendBranches: subSectionType;
     };
     users: {
         searchAllUsers: subSectionType;
@@ -384,6 +477,19 @@ export type APIPaths = {
         updateUserNote: subSectionType;
         getAUserNote: subSectionType;
         getUserGroupInstances: subSectionType;
+        getUserGroupInstancesForGroup: subSectionType;
+        getUserAllGroupPermissions: subSectionType;
+        getInvitedGroups: subSectionType;
+        getBlockedGroups: subSectionType;
+        getUserTutorialStatus: subSectionType;
+        getMutuals: subSectionType;
+        getMutualFriends: subSectionType;
+        getMutualGroups: subSectionType;
+        getPublicProfile: subSectionType;
+        getPrivateProfile: subSectionType;
+        checkUserPersistenceExists: subSectionType;
+        getUserClientConfig: subSectionType;
+        getAgeVerificationStatus: subSectionType;
     };
     worlds: {
         searchAllWorlds: subSectionType;
@@ -444,6 +550,7 @@ export type dataSetKeys =
     | GetUserBalanceRequest
     | GetLicenseRequest
     | dataKeysCreateGroupInstance
+    | dataKeysJoinGroup
     | dataKeysGetUserSubmittedFeedback
     | dataKeysUpdateUserNote
     | dataKeysRespondToNotificationRequest
@@ -451,7 +558,9 @@ export type dataSetKeys =
     | dataKeysDeleteImpostor
     | dataKeyCreateGroupEventRequest
     | dataKeysEditGroupEvent
-    | dataKeyFollowGroupEventRequest;
+    | dataKeyFollowGroupEventRequest
+    | dataKeysShareInventoryItemDirect
+    | dataKeysUpdateInventoryItem;
 
 export type dataKeys2Fa = {
     code: string;
@@ -490,6 +599,8 @@ export type SystemTags =
     | 'system_trust_advanced'
     | 'system_trust_legend'
     | 'system_world_access'
+    | 'system_no_captcha'
+    | 'show_social_rank'
     | 'Visitor';
 
 export type WorldTags =
@@ -562,7 +673,8 @@ export type languageTagsShort =
     | 'tur'
     | 'ara'
     | 'ron'
-    | 'vie';
+    | 'vie'
+    | 'ase';
 
 export enum LanguageTypes {
     Afrikaans = 'afr',
@@ -636,7 +748,12 @@ export enum LanguageTypes {
     No_Linguistic_Content = 'zxx',
 }
 
-export type GroupAdminTags = 'admin_hide_member_count';
+export type GroupAdminTags =
+    | 'admin_hide_member_count'
+    | 'admin_featured_events_enabled'
+    | 'admin_vrc_event_group_fair_enabled'
+    | 'admin_vrc_event_pride_hub_enabled'
+    | 'admin_vrc_event_tanabata_enabled';
 
 export type UselessTags =
     | 'system_neuralink_beta'
@@ -720,6 +837,12 @@ export type JamSubmissionIdType = `jsub_${string}-${string}-${string}-${string}-
 export type FeedbackIdType = `feedback_${string}-${string}-${string}-${string}-${string}`;
 
 export type PrintIdType = `prnt_${string}-${string}-${string}-${string}-${string}`;
+export type PropIdType = `prop_${string}-${string}-${string}-${string}-${string}`;
+export type InventoryItemIdType = `inv_${string}-${string}-${string}-${string}-${string}`;
+export type InventoryTemplateIdType = `invt_${string}-${string}-${string}-${string}-${string}`;
+export type InventoryCollectionIdType = `clt_${string}-${string}-${string}-${string}-${string}`;
+export type InventoryTemplateRefIdType = InventoryTemplateIdType | InventoryCollectionIdType;
+export type InventoryDropIdType = `invd_${string}-${string}-${string}-${string}-${string}`;
 
 export type ContentRestrictedType = `cr_${string}-${string}-${string}-${string}-${string}`;
 
