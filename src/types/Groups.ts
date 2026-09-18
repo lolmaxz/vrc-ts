@@ -9,12 +9,38 @@ import {
     GroupIdType,
     GroupMemberIdType,
     GroupRoleIdType,
-    LanguageTags,
     languageTagsShort,
     LanguageTypes,
     NotificationIdType,
     UserIdType,
+    WorldIdType,
 } from './Generics';
+import type { ProfileBannerType } from './Users';
+
+/** Ids that appear on audit-log `targetId` depending on the event. */
+export type GroupAuditTargetId =
+    | `usr_${string}-${string}-${string}-${string}-${string}`
+    | GroupRoleIdType
+    | NotificationIdType
+    | CalendarIdType
+    | GroupIdType
+    | GroupAnnouncementIdType
+    | `${WorldIdType}:${string}`;
+
+/** Calendar / instance event visibility. */
+export type GroupEventAccessType = 'group' | 'public';
+
+/** Live calendar payloads currently only send `event`. */
+export type GroupCalendarKind = 'event';
+
+/** Recurrence weekday codes. */
+export type GroupEventRecurrenceDay = 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA' | 'SU';
+
+/** How a recurring event stops. */
+export type GroupEventRecurrenceEndType = 'afterDate' | 'afterOccurrences';
+
+/** Members-only / Group+ / Group public instance access. */
+export type GroupInstanceAccessType = 'public' | 'plus' | 'members';
 
 //! -- Group API -- !//
 export type Group = {
@@ -23,10 +49,12 @@ export type Group = {
     shortCode: string;
     discriminator: string;
     description: string;
-    iconId?: FileIdType;
+    iconId?: FileIdType | null;
     iconUrl?: string;
     bannerUrl?: string;
-    bannerId?: FileIdType;
+    bannerId?: FileIdType | null;
+    nameplateId?: string | null;
+    nameplateUrl?: string | null;
     lastPostCreatedAt?: string; // assuming date-time is a string in ISO format
     privacy: GroupPrivacy;
     ownerId: UserIdType;
@@ -49,6 +77,11 @@ export type Group = {
     badges?: string[]; // new attribute
     isRepresenting?: boolean; // new attribute
     ageVerificationSlotsAvailable?: boolean; // new attribute
+    ageVerificationBetaCode?: string;
+    ageVerificationBetaSlots?: number;
+    allowGroupJoinPrompt?: boolean;
+    transferTargetId?: UserIdType;
+    storeId?: string;
 };
 
 export type LimitedGroup = {
@@ -57,17 +90,22 @@ export type LimitedGroup = {
     shortCode: string;
     discriminator: string;
     description: string;
-    iconId?: FileIdType;
+    iconId?: FileIdType | null;
     iconUrl?: string;
     bannerUrl?: string;
-    bannerId?: FileIdType;
+    bannerId?: FileIdType | null;
+    nameplateId?: string | null;
+    nameplateUrl?: string | null;
     ownerId: UserIdType;
     memberCount: number;
     tags?: AllTags[];
     createdAt?: string; // assuming date-time is a string in ISO format
     membershipStatus?: GroupMembershipStatus;
-    galleries: GroupGallery[];
-    isSearchable: boolean;
+    galleries?: GroupGallery[];
+    isSearchable?: boolean;
+    rules?: string;
+    lastPostCreatedAt?: string;
+    privacy?: string;
 };
 
 export type RepresentedGroup = {
@@ -75,16 +113,56 @@ export type RepresentedGroup = {
     shortCode: string;
     discriminator: string;
     description: string;
-    iconId?: FileIdType;
-    iconUrl?: string;
-    bannerUrl?: string;
-    bannerId?: FileIdType;
+    iconId?: FileIdType | null;
+    iconUrl?: string | null;
+    bannerUrl?: string | null;
+    bannerId?: FileIdType | null;
     privacy: GroupPrivacy;
     ownerId: UserIdType;
     memberCount: number;
     groupId: GroupIdType;
     memberVisibility: GroupUserVisibility;
     isRepresenting: boolean;
+    /** Group nameplate inventory / file ID. */
+    nameplateId?: string | null;
+    /** Group nameplate image URL. */
+    nameplateUrl?: string | null;
+};
+
+/**
+ * Membership-oriented group returned by `GET /users/{userId}/groups`.
+ * This is not a full `Group` — roles, galleries, and `myMember` are not included.
+ */
+export type UserGroup = {
+    /** Membership row id (`gmem_…`) on `GET /users/{userId}/groups`. */
+    id: GroupMemberIdType;
+    groupId: GroupIdType;
+    name: string;
+    shortCode: string;
+    discriminator: string;
+    description: string;
+    iconId?: FileIdType | null;
+    iconUrl?: string | null;
+    bannerId?: FileIdType | null;
+    bannerUrl?: string | null;
+    privacy: GroupPrivacy;
+    ownerId: UserIdType;
+    memberCount: number;
+    /** Present on memberships. Invited/blocked group rows may omit it. */
+    memberVisibility?: GroupUserVisibility;
+    /** Present on memberships. Invited/blocked group rows may omit it. */
+    mutualGroup?: boolean;
+    /** Invited-group rows send this (`invited`). */
+    membershipStatus?: GroupMembershipStatus | string;
+    isRepresenting?: boolean;
+    nameplateId?: string | null;
+    nameplateUrl?: string | null;
+    /** Creator Economy store ID for the group, when present. */
+    storeId?: string;
+    /** When the logged-in member last read a group post. Observed on self groups. */
+    lastPostReadAt?: string | null;
+    /** When the group's latest post was created. Can be null. */
+    lastPostCreatedAt?: string | null;
 };
 
 export type GroupAudit = {
@@ -94,23 +172,10 @@ export type GroupAudit = {
         groupId: GroupIdType;
         actorId: UserIdType;
         actorDisplayName: string;
-        targetId: UserIdType;
+        targetId: GroupAuditTargetId;
         eventType: GroupAuditLogEventType;
         description: string;
-        data?:
-            | GroupAuditLogDataPostCreated
-            | GroupAuditLogDataPostDeleted
-            | GroupAuditLogDataRoleCreate
-            | GroupAuditLogDataRoleUpdate
-            | GroupAuditLogDataRoleDelete
-            | GroupAuditLogDataMemberUpdate
-            | GroupAuditLogDataRoleAssign
-            | GroupAuditLogDataRoleUnassign
-            | GroupAuditLogDataGroupUpdate
-            | GroupAuditLogGalleryCreate
-            | GroupAuditLogGalleryUpdate
-            | GroupAuditLogGalleryDelete
-            | GroupAuditLogDataGroupInstanceCreate;
+        data?: GroupAuditLogData;
     }[];
     totalCount: number;
     hasNext: boolean;
@@ -120,13 +185,16 @@ export type GroupAudit = {
  * ## Different types of Group Audit Log Events.
  * @enum {string} **Group_Create** -> A group was created.
  * @enum {string} **Group_Update** -> A group was updated.
- * @enum {string} **Group_Announcement_Create** -> A group announcement was created.
- * @enum {string} **Group_Announcement_Delete** -> A group announcement was deleted.
+ * @enum {string} **Group_Announcement_Create** -> A group post was created (`group.post.create`).
+ * @enum {string} **Group_Announcement_Delete** -> A group post was deleted (`group.post.delete`).
+ * @enum {string} **Group_Post_Update** -> A group post was edited (`group.post.update`).
  * @enum {string} **Group_Role_Create** -> A group role was created.
  * @enum {string} **Group_Role_Update** -> A group role was updated.
  * @enum {string} **Group_Role_Delete** -> A group role was deleted.
- * @enum {string} **Group_Role_Assign** -> A group role was assigned to a member.
- * @enum {string} **Group_Role_Unassign** -> A group role was unassigned from a member.
+ * @enum {string} **Group_Member_Role_Assign** -> A role was assigned to a member (`group.member.role.assign`).
+ * @enum {string} **Group_Member_Role_Unassign** -> A role was unassigned from a member (`group.member.role.unassign`).
+ * @enum {string} **Group_CalendarEvent_Create** -> A calendar event was created.
+ * @enum {string} **Group_CalendarEvent_Delete** -> A calendar event was deleted.
  * @enum {string} **Group_Member_Update** -> A group member was updated.
  * @enum {string} **Group_Member_Join** -> A group member joined.
  * @enum {string} **Group_Member_Leave** -> A group member left.
@@ -145,12 +213,21 @@ export enum GroupAuditLogEventType {
     // Announcement events
     Group_Announcement_Create = 'group.post.create',
     Group_Announcement_Delete = 'group.post.delete',
+    Group_Post_Update = 'group.post.update',
     // Role events
     Group_Role_Create = 'group.role.create',
     Group_Role_Update = 'group.role.update',
     Group_Role_Delete = 'group.role.delete',
-    Group_Role_Assign = 'group.role.assign',
-    Group_Role_Unassign = 'group.role.unassign',
+    /** Live API string. Older docs used `group.role.assign`. */
+    Group_Member_Role_Assign = 'group.member.role.assign',
+    Group_Member_Role_Unassign = 'group.member.role.unassign',
+    /** @deprecated Wrong API string. Use `Group_Member_Role_Assign`. */
+    Group_Role_Assign = 'group.member.role.assign',
+    /** @deprecated Wrong API string. Use `Group_Member_Role_Unassign`. */
+    Group_Role_Unassign = 'group.member.role.unassign',
+    // Calendar events
+    Group_CalendarEvent_Create = 'group.calendarEvent.create',
+    Group_CalendarEvent_Delete = 'group.calendarEvent.delete',
     // Member events
     Group_Member_Update = 'group.member.update',
     Group_Member_Join = 'group.member.join',
@@ -170,12 +247,13 @@ export enum GroupAuditLogEventType {
     Group_Gallery_Delete = 'group.gallery.delete',
     // Instance events
     Group_Instance_Create = 'group.instance.create',
+    Group_Instance_Close = 'group.instance.close',
 }
 
 export type GroupAuditLogDataPostCreated = {
     title: string;
     text: string;
-    imageId?: string; // Often null
+    imageId?: FileIdType | null;
     authorId?: UserIdType;
     sendNotification?: boolean;
     roleIds?: GroupRoleIdType[];
@@ -185,8 +263,8 @@ export type GroupAuditLogDataPostCreated = {
 export type GroupAuditLogDataPostDeleted = {
     title: string;
     text: string;
-    imageId?: string;
-    imageUrl?: string;
+    imageId?: FileIdType | null;
+    imageUrl?: string | null;
     authorId?: UserIdType;
     editorId?: UserIdType;
     sendNotification?: boolean; // todo, not sure yet
@@ -194,6 +272,13 @@ export type GroupAuditLogDataPostDeleted = {
     createdAt: string;
     updatedAt: string;
     visibility: GroupPostVisibilityType;
+};
+
+export type GroupAuditLogDataPostUpdate = {
+    title?: { old: string; new: string };
+    text?: { old: string; new: string };
+    editorId?: { old: UserIdType | null; new: UserIdType };
+    visibility?: { old: GroupPostVisibilityType; new: GroupPostVisibilityType };
 };
 
 export type GroupAuditLogDataRoleCreate = {
@@ -204,6 +289,8 @@ export type GroupAuditLogDataRoleCreate = {
     requiresTwoFactor: boolean;
     requiresPurchase: boolean;
     permissions: GroupPermissionEnum[];
+    isAddedOnJoin?: boolean;
+    lastUpdatedByUserId?: UserIdType;
 };
 
 export type GroupAuditLogDataRoleUpdate = {
@@ -227,6 +314,10 @@ export type GroupAuditLogDataRoleUpdate = {
         old: number;
         new: number;
     };
+    isSelfAssignable?: {
+        old: boolean;
+        new: boolean;
+    };
 };
 
 export type GroupAuditLogDataRoleDelete = {
@@ -238,6 +329,9 @@ export type GroupAuditLogDataRoleDelete = {
     permissions: GroupPermissionEnum[];
     order: number;
     createdAt: string;
+    defaultRole?: boolean;
+    isAddedOnJoin?: boolean;
+    isManagementRole?: boolean;
 };
 
 export type GroupAuditLogDataMemberUpdate = {
@@ -283,8 +377,8 @@ export type GroupAuditLogDataGroupUpdate = {
         new: GroupPrivacy;
     };
     languages?: {
-        old: string[];
-        new: string[];
+        old: languageTagsShort[];
+        new: languageTagsShort[];
     };
     links?: {
         old: string[];
@@ -333,9 +427,68 @@ export type GroupAuditLogGalleryDelete = {
 };
 
 export type GroupAuditLogDataGroupInstanceCreate = {
-    groupAccessType: string; // 'member'
-    roleIds?: GroupRoleIdType[];
+    groupAccessType: GroupInstanceAccessType;
+    roleIds?: GroupRoleIdType[] | null;
+    calendarEntryId?: string | null;
 };
+
+export type GroupAuditLogDataCalendarEventCreate = {
+    accessType?: GroupEventAccessType;
+    description?: string;
+    imageId?: FileIdType | null;
+    title?: string;
+    type?: GroupCalendarKind;
+};
+
+export type GroupAuditLogDataCalendarEventDelete = {
+    accessType?: GroupEventAccessType;
+    category?: EventCategoryType;
+    closeInstanceAfterEndMinutes?: number;
+    createdAt?: string;
+    deletedAt?: string | null;
+    description?: string;
+    durationInMs?: number;
+    endsAt?: string;
+    featured?: boolean;
+    guestEarlyJoinMinutes?: number;
+    hostEarlyJoinMinutes?: number;
+    imageId?: FileIdType | null;
+    interestedUserCount?: number;
+    isDraft?: boolean;
+    languages?: LanguageTypes[] | null;
+    occurrenceKind?: GroupEventOccurrenceKind;
+    occurrenceModified?: boolean | null;
+    ownerId?: GroupIdType;
+    platforms?: PlatformType[];
+    recurrence?: GroupEventRecurrence | null;
+    roleIds?: GroupRoleIdType[];
+    seriesId?: CalendarIdType | null;
+    shortCode?: string | null;
+    startsAt?: string;
+    tags?: string[];
+    title?: string;
+    type?: GroupCalendarKind;
+    updatedAt?: string;
+    usesInstanceOverflow?: boolean;
+};
+
+export type GroupAuditLogData =
+    | GroupAuditLogDataPostCreated
+    | GroupAuditLogDataPostDeleted
+    | GroupAuditLogDataPostUpdate
+    | GroupAuditLogDataRoleCreate
+    | GroupAuditLogDataRoleUpdate
+    | GroupAuditLogDataRoleDelete
+    | GroupAuditLogDataMemberUpdate
+    | GroupAuditLogDataRoleAssign
+    | GroupAuditLogDataRoleUnassign
+    | GroupAuditLogDataGroupUpdate
+    | GroupAuditLogGalleryCreate
+    | GroupAuditLogGalleryUpdate
+    | GroupAuditLogGalleryDelete
+    | GroupAuditLogDataGroupInstanceCreate
+    | GroupAuditLogDataCalendarEventCreate
+    | GroupAuditLogDataCalendarEventDelete;
 
 export type GroupAnnouncement = {
     id: GroupAnnouncementIdType;
@@ -376,21 +529,34 @@ export type BaseMyMember = {
 };
 
 export type MyMember = BaseMyMember & {
-    managerNotes: string;
+    managerNotes?: string;
     bannedAt: string | null;
     has2FA: boolean; // Defaults to false
     permissions: GroupPermissionEnum[]; // Admins defaults to ["*"]
     hasJoinedFromPurchase?: boolean; // TODO: Undocumented yet!
+    isSubscribedToEventAnnouncements?: boolean;
 };
 
 export type GroupMemberLimitedUser = {
-    id: GroupMemberIdType;
+    /** Nested user id (`usr_`), not the membership `gmem_` id. */
+    id: UserIdType;
     displayName: string;
-    thumbnailUrl: string;
+    thumbnailUrl: string | null;
     iconUrl: string;
-    profilePicOverride: string;
-    currentAvatarThumbnailImageUrl: string;
-    currentAvatarTags: string[];
+    /** Omitted on some member-list payloads. */
+    profilePicOverride?: string;
+    currentAvatarThumbnailImageUrl: string | null;
+    currentAvatarImageUrl?: string;
+    /** Omitted on some member-list payloads. */
+    currentAvatarTags?: string[];
+    userIcon?: string;
+    banner?: string | null;
+    iconFrame?: string | null;
+    nameplateEffect?: string | null;
+    profileEffect?: string | null;
+    bannerType?: ProfileBannerType;
+    bannerColor?: string;
+    bannerUrl?: string;
 };
 
 export type GroupMember = {
@@ -398,15 +564,21 @@ export type GroupMember = {
     groupId: GroupIdType;
     userId: UserIdType;
     isRepresenting: boolean;
-    user: GroupMemberLimitedUser;
-    roleIds: GroupRoleIdType[];
-    joinedAt: string;
-    membershipStatus: GroupMembershipStatus;
-    visibility: string;
-    isSubscribedToAnnouncements: boolean;
+    user?: GroupMemberLimitedUser | null;
+    roleIds?: GroupRoleIdType[];
+    mRoleIds?: GroupRoleIdType[];
+    joinedAt?: string | null;
+    membershipStatus?: GroupMembershipStatus;
+    visibility?: string;
+    isSubscribedToAnnouncements?: boolean;
+    isSubscribedToEventAnnouncements?: boolean;
     createdAt?: string;
     bannedAt?: string;
     managerNotes?: string;
+    acceptedByDisplayName?: string | null;
+    acceptedById?: string | null;
+    hasJoinedFromPurchase?: boolean;
+    lastPostReadAt?: string;
 };
 
 /**
@@ -426,11 +598,13 @@ export type GroupRole = {
     requiresPurchase: boolean;
     order: number;
     createdAt: string; // assuming date-time is a string in ISO format
-    updatedAt: string; // assuming date-time is a string in ISO format
-    /** A default role is a role that is assigned to all members by default. If set to true, this role will be given to any members that join the VRChat Group */
-    defaultRole: boolean; //! new attribute
+    updatedAt?: string; // assuming date-time is a string in ISO format
+    /** Present on create. Omitted on role lists from group GET / update / delete. */
+    defaultRole?: boolean;
     /** The role that will be assigned to new members when they join the VRChat Group */
     isAddedOnJoin: boolean; //! new attribute
+    /** Present on paid / store-linked roles. */
+    productId?: string;
 };
 
 export type GroupGallery = {
@@ -438,10 +612,10 @@ export type GroupGallery = {
     name: string;
     description: string;
     membersOnly: boolean;
-    roleIdsToView: GroupRoleIdType[];
-    roleIdsToSubmit: GroupRoleIdType[];
-    roleIdsToAutoApprove: GroupRoleIdType[];
-    roleIdsToManage: GroupRoleIdType[];
+    roleIdsToView: GroupRoleIdType[] | null;
+    roleIdsToSubmit?: GroupRoleIdType[];
+    roleIdsToAutoApprove?: GroupRoleIdType[];
+    roleIdsToManage?: GroupRoleIdType[];
     createdAt: string; // assuming date-time is a string in ISO format
     updatedAt: string; // assuming date-time is a string in ISO format
 };
@@ -461,7 +635,7 @@ export type GroupGalleryImage = {
 
 export type GroupPermission = {
     allowedToAdd: boolean;
-    dependsOn: GroupPermissionEnum[];
+    dependsOn?: GroupPermissionEnum[];
     displayName: string;
     help: string;
     isManagementPermission: boolean;
@@ -583,6 +757,14 @@ export enum GroupUserVisibility {
  * - **groupInstancePlusPortal** -> `Portal to Group+ Instances`. Allows role to open locked portals to Group+ instances. Members, friends of people there, and friends of the portal dropper may enter unless group-banned. Manage Role?: `FALSE`
  * - **groupInstancePlusPortalUnlocked** -> `Unlocked Portal to Group+ Instances`. Allows role to open unlocked portals to Group+ instances. Everyone except group-banned people may enter. Requires \"Portal to Group+ Instances\" permission. Manage Role?: `FALSE`
  * - **groupInstanceJoin** -> `Join Group Instances`. Allows role to join group instances. Manage Role?: `FALSE`
+ * - **groupInstanceAgeGatedCreate** -> `Create Age Gated Instances`. Allows role to create 18+ age-gated group instances. Manage Role?: `FALSE`
+ * - **groupInstanceAgeGatedJoin** -> `Join Age Gated Instances`. Kept for payloads that still send it. Not in the current `/permissions` catalog.
+ * - **groupInstanceManage** -> `Manage Group Instances`. Allows role to rename or close a group instance. Manage Role?: `TRUE`
+ * - **groupDefaultRoleManage** -> `Manage Group Default Role`. Allows role to manage the Everyone / default role permissions. Requires `group-roles-manage`. Manage Role?: `TRUE`
+ * - **groupAnnouncementInstanceCreate** -> `Create Instance Announcement`. Allows role to send an announcement to everyone in a group instance. Manage Role?: `FALSE`
+ * - **groupCalendarManage** -> `Manage Group Calendar`. Allows role to create, modify, and publish calendar entries. Manage Role?: `FALSE`
+ * - **groupInstanceCalendarLink** -> `Link Instances and Events`. Allows role to create and link instances to live / soon / recently-ended events. Manage Role?: `FALSE`
+ * - **groupInstanceBypassAvatarPerformance** -> `Bypass Avatar Performance Requirements`. Allows role to join performance-gated group instances regardless of avatar rating. Manage Role?: `FALSE`
  */
 export enum GroupPermissionEnum {
     groupAllPermissions = '*',
@@ -610,9 +792,14 @@ export enum GroupPermissionEnum {
     groupInstanceAgeGatedJoin = 'group-instance-age-gated-join',
     groupInstanceManage = 'group-instance-manage',
     groupDefaultRoleManage = 'group-default-role-manage',
+    groupAnnouncementInstanceCreate = 'group-instance-announcement-create',
+    groupCalendarManage = 'group-calendar-manage',
+    groupInstanceCalendarLink = 'group-instance-calendar-link',
+    groupInstanceBypassAvatarPerformance = 'group-instance-bypass-avatar-performance',
 }
 
 export type GroupPermissionsTags =
+    | '*'
     | 'group-members-manage'
     | 'group-data-manage'
     | 'group-audit-view'
@@ -632,7 +819,15 @@ export type GroupPermissionsTags =
     | 'group-instance-restricted-create'
     | 'group-instance-plus-portal'
     | 'group-instance-plus-portal-unlocked'
-    | 'group-instance-join';
+    | 'group-instance-join'
+    | 'group-instance-age-gated-create'
+    | 'group-instance-age-gated-join'
+    | 'group-instance-manage'
+    | 'group-default-role-manage'
+    | 'group-instance-announcement-create'
+    | 'group-calendar-manage'
+    | 'group-instance-calendar-link'
+    | 'group-instance-bypass-avatar-performance';
 
 export enum GroupInviteResponse {
     Accept = 'accept',
@@ -640,32 +835,33 @@ export enum GroupInviteResponse {
 }
 
 export type GroupEventBase = {
-    /** Is Currently always going to be 'group' unless made by VRChat themselves. */
-    accessType: string;
+    accessType: GroupEventAccessType;
     /** The category of this event. Of Type CategoryType. */
     category: EventCategoryType;
-    /** Default: 5 | Can't be modified at this time. */
-    closeInstanceAfterEndMinutes: number;
-    createdAt: string; // assuming date-time is a string in ISO format
-    deletedAt?: string; // assuming date-time is a string in ISO format
+    /** Default: 5. Search hits often omit this. */
+    closeInstanceAfterEndMinutes?: number;
+    createdAt?: string;
+    deletedAt?: string;
     /** The description of the event. | Look out for \n for line skips */
     description: string;
     /** When the event ends. */
-    endsAt: string; // assuming date-time is a string in ISO format
+    endsAt: string;
     /** If an event is featured, it will be advertised by VRChat. */
-    featured: boolean;
-    /** The number of minutes before the event starts that guests can join. Default: 5 | Can't be modified at this time. */
-    guestEarlyJoinMinutes: number;
-    /** The number of minutes before the host can join the event. Default: 60 | Can't be modified at this time. */
-    hostEarlyJoinMinutes: number;
+    featured?: boolean;
+    /** The number of minutes before the event starts that guests can join. Search hits often omit this. */
+    guestEarlyJoinMinutes?: number;
+    /** The number of minutes before the host can join the event. Search hits often omit this. */
+    hostEarlyJoinMinutes?: number;
     /** The ID of the event. */
     id: CalendarIdType;
-    /** URL to the image of the event. */
+    /** File ID of the event image. */
     imageId?: FileIdType | null;
-    /** If this event is currently only a draft, it will not be visible to the public? Needs more testing. */
-    isDraft: boolean;
-    /** The languages of the event. Optional, can be empty. */
-    languages?: LanguageTags[] | null; // only languages full tags
+    /** Resolved image URL when the API sends one. */
+    imageUrl?: string | null;
+    /** If this event is currently only a draft. Search hits often omit this. */
+    isDraft?: boolean;
+    /** ISO language codes (`eng`, …). Live calendar payloads send `LanguageTypes`, not `language_*` tags. */
+    languages?: LanguageTypes[] | null;
     /** Can be either a group or a user ID. If a group ID, the event is owned by a group. If a user ID, the event is owned by a user. Currently we only know about GroupID being used. */
     ownerId: GroupIdType;
     /** The platforms that are allowed to join this event. [PC_ONLY, ANDROID, IOS] */
@@ -675,21 +871,55 @@ export type GroupEventBase = {
     /** The scheduled time of this event. */
     startsAt: string;
     /** The tags of the event. Optional, can be empty. */
-    tags: string[];
+    tags?: string[];
     /** The title of the event. */
     title: string;
-    /** The type of the event. Currently only known to be 'event'. Can't be changed manually. */
-    type: string;
-    /** Last time the event was updated. */
-    updatedAt: string;
-    /** Expected to be used if attendees will overflow to another instance. Needs more testing? */
-    usesInstanceOverflow: boolean;
+    type?: GroupCalendarKind;
+    /** Last time the event was updated. Search hits often omit this. */
+    updatedAt?: string;
+    /** Expected to be used if attendees will overflow to another instance. Search hits often omit this. */
+    usesInstanceOverflow?: boolean;
+    /** Event length in milliseconds. */
+    durationInMs?: number;
+    /** How many users marked interest. */
+    interestedUserCount?: number;
+    /** `single` for a one-off event, `series` / `occurrence` for recurring. */
+    occurrenceKind?: GroupEventOccurrenceKind;
+    /** Recurrence spec, or null on one-off events. */
+    recurrence?: GroupEventRecurrence | null;
+    /** Recurring series id when this event is part of a series. */
+    seriesId?: CalendarIdType | null;
+};
+
+export enum GroupEventOccurrenceKind {
+    Single = 'single',
+    Series = 'series',
+    Occurrence = 'occurrence',
+}
+
+export enum GroupEventRecurrenceFrequency {
+    Daily = 'daily',
+    Weekly = 'weekly',
+    Monthly = 'monthly',
+    Yearly = 'yearly',
+}
+
+export type GroupEventRecurrence = {
+    daysOfWeek?: GroupEventRecurrenceDay[];
+    end?: {
+        count?: number;
+        date?: string;
+        type: GroupEventRecurrenceEndType;
+    };
+    frequency: GroupEventRecurrenceFrequency;
+    interval: number;
+    timezone: string;
 };
 
 /** This type is used for Group Events specifically. when doing a GET request only, to know if a user is interested in the event. */
 export type GroupEvent = GroupEventBase & {
-    /** User Interest Data */
-    userInterest: {
+    /** Present when the current user has interest data for this event. Omitted on create/update and some GETs. */
+    userInterest?: {
         createdAt: string; // assuming date-time is a string in ISO format
         isFollowing: boolean;
         updatedAt: string; // assuming date-time is a string in ISO format
@@ -720,8 +950,8 @@ export enum PlatformType {
 
 /** This type is used for Group Events specifically. Gets all the upcoming events for a group.*/
 export type GroupEventList = {
-    /** Whether or not there are more events to fetch. */
-    hasNext: boolean;
+    /** Whether or not there are more events to fetch. Search can omit this. */
+    hasNext?: boolean;
     /** The events that are upcoming. */
     results: GroupEvent[];
     /** The total number of upcoming events. */
@@ -815,6 +1045,8 @@ export type createGroupRequest = basicGroupData &
 export type getGroupByIdRequest = GroupId & {
     /** Whether or not to include the group's roles. Defaults to false if omitted. *[OPTIONAL]*. */
     includeRoles?: boolean;
+    /** Official spec v1.21.0 extra filter. *[OPTIONAL]*. */
+    purpose?: string;
 };
 
 /** Information Required to request to get a group's Audit Logs.*/
@@ -825,7 +1057,15 @@ export type getGroupAuditLogsRequest = GroupId &
         startDate?: string;
         /** The Ending date of the logs to get. *[OPTIONAL]*. */
         endDate?: string;
+        /** Comma-separated actor user ids. *[OPTIONAL]*. */
+        actorIds?: string;
+        /** Comma-separated `GroupAuditLogEventType` values. *[OPTIONAL]*. */
+        eventTypes?: string;
+        /** Comma-separated target ids. *[OPTIONAL]*. */
+        targetIds?: string;
     };
+
+export type getGroupAuditLogTypesRequest = GroupId;
 
 /** Information Required to request to update a group's information. */
 export type dataKeysUpdateGroup = basicGroupData &
@@ -975,6 +1215,8 @@ export type getGroupGalleryImagesRequest = GroupId &
     Offset & {
         /** Whether or not to include images that are approved. *[OPTIONAL]*.*/
         approved?: boolean; // TODO FIND THE DEFAULT?
+        /** Official spec v1.21.0: `v=2` wraps images in a paginated object. *[OPTIONAL]*. */
+        v?: number;
     };
 
 export type dataKeysGroupUpdateGallery = OptName &
@@ -1022,7 +1264,14 @@ export type inviteUserToGroupRequest = GroupId & dataKeysCreateGroupInvite;
 export type deleteGroupUserInviteRequest = GroupId & UserId;
 
 /** Information Required to request to join a group. */
-export type joinGroupRequest = GroupId;
+export type joinGroupRequest = GroupId & {
+    /** Invite used when joining from a group invite. */
+    inviteId?: string;
+};
+
+export type dataKeysJoinGroup = {
+    inviteId?: string;
+};
 
 /** Information Required to request to leave a group. */
 export type leaveGroupRequest = GroupId;
@@ -1043,6 +1292,8 @@ export type dataKeysUpdateGroupMember = {
     visibility?: GroupUserVisibility;
     /** Whether or not the member is subscribed to announcements. *[OPTIONAL]*.*/
     isSubscribedToAnnouncements?: boolean;
+    /** Whether or not the member is subscribed to event announcements. *[OPTIONAL]*.*/
+    isSubscribedToEventAnnouncements?: boolean;
     /** The notes about the member. *[OPTIONAL]*.*/
     managerNotes?: string;
 };
@@ -1140,7 +1391,7 @@ export type EventId = {
 };
 
 export type dataKeyCreateGroupEventRequest = {
-    accessType: string;
+    accessType: GroupEventAccessType;
     category: EventCategoryType;
     closeInstanceAfterEndMinutes: number;
     description: string;
@@ -1216,7 +1467,14 @@ export type dataKeysEditGroupEvent = {
 export type updateGroupEventRequest = dataKeysEditGroupEvent & GroupId & EventId;
 export type deleteGroupEventRequest = GroupId & EventId;
 export type getGroupEventRequest = GroupId & EventId;
-export type getGroupEventListRequest = GroupId;
+export type getGroupEventListRequest = GroupId &
+    Quantity &
+    Offset &
+    CalendarMonthDate & {
+        after?: string;
+        limit?: number;
+        sort?: string;
+    };
 
 export type groupEventNextRequest = GroupId;
 export type dataKeyGetNextGroupEventRequest = GroupId;
@@ -1225,3 +1483,65 @@ export type dataKeyFollowGroupEventRequest = {
     isFollowing: boolean;
 };
 export type followGroupEventRequest = GroupId & EventId & dataKeyFollowGroupEventRequest;
+
+/** Month filter for calendar list endpoints (`?date=`). */
+export type CalendarMonthDate = {
+    /** Month to search. ISO date-time. *[OPTIONAL]*. */
+    date?: string;
+};
+
+/** How discovery picks events. */
+export enum CalendarEventDiscoveryScope {
+    All = 'all',
+    Live = 'live',
+    Upcoming = 'upcoming',
+}
+
+/** Include / exclude / skip a discovery slice. */
+export enum CalendarEventDiscoveryInclusion {
+    Exclude = 'exclude',
+    Include = 'include',
+    Skip = 'skip',
+}
+
+/** Information required to list calendar events the current user is following. */
+export type getFollowedCalendarEventsRequest = Quantity & Offset & CalendarMonthDate;
+
+/** Information required to list the current user's calendar events for a month. */
+export type getCalendarEventsRequest = Quantity & Offset & CalendarMonthDate;
+
+/** Information required to list featured calendar events. */
+export type getFeaturedCalendarEventsRequest = Quantity & Offset & CalendarMonthDate;
+
+/** Information required to search calendar events. */
+export type searchCalendarEventsRequest = Quantity & Offset & {
+    /** Search term. **[REQUIRED]**. */
+    searchTerm: string;
+    /** Client UTC offset in hours, -12 to 12. *[OPTIONAL]*. */
+    utcOffset?: number;
+};
+
+/** Information required to discover calendar events. */
+export type discoverCalendarEventsRequest = Quantity & {
+    scope?: CalendarEventDiscoveryScope;
+    /** Comma-separated categories. */
+    categories?: string;
+    /** Comma-separated tags. */
+    tags?: string;
+    featuredResults?: CalendarEventDiscoveryInclusion;
+    nonFeaturedResults?: CalendarEventDiscoveryInclusion;
+    personalizedResults?: CalendarEventDiscoveryInclusion;
+    minimumInterestCount?: number;
+    minimumRemainingMinutes?: number;
+    upcomingOffsetMinutes?: number;
+    nextCursor?: string;
+};
+
+/** Cursor-paginated discovery list. `hasNext` / `totalCount` are not used here. */
+export type CalendarEventDiscovery = {
+    nextCursor?: string | null;
+    results: GroupEvent[];
+};
+
+/** Information required to download an event as ICS. */
+export type getGroupCalendarEventIcsRequest = GroupId & EventId;

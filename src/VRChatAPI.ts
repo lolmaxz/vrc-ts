@@ -5,6 +5,7 @@ import {
     CookiesUser404,
     EmailOtpRequired,
     InvalidUserAgent,
+    RequestError,
     TOTPRequired,
 } from './errors';
 import { AuthApi } from './requests/AuthApi';
@@ -16,12 +17,14 @@ import { FilesApi } from './requests/FilesApi';
 import { FriendsApi } from './requests/FriendsApi';
 import { GroupsApi } from './requests/GroupsApi';
 import { InstanceApi } from './requests/InstancesApi';
+import { InventoryApi } from './requests/InventoryApi';
 import { InvitesApi } from './requests/InvitesApi';
 import { JamsApi } from './requests/JamsApi';
 import { NotificationsApi } from './requests/NotificationsApi';
 import { PermissionsApi } from './requests/PermissionsApi';
 import { PlayerModerationApi } from './requests/PlayerModerationApi';
 import { PrintsApi } from './requests/PrintsApi';
+import { PropsApi } from './requests/PropsApi';
 import { SystemApi } from './requests/SystemApi';
 import { UsersApi } from './requests/UsersApi';
 import { WorldsApi } from './requests/WorldsApi';
@@ -71,12 +74,14 @@ export class VRChatAPI {
     friendApi: FriendsApi = new FriendsApi(this);
     groupApi: GroupsApi = new GroupsApi(this);
     instanceApi: InstanceApi = new InstanceApi(this);
+    inventoryApi: InventoryApi = new InventoryApi(this);
     inviteApi: InvitesApi = new InvitesApi(this);
     jamApi: JamsApi = new JamsApi(this);
     notificationApi: NotificationsApi = new NotificationsApi(this);
     permissionApi: PermissionsApi = new PermissionsApi(this);
     playermoderationApi: PlayerModerationApi = new PlayerModerationApi(this);
     printsApi: PrintsApi = new PrintsApi(this);
+    propsApi: PropsApi = new PropsApi(this);
     systemApi: SystemApi = new SystemApi(this);
     userApi: UsersApi = new UsersApi(this);
     worldApi: WorldsApi = new WorldsApi(this);
@@ -250,6 +255,17 @@ export class VRChatAPI {
             } else if (error instanceof TOTPRequired) {
                 throw new TOTPRequired(error.message);
             } else if (error instanceof Error) {
+                if (error instanceof RequestError) {
+                    // VRChat already emailed an OTP and refuses to send another one yet.
+                    if (/hold your horses|just sent something to that email/i.test(error.message)) {
+                        throw new EmailOtpRequired(
+                            '\nTIPS: Add/Update your Email code inside the .env file.\nYou might have received the code by Email!'
+                        );
+                    }
+                    if (error.retryAfterSeconds != null || error.statusCode === 429) {
+                        throw error;
+                    }
+                }
                 // check if message is contains 401
                 if (error.message.includes('401')) {
                     throw new Error('Invalid Username/Email or Password | Missing Credentials');

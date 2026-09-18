@@ -1,6 +1,14 @@
 import { VRChatAPI } from '../VRChatAPI';
 import { RequestError, UserNotAuthenticated } from '../errors';
-import { API, VRCRequest, executeRequestType, headerOptions } from '../types/Generics';
+import {
+    API,
+    APIErrorBody,
+    getAPIErrorMessage,
+    parseAPIErrorBody,
+    VRCRequest,
+    executeRequestType,
+    headerOptions,
+} from '../types/Generics';
 
 /**
  * This class is used to handle the base API requests. This class should not be used directly.
@@ -24,6 +32,7 @@ export class BaseApi {
         pathFormated,
         queryOptions,
         body,
+        expectText,
     }: executeRequestType): Promise<E> {
         // we make sure everything is valid first
         this.checkValidData({
@@ -92,7 +101,7 @@ export class BaseApi {
         if (body && currentRequest.requiresData) {
             options.body = JSON.stringify(body);
         }
-        const response: API<E, RequestError> = await fetch(url, options);
+        const response: API<E, APIErrorBody> = await fetch(url, options);
 
         if (process.env.DEBUG === 'true') {
             console.log('#1 url: ', url);
@@ -107,20 +116,22 @@ export class BaseApi {
             let extraMessage = '';
             console.log('not okay?:', response);
 
-            const reponseTry = (await response.json()) as RequestError;
-            console.log(reponseTry);
-
-            if ('error' in reponseTry) {
-                const error = reponseTry.error as object;
-                if ('message' in error) {
-                    const extraMessageReceived = error.message as string;
-                    if (extraMessageReceived) {
-                        extraMessage = error.message as string;
-                    }
-                }
+            const errorText = await response.text();
+            const errorBody = parseAPIErrorBody(errorText);
+            if (errorBody) {
+                console.log(errorBody);
+                extraMessage = getAPIErrorMessage(errorBody);
+            } else if (errorText) {
+                extraMessage = errorText.slice(0, 200);
             }
 
-            throw new RequestError(response.status, response.statusText + ' | Extra message: ' + extraMessage);
+            const retryAfterHeader = response.headers.get('retry-after');
+            const retryAfterSeconds = retryAfterHeader ? Number(retryAfterHeader) : undefined;
+            throw new RequestError(
+                response.status,
+                response.statusText + ' | Extra message: ' + extraMessage,
+                Number.isFinite(retryAfterSeconds) ? retryAfterSeconds : undefined
+            );
         }
 
         // we get the set-cookies if there is any (way more optimized solution)
@@ -130,7 +141,14 @@ export class BaseApi {
             await this.baseClass.instanceCookie.addCookiesFromStrings(cookies);
         }
 
-        const result = (await response.json()) as E;
+        const raw = await response.text();
+        if (expectText) {
+            return raw as E;
+        }
+        if (!raw) {
+            return {} as E;
+        }
+        const result = JSON.parse(raw) as E;
         if (process.env.DEBUG === 'true') {
             console.log('RESULTS: ', result);
         }
@@ -141,7 +159,11 @@ export class BaseApi {
     checkValidData({ currentRequest, pathFormated, queryOptions, body }: executeRequestType) {
         // if the base class is not authenticated then we need to throw an error unless it's a 2FA authentication process!
         if (!this.baseClass.isAuthentificated) {
-            if (!pathFormated.includes('/auth/twofactorauth') && !pathFormated.includes('/auth/user')) {
+            if (
+                !pathFormated.includes('/auth/twofactorauth') &&
+                !pathFormated.includes('/auth/user') &&
+                !pathFormated.includes('/config')
+            ) {
                 throw new UserNotAuthenticated();
             }
         }

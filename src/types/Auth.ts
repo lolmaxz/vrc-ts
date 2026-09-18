@@ -6,7 +6,7 @@
  */
 export type checkUserExistResponse = {
     userExists: boolean;
-    nameOk: boolean;
+    nameOk?: boolean;
 };
 export type verify2FATOTPResponse = {
     verified: boolean;

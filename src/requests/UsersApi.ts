@@ -1,10 +1,57 @@
 import { VRChatAPI } from '../VRChatAPI';
+import { RequestError } from '../errors';
 import { ApiPaths } from '../types/ApiPaths';
-import { AllTags, executeRequestType } from '../types/Generics';
-import { Group, RepresentedGroup } from '../types/Groups';
+import { AllTags, executeRequestType, WorldIdType } from '../types/Generics';
+import { Group, LimitedGroup, RepresentedGroup, UserGroup } from '../types/Groups';
 import * as Inst from '../types/Instances';
 import * as User from '../types/Users';
 import { BaseApi } from './BaseApi';
+
+function isHttpUrl(value: unknown): value is string {
+    return typeof value === 'string' && /^https?:\/\//i.test(value);
+}
+
+function firstHttpUrl(...values: unknown[]): string | undefined {
+    return values.find(isHttpUrl);
+}
+
+type UserImageFields = {
+    bio?: string | null;
+    statusDescription?: string | null;
+    profilePicOverride?: string | null;
+    currentAvatarThumbnailImageUrl?: string | null;
+    currentAvatarImageUrl?: string | null;
+    profilePicOverrideThumbnail?: string | null;
+    iconUrl?: string | null;
+    userIcon?: string | null;
+    tags?: string[];
+};
+
+/**
+ * Public `GET /users/{id}` and `searchAllUsers` now omit avatar image URLs and send profile `iconUrl` instead.
+ * Discord embeds that still read `currentAvatarThumbnailImageUrl` then get `undefined` and throw `s.nullish()`.
+ * This copies a usable https URL into the avatar fields and turns JSON `null` strings into `''`.
+ */
+export function normalizeUserImageFields<T extends UserImageFields>(user: T): T {
+    if (user.bio === null) user.bio = '';
+    if (user.statusDescription === null) user.statusDescription = '';
+    if (user.profilePicOverride === null) user.profilePicOverride = '';
+    if (!Array.isArray(user.tags)) user.tags = [];
+
+    const thumb = firstHttpUrl(
+        user.currentAvatarThumbnailImageUrl,
+        user.currentAvatarImageUrl,
+        user.profilePicOverrideThumbnail,
+        user.iconUrl,
+        user.profilePicOverride,
+        user.userIcon
+    );
+    if (thumb) {
+        if (!isHttpUrl(user.currentAvatarThumbnailImageUrl)) user.currentAvatarThumbnailImageUrl = thumb;
+        if (!isHttpUrl(user.currentAvatarImageUrl)) user.currentAvatarImageUrl = thumb;
+    }
+    return user;
+}
 
 export class UsersApi extends BaseApi {
     baseClass: VRChatAPI;
@@ -47,7 +94,8 @@ export class UsersApi extends BaseApi {
             queryOptions: parameters,
         };
 
-        return await this.executeRequest<User.LimitedUser[]>(paramRequest);
+        const users = await this.executeRequest<(User.LimitedUser | User.LimitedUserFriend)[]>(paramRequest);
+        return users.map((user) => normalizeUserImageFields(user));
     }
 
     /**
@@ -62,7 +110,7 @@ export class UsersApi extends BaseApi {
             pathFormated: ApiPaths.users.getUserbyID.path.replace('{userId}', userId),
         };
 
-        return await this.executeRequest<User.User>(paramRequest);
+        return normalizeUserImageFields(await this.executeRequest<User.User>(paramRequest));
     }
 
     /**
@@ -81,6 +129,9 @@ export class UsersApi extends BaseApi {
         userIcon,
         pronouns,
         ageVerificationStatus,
+        contentFilters,
+        hasDiscordFriendsOptOut,
+        hasSharedConnectionsOptOut,
     }: User.updateUserByIdRequest): Promise<User.CurrentUser> {
         const body: User.dataKeysUpdateUser = {};
 
@@ -93,6 +144,9 @@ export class UsersApi extends BaseApi {
         if (userIcon) body.userIcon = userIcon;
         if (pronouns) body.pronouns = pronouns;
         if (ageVerificationStatus) body.ageVerificationStatus = ageVerificationStatus;
+        if (contentFilters) body.contentFilters = contentFilters;
+        if (hasDiscordFriendsOptOut) body.hasDiscordFriendsOptOut = hasDiscordFriendsOptOut;
+        if (hasSharedConnectionsOptOut) body.hasSharedConnectionsOptOut = hasSharedConnectionsOptOut;
 
         if (statusDescription) {
             if (statusDescription.length > 32) throw new Error('Status description must be 32 characters or less!');
@@ -116,9 +170,9 @@ export class UsersApi extends BaseApi {
     /**
      * Get Groups a user is in by their User ID.
      * @param userId The id of the user to get information about.
-     * @returns The information about the user. If the user is not found then it will return undefined.
+     * @returns Membership-oriented group objects (`UserGroup`), not full `Group` records.
      */
-    async getUserGroups({ userId }: User.getUserGroupsByUserIdRequest = {}): Promise<Group[]> {
+    async getUserGroups({ userId }: User.getUserGroupsByUserIdRequest = {}): Promise<UserGroup[]> {
         if (!userId && !this.baseClass.currentUser) {
             throw new Error('No user ID was provided and no user is logged in!');
         }
@@ -130,7 +184,7 @@ export class UsersApi extends BaseApi {
             pathFormated: ApiPaths.users.getUserGroups.path.replace('{userId}', userId),
         };
 
-        return await this.executeRequest<Group[]>(paramRequest);
+        return await this.executeRequest<UserGroup[]>(paramRequest);
     }
 
     /**
@@ -237,6 +291,156 @@ export class UsersApi extends BaseApi {
 
         return await this.executeRequest<Inst.UserGroupInstances>(paramRequest);
     }
+
+    public async getUserGroupInstancesForGroup({
+        userId,
+        groupId,
+    }: User.getUserGroupInstancesForGroupRequest): Promise<Inst.UserGroupInstances> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getUserGroupInstancesForGroup,
+            pathFormated: ApiPaths.users.getUserGroupInstancesForGroup.path
+                .replace('{userId}', userId)
+                .replace('{groupId}', groupId),
+        };
+
+        return await this.executeRequest<Inst.UserGroupInstances>(paramRequest);
+    }
+
+    public async getUserAllGroupPermissions({ userId }: User.getUserByIdRequest): Promise<User.UserGroupPermissions> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getUserAllGroupPermissions,
+            pathFormated: ApiPaths.users.getUserAllGroupPermissions.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<User.UserGroupPermissions>(paramRequest);
+    }
+
+    public async getInvitedGroups({ userId }: User.getUserByIdRequest): Promise<UserGroup[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getInvitedGroups,
+            pathFormated: ApiPaths.users.getInvitedGroups.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<UserGroup[]>(paramRequest);
+    }
+
+    public async getBlockedGroups({ userId }: User.getUserByIdRequest): Promise<UserGroup[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getBlockedGroups,
+            pathFormated: ApiPaths.users.getBlockedGroups.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<UserGroup[]>(paramRequest);
+    }
+
+    public async getUserTutorialStatus({ userId }: User.getUserByIdRequest): Promise<User.UserTutorialStatus> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getUserTutorialStatus,
+            pathFormated: ApiPaths.users.getUserTutorialStatus.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<User.UserTutorialStatus>(paramRequest);
+    }
+
+    public async getMutuals({ userId }: User.getUserByIdRequest): Promise<User.UserMutuals> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getMutuals,
+            pathFormated: ApiPaths.users.getMutuals.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<User.UserMutuals>(paramRequest);
+    }
+
+    public async getMutualFriends({ userId }: User.getUserByIdRequest): Promise<User.LimitedUser[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getMutualFriends,
+            pathFormated: ApiPaths.users.getMutualFriends.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<User.LimitedUser[]>(paramRequest);
+    }
+
+    public async getMutualGroups({ userId }: User.getUserByIdRequest): Promise<LimitedGroup[]> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getMutualGroups,
+            pathFormated: ApiPaths.users.getMutualGroups.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<LimitedGroup[]>(paramRequest);
+    }
+
+    public async getPublicProfile({
+        userId,
+        asSelf,
+        withGroupsAndWorlds,
+    }: User.getPublicProfileRequest): Promise<User.UserPublicProfile> {
+        const parameters: URLSearchParams = new URLSearchParams();
+        if (asSelf) parameters.append('asSelf', 'true');
+        if (withGroupsAndWorlds) parameters.append('withGroupsAndWorlds', 'true');
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getPublicProfile,
+            pathFormated: ApiPaths.users.getPublicProfile.path.replace('{userId}', userId),
+            queryOptions: parameters.toString() ? parameters : undefined,
+        };
+
+        return await this.executeRequest<User.UserPublicProfile>(paramRequest);
+    }
+
+    public async getPrivateProfile({ userId }: User.getUserByIdRequest): Promise<User.UserPrivateProfile> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getPrivateProfile,
+            pathFormated: ApiPaths.users.getPrivateProfile.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<User.UserPrivateProfile>(paramRequest);
+    }
+
+    /**
+     * Official: 200 if persist data exists, 404 if not.
+     */
+    public async checkUserPersistenceExists({
+        userId,
+        worldId,
+    }: {
+        userId: string;
+        worldId: WorldIdType;
+    }): Promise<User.PersistenceExists> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.checkUserPersistenceExists,
+            pathFormated: ApiPaths.users.checkUserPersistenceExists.path
+                .replace('{userId}', userId)
+                .replace('{worldId}', worldId),
+        };
+
+        try {
+            await this.executeRequest<unknown>(paramRequest);
+            return { exists: true };
+        } catch (error) {
+            if (error instanceof RequestError && error.statusCode === 404) {
+                return { exists: false };
+            }
+            throw error;
+        }
+    }
+
+    public async getUserClientConfig({ userId }: User.getUserClientConfigRequest): Promise<User.UserClientConfig> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getUserClientConfig,
+            pathFormated: ApiPaths.users.getUserClientConfig.path.replace('{userId}', userId),
+        };
+
+        return await this.executeRequest<User.UserClientConfig>(paramRequest);
+    }
+
+    public async getAgeVerificationStatus(): Promise<User.AgeVerificationStatusResult> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.users.getAgeVerificationStatus,
+            pathFormated: ApiPaths.users.getAgeVerificationStatus.path,
+        };
+
+        return await this.executeRequest<User.AgeVerificationStatusResult>(paramRequest);
+    }
 }
 
 export type VRCRankResult = {
@@ -257,12 +461,13 @@ export function getVRCRankTags(
 ): VRCRankResult {
     // the highest vrcrank we can find in the user's tag is the rank of the user we should return
     // Determine if the user is a troll
-    const isTroll = user.tags.includes(User.VRCRanks.Nuisance) || user.tags.includes('system_probable_troll');
+    const tags = user.tags ?? [];
+    const isTroll = tags.includes(User.VRCRanks.Nuisance) || tags.includes('system_probable_troll');
 
     // Determine the user's rank
     let rank = User.VRCRanks.Visitor; // Default to Visitor if no other rank is found
     for (const key in User.VRCRanks) {
-        if (user.tags.includes(User.VRCRanks[key as keyof typeof User.VRCRanks] as AllTags)) {
+        if (tags.includes(User.VRCRanks[key as keyof typeof User.VRCRanks] as AllTags)) {
             rank = User.VRCRanks[key as keyof typeof User.VRCRanks];
             break;
         }
@@ -281,5 +486,5 @@ export function getVRCRankTags(
  * @returns `true` if the user is a VRChat User with a current VRC+ subscription, `false` otherwise.
  */
 export function isVRCPlusSubcriber(user: User.User | User.LimitedUser | User.LimitedUserFriend): boolean {
-    return user.tags.includes('system_supporter');
+    return (user.tags ?? []).includes('system_supporter');
 }

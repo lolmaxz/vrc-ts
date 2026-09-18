@@ -83,6 +83,7 @@ export class AvatarsApi extends BaseApi {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.searchAvatars,
             pathFormated: ApiPaths.avatars.searchAvatars.path,
+            queryOptions: parameters,
         };
 
         return await this.executeRequest<Avi.Avatar[]>(paramRequest);
@@ -102,6 +103,9 @@ export class AvatarsApi extends BaseApi {
         version,
         unityPackageUrl,
         unityVersion,
+        thumbnailImageUrl,
+        assetVersion,
+        platform,
     }: Avi.createAvatarOption): Promise<Avi.Avatar> {
         const body: Avi.createAvatarOption = {
             name: name,
@@ -115,6 +119,9 @@ export class AvatarsApi extends BaseApi {
         if (version) body.version = version;
         if (unityPackageUrl) body.unityPackageUrl = unityPackageUrl;
         if (unityVersion) body.unityVersion = unityVersion;
+        if (thumbnailImageUrl) body.thumbnailImageUrl = thumbnailImageUrl;
+        if (assetVersion) body.assetVersion = assetVersion;
+        if (platform) body.platform = platform;
 
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.avatars.createAvatar,
@@ -158,7 +165,7 @@ export class AvatarsApi extends BaseApi {
         if (assetUrl) body.assetUrl = assetUrl;
         if (id) body.id = id;
         if (name) body.name = name;
-        if (description) body.description = description;
+        if (description !== undefined) body.description = description;
         if (tags) body.tags = tags;
         if (imageUrl) body.imageUrl = imageUrl;
         if (releaseStatus) body.releaseStatus = releaseStatus;

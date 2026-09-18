@@ -1,6 +1,6 @@
-import { Prints } from 'types/Prints';
+import { deletePrintRequest, getPrintRequest, Prints } from '../types/Prints';
 import { ApiPaths } from '../types/ApiPaths';
-import { executeRequestType, UserIdType } from '../types/Generics';
+import { executeRequestType, RequestSuccess, UserIdType } from '../types/Generics';
 import { VRChatAPI } from '../VRChatAPI';
 import { BaseApi } from './BaseApi';
 
@@ -19,5 +19,23 @@ export class PrintsApi extends BaseApi {
         };
 
         return await this.executeRequest<Prints[]>(paramRequest);
+    }
+
+    public async getPrint({ printId }: getPrintRequest): Promise<Prints> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.prints.getPrint,
+            pathFormated: ApiPaths.prints.getPrint.path.replace('{printId}', printId),
+        };
+
+        return await this.executeRequest<Prints>(paramRequest);
+    }
+
+    public async deletePrint({ printId }: deletePrintRequest): Promise<RequestSuccess> {
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.prints.deletePrint,
+            pathFormated: ApiPaths.prints.deletePrint.path.replace('{printId}', printId),
+        };
+
+        return await this.executeRequest<RequestSuccess>(paramRequest);
     }
 }

@@ -20,7 +20,7 @@ export class InstanceApi extends BaseApi {
      *
      * If an invalid instanceId is provided, this endpoint will simply return "null"!
      */
-    public async getInstance({ worldId, instanceId }: Inst.GetInstanceRequest): Promise<Inst.InstanceShortName> {
+    public async getInstance({ worldId, instanceId }: Inst.GetInstanceRequest): Promise<Inst.Instance> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.instances.getInstance,
             pathFormated: ApiPaths.instances.getInstance.path
@@ -28,7 +28,7 @@ export class InstanceApi extends BaseApi {
                 .replace('{instanceId}', instanceId),
         };
 
-        return await this.executeRequest<Inst.InstanceShortName>(paramRequest);
+        return await this.executeRequest<Inst.Instance>(paramRequest);
     }
 
     /**
@@ -70,13 +70,13 @@ export class InstanceApi extends BaseApi {
     /**
      * Returns an instance. Please read [Instances Tutorial from VRChat API Docs](https://vrchatapi.github.io/tutorials/instances/) for more information on Instances.
      */
-    public async getInstanceByShortName({ shortName }: Inst.GetInstanceByShortName): Promise<Inst.InstanceShortName> {
+    public async getInstanceByShortName({ shortName }: Inst.GetInstanceByShortName): Promise<Inst.Instance> {
         const paramRequest: executeRequestType = {
             currentRequest: ApiPaths.instances.getInstanceByShortName,
             pathFormated: ApiPaths.instances.getInstanceByShortName.path.replace('{shortName}', shortName),
         };
 
-        return await this.executeRequest<Inst.InstanceShortName>(paramRequest);
+        return await this.executeRequest<Inst.Instance>(paramRequest);
     }
 
     /**
@@ -98,6 +98,7 @@ export class InstanceApi extends BaseApi {
         instanceType,
         instanceCode,
         ownerId,
+        ageGate,
     }: Inst.CreateRegularInstanceRequest): Promise<Inst.Instance> {
         if (instanceType !== Inst.InstanceAccessNormalType.Public) {
             if (!ownerId) throw new Error('You need to provide the ownerId parameter for a non-public instance!');
@@ -119,22 +120,24 @@ export class InstanceApi extends BaseApi {
 
         instanceId = worldId + ':' + instanceCode;
         const nonce = this.getRandomNonce();
+        const ageGateSegment = ageGate ? '~ageGate' : '';
 
         if (instanceType === Inst.InstanceAccessNormalType.Public) {
             // Public instance type
-            instanceId += '~region(' + region + ')';
+            instanceId += ageGateSegment + '~region(' + region + ')';
         } else if (instanceType === Inst.InstanceAccessNormalType.Friends) {
             // Friends instance type
-            instanceId += '~friends(' + ownerId + ')~region(' + region + ')~nonce(' + nonce + ')';
+            instanceId += '~friends(' + ownerId + ')' + ageGateSegment + '~region(' + region + ')~nonce(' + nonce + ')';
         } else if (instanceType === Inst.InstanceAccessNormalType.Friends_Plus) {
             // Friends+ instance type
-            instanceId += '~hidden(' + ownerId + ')~region(' + region + ')~nonce(' + nonce + ')';
+            instanceId += '~hidden(' + ownerId + ')' + ageGateSegment + '~region(' + region + ')~nonce(' + nonce + ')';
         } else if (instanceType === Inst.InstanceAccessNormalType.Invite) {
             // Invite instance type
-            instanceId += '~private(' + ownerId + ')~region(' + region + ')~nonce(' + nonce + ')';
+            instanceId += '~private(' + ownerId + ')' + ageGateSegment + '~region(' + region + ')~nonce(' + nonce + ')';
         } else {
             // Invite+ instance type
-            instanceId += '~private(' + ownerId + ')~canRequestInvite~region(' + region + ')~nonce(' + nonce + ')';
+            instanceId +=
+                '~private(' + ownerId + ')~canRequestInvite' + ageGateSegment + '~region(' + region + ')~nonce(' + nonce + ')';
         }
 
         const paramRequest: executeRequestType = {
@@ -159,6 +162,8 @@ export class InstanceApi extends BaseApi {
      * @param queueEnabled **[Optional]** If the queue is enabled for the instance. Default is `false`.
      * @param roleIds The role IDs of the group that can join the instance. (You can get the role IDs from the group object).
      * @param instanceCode **[Optional]** The code of the instance. If not provided, a random code will be generated. (Any 1-5 digit number or characters are valid.)
+     * @param ageGate **[Optional]** Require 18+ age verification.
+     * @param minimumAvatarPerformance **[Optional]** Minimum avatar performance: None / Poor / Medium / Good.
      *
      * @returns {Promise<Inst.Instance>} The instance object that was created.
      */
@@ -170,6 +175,7 @@ export class InstanceApi extends BaseApi {
         queueEnabled = false,
         roleIds,
         instanceCode,
+        ...extras
     }: Inst.CreateGroupInstanceRequest): Promise<Inst.Instance> {
         const body = this.getGroupInstanceCreationData(
             worldId,
@@ -178,7 +184,8 @@ export class InstanceApi extends BaseApi {
             region,
             queueEnabled,
             roleIds,
-            instanceCode || ''
+            instanceCode || '',
+            extras
         );
 
         const paramRequest: executeRequestType = {
@@ -190,6 +197,48 @@ export class InstanceApi extends BaseApi {
         return this.executeRequest<Inst.Instance>(paramRequest);
     }
 
+    /**
+     * Close an instance, or schedule `closedAt`.
+     *
+     * VRCX calls `DELETE /instances/{worldId}:{instanceId}?hardClose=`.
+     * You can close if you own the instance, or if it is a group instance and you have `group-instance-manage`.
+     */
+    public async closeInstance({
+        worldId,
+        instanceId,
+        hardClose = false,
+        closedAt,
+    }: Inst.CloseInstanceRequest): Promise<Inst.Instance> {
+        const parameters: URLSearchParams = new URLSearchParams();
+        parameters.append('hardClose', hardClose.toString());
+        if (closedAt) parameters.append('closedAt', closedAt);
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.instances.closeInstance,
+            pathFormated: ApiPaths.instances.closeInstance.path
+                .replace('{worldId}', worldId)
+                .replace('{instanceId}', instanceId),
+            queryOptions: parameters,
+        };
+
+        return await this.executeRequest<Inst.Instance>(paramRequest);
+    }
+
+    /** Recent instance locations for the current user. */
+    public async getRecentLocations({ n, offset }: Inst.GetRecentLocationsRequest = {}): Promise<string[]> {
+        const parameters: URLSearchParams = new URLSearchParams();
+        if (n) parameters.append('n', n.toString());
+        if (offset !== undefined && offset >= 0) parameters.append('offset', offset.toString());
+
+        const paramRequest: executeRequestType = {
+            currentRequest: ApiPaths.instances.getRecentLocations,
+            pathFormated: ApiPaths.instances.getRecentLocations.path,
+            queryOptions: parameters,
+        };
+
+        return await this.executeRequest<string[]>(paramRequest);
+    }
+
     private getGroupInstanceCreationData(
         worldId: WorldIdType,
         groupAccessType: Inst.GroupAccessType,
@@ -197,7 +246,8 @@ export class InstanceApi extends BaseApi {
         region: Inst.InstanceRegionType,
         queueEnabled = false,
         roleIds: Inst.NonEmptyArray<GroupRoleIdType> | undefined,
-        instanceCode: number | string
+        instanceCode: number | string,
+        extras: Inst.CreateGroupInstanceExtras = {}
     ): Inst.dataKeysCreateGroupInstance {
         // gnerate a random code that is 1-5 digits long maximum
         if (!instanceCode) {
@@ -228,7 +278,7 @@ export class InstanceApi extends BaseApi {
                 instanceCode,
             };
 
-            return body;
+            return this.applyGroupInstanceExtras(body, extras);
         } else if (groupAccessType === Inst.GroupAccessType.Group_Plus) {
             const body: Inst.dataKeysCreateGroupInstance = {
                 groupAccessType: Inst.GroupAccessType.Group_Plus,
@@ -240,7 +290,7 @@ export class InstanceApi extends BaseApi {
                 instanceCode,
             };
 
-            return body;
+            return this.applyGroupInstanceExtras(body, extras);
         } else {
             if (!roleIds || roleIds.length === 0) {
                 throw new Error('You need to provide the roleIds parameter for a group members instance!');
@@ -256,8 +306,29 @@ export class InstanceApi extends BaseApi {
                 roleIds,
             };
 
-            return body;
+            return this.applyGroupInstanceExtras(body, extras);
         }
+    }
+
+    private applyGroupInstanceExtras(
+        body: Inst.dataKeysCreateGroupInstance,
+        extras: Inst.CreateGroupInstanceExtras
+    ): Inst.dataKeysCreateGroupInstance {
+        if (extras.ageGate !== undefined) body.ageGate = extras.ageGate;
+        if (extras.minimumAvatarPerformance !== undefined) body.minimumAvatarPerformance = extras.minimumAvatarPerformance;
+        if (extras.contentSettings !== undefined) body.contentSettings = extras.contentSettings;
+        if (extras.displayName !== undefined) body.displayName = extras.displayName;
+        if (extras.description !== undefined) body.description = extras.description;
+        if (extras.playerPersistenceEnabled !== undefined) body.playerPersistenceEnabled = extras.playerPersistenceEnabled;
+        if (extras.instancePersistenceEnabled !== undefined)
+            body.instancePersistenceEnabled = extras.instancePersistenceEnabled;
+        if (extras.canRequestInvite !== undefined) body.canRequestInvite = extras.canRequestInvite;
+        if (extras.hardClose !== undefined) body.hardClose = extras.hardClose;
+        if (extras.closedAt !== undefined) body.closedAt = extras.closedAt;
+        if (extras.calendarEntryId !== undefined) body.calendarEntryId = extras.calendarEntryId;
+        if (extras.categoryId !== undefined) body.categoryId = extras.categoryId;
+        if (extras.vibeIds !== undefined) body.vibeIds = extras.vibeIds;
+        return body;
     }
 
     /**
@@ -279,6 +350,7 @@ export class InstanceApi extends BaseApi {
         instanceType,
         instanceCode,
         ownerId,
+        ageGate,
     }: Inst.CreateRegularInstanceRequest): string {
         if (instanceType !== Inst.InstanceAccessNormalType.Public) {
             if (!ownerId) throw new Error('You need to provide the ownerId parameter for a non-public instance!');
@@ -300,22 +372,24 @@ export class InstanceApi extends BaseApi {
 
         instanceId = worldId + ':' + instanceCode;
         const nonce = this.getRandomNonce();
+        const ageGateSegment = ageGate ? '~ageGate' : '';
 
         if (instanceType === Inst.InstanceAccessNormalType.Public) {
             // Public instance type
-            instanceId += '~region(' + region + ')';
+            instanceId += ageGateSegment + '~region(' + region + ')';
         } else if (instanceType === Inst.InstanceAccessNormalType.Friends) {
             // Friends instance type
-            instanceId += '~friends(' + ownerId + ')~region(' + region + ')~nonce(' + nonce + ')';
+            instanceId += '~friends(' + ownerId + ')' + ageGateSegment + '~region(' + region + ')~nonce(' + nonce + ')';
         } else if (instanceType === Inst.InstanceAccessNormalType.Friends_Plus) {
             // Friends+ instance type
-            instanceId += '~hidden(' + ownerId + ')~region(' + region + ')~nonce(' + nonce + ')';
+            instanceId += '~hidden(' + ownerId + ')' + ageGateSegment + '~region(' + region + ')~nonce(' + nonce + ')';
         } else if (instanceType === Inst.InstanceAccessNormalType.Invite) {
             // Invite instance type
-            instanceId += '~private(' + ownerId + ')~region(' + region + ')~nonce(' + nonce + ')';
+            instanceId += '~private(' + ownerId + ')' + ageGateSegment + '~region(' + region + ')~nonce(' + nonce + ')';
         } else {
             // Invite+ instance type
-            instanceId += '~private(' + ownerId + ')~canRequestInvite~region(' + region + ')~nonce(' + nonce + ')';
+            instanceId +=
+                '~private(' + ownerId + ')~canRequestInvite' + ageGateSegment + '~region(' + region + ')~nonce(' + nonce + ')';
         }
 
         return instanceId;

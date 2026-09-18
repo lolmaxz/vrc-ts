@@ -8,6 +8,7 @@ export type Permission = {
     ownerDisplayName?: string;
     name: string;
     displayName?: string;
+    description?: string;
     type?: string;
     data?: {
         maxFavoritesPerGroup?: {
@@ -16,7 +17,8 @@ export type Permission = {
         maxFavoriteGroups?: {
             avatar?: number;
         };
-        tags: string[];
+        tags?: string[];
+        max?: number;
     };
 };
 

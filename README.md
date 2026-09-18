@@ -1,6 +1,6 @@
 # VRC-TS - A VRChat Wrapper in TypeScript
 
-Latest version: **v1.0.17**<br>
+Latest version: **v1.0.18**<br>
 Changelogs: [CHANGELOG Link](https://github.com/lolmaxz/vrc-ts/blob/main/CHANGELOG.md)
 
 From scratch TypeScript wrapper for the VRChat API, simplifying the process of interacting with VRChat's API programmatically. Perfect if you are looking to build bots, applications, or services that interact with VRChat's API!
@@ -14,6 +14,19 @@ From scratch TypeScript wrapper for the VRChat API, simplifying the process of i
 - Overall type safety across the board.
 
 <br>
+<details>
+<summary>⚠️ Updating From 1.0.17 to 1.0.18</summary>
+
+VRChat moved public profile fields off `GET /users/{userId}`. Types follow that.
+
+-   Bio, badges, and avatar images are no longer on `getUserById` / `searchAllUsers`. Use `userApi.getPublicProfile({ userId })`.
+-   Avatar URLs may be missing. The library copies `iconUrl` into them when it can.
+-   `getUserGroups` now returns `UserGroup[]`. Use `groupId` (`grp_…`), not `id` (`gmem_…`).
+-   `currentAvatarAssetUrl` is no longer on `getCurrentUser`.
+-   `getGroupMember` is `null` if that user isn't in the group.
+
+</details>
+
 <details>
 <summary>⚠️ Please Read This If You Are Updating From 1.0.5 or Lower</summary>
 

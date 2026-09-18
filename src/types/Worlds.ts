@@ -7,7 +7,6 @@ import {
     UserIdType,
     WorldIdType,
 } from './Generics';
-import { Instance } from './Instances';
 import { DeveloperType } from './Users';
 
 //! --- Worlds --- !//
@@ -23,16 +22,17 @@ export type BaseWorld = {
     recommendedCapacity: number; // integer
     imageUrl: string; // Min 1 chars
     thumbnailImageUrl: string; // Min 1 chars
-    namespace: string;
+    namespace?: string;
     version: number; // Min 0, Default: 0
     organization: string; // Min 1 chars, Default: vrchat
     previewYoutubeId?: string | null;
     defaultContentSettings: {
-        drones?: false;
-        emoji?: false;
-        pedestals?: false;
-        prints?: false;
-        stickers?: false;
+        drones?: boolean;
+        emoji?: boolean;
+        pedestals?: boolean;
+        prints?: boolean;
+        props?: boolean;
+        stickers?: boolean;
     };
     /** Product being sold in this world
      *
@@ -45,7 +45,14 @@ export type BaseWorld = {
     heat: number; // Min 0, Default: 0
     publicationDate: string; // Min 1 chars
     labsPublicationDate: string; // Min 1 chars
-    instances?: Instance[]; // Will always be an empty list when unauthenticated.
+    /** Legacy occupancy tuples. Live values are length 3: `[instanceId, userCount, extra]`. */
+    instances?: Array<[string, number, unknown?]>;
+    /** Newer object-form instance summaries. */
+    slimInstances?: SlimWorldInstance[];
+    /** Prop abilities disabled in this world. */
+    disabledPropAbilities?: string[];
+    isHypeTrainEligible?: boolean;
+    storeId?: string;
     publicOccupants?: number; // Min 0, Default: 0, Will always be 0 when unauthenticated.
     privateOccupants?: number; // Min 0, Default: 0, Will always be 0 when unauthenticated.
     occupants?: number; // Min 0, Default: 0, Will always be 0 when unauthenticated.
@@ -56,8 +63,17 @@ export type BaseWorld = {
     /** White-listed URLs for the world. */
     urlList: string[]; // Array of strings
     /** If the world has a pending upload. */
-    pendingUpload: boolean; // Default: false
+    pendingUpload?: boolean; // Default: false
 };
+
+/** Compact instance listing returned on some world payloads. */
+export type SlimWorldInstance = {
+    instanceId: string;
+    n_users: number;
+    gameServerVersion?: number;
+    languageRatio?: Record<string, number>;
+};
+
 export type World = BaseWorld & {
     unityPackages?: UnityPackage[]; // Empty if unauthenticated.
 };
@@ -85,15 +101,26 @@ export type LimitedWorld = {
     favorites: number;
     popularity: number;
     heat: number;
-    publicationDate: Date;
+    publicationDate: string;
     labsPublicationDate: string;
     occupants: number;
     unityPackages: UnityPackage[];
-    created_at: Date;
-    updated_at: Date;
+    created_at: string;
+    updated_at: string;
     tags: string[];
     /** If the world has a pending upload. */
-    pendingUpload: boolean; // Default: false
+    pendingUpload?: boolean;
+    defaultContentSettings?: {
+        drones?: boolean;
+        emoji?: boolean;
+        pedestals?: boolean;
+        prints?: boolean;
+        stickers?: boolean;
+    };
+    disabledPropAbilities?: string[];
+    isHypeTrainEligible?: boolean;
+    storeId?: string;
+    visits?: number;
 };
 
 export type WorldMetadata = {
@@ -213,8 +240,12 @@ export type dataKeysUpdateWorld = {
     authorId?: UserIdType;
     authorName?: string;
     capacity?: number;
+    recommendedCapacity?: number;
     description?: string;
+    disabledPropAbilities?: string[];
     imageUrl?: string;
+    previewYoutubeId?: string | null;
+    urlList?: string[];
     name?: string;
     platform?: string;
     releaseStatus?: WorldReleaseStatus;
@@ -270,4 +301,16 @@ export type GetWorldInstanceRequest = {
 
 export type GetWorldRestrictedContentRequest = {
     worldId: WorldIdType;
+};
+
+/** Placeholder when a favorite group points at a world the API will not describe. */
+export type UnavailableWorld = {
+    authorId?: string;
+    authorName?: string;
+    description?: string;
+    id?: WorldIdType;
+    imageUrl?: string;
+    name?: string;
+    releaseStatus?: string;
+    thumbnailImageUrl?: string;
 };

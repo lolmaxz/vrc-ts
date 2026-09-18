@@ -86,9 +86,11 @@ export class EmailOtpRequired extends Error {
  */
 export class RequestError extends Error {
     statusCode: number;
-    constructor(statusCode: number, message: string) {
+    retryAfterSeconds?: number;
+    constructor(statusCode: number, message: string, retryAfterSeconds?: number) {
         super(`${C.brightRed}[ ERROR ]${C.reset} - ${message} - Status Code: ${statusCode}`); // Pass the message to the Error constructor
         this.statusCode = statusCode;
+        this.retryAfterSeconds = retryAfterSeconds;
     }
 }
 

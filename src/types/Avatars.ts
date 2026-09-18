@@ -27,8 +27,29 @@ export type Avatar = {
     releaseStatus: AvatarReleaseStatus;
     /** If the avatar is searchable or not */
     searchable: boolean;
-    /** The style of the avatar. */
-    style: AvatarStyle;
+    /** Older payloads used this required field. Current API sends `styles`. */
+    style?: AvatarStyle;
+    /** Current API field for primary/secondary/supplementary avatar styles. */
+    styles?: AvatarStyle;
+    acknowledgements?: string;
+    attribution?: string | null;
+    listingDate?: string | null;
+    performance?: Record<string, string | number>;
+    pendingUpload?: boolean;
+    productId?: string;
+    highestPrice?: number;
+    lowestPrice?: number;
+    lock?: boolean;
+    /** Present for the avatar author while an asset is under review. */
+    activeAssetReviewId?: string;
+    publishedListings?: Array<{
+        description?: string;
+        displayName?: string;
+        imageId?: string;
+        listingId?: string;
+        listingType?: string;
+        priceTokens?: number;
+    }>;
     /** Default: `0`. Version of the avatar */
     version: number;
     /** - Default: `FALSE`. If the avatar is a featured avatar or not.
@@ -38,12 +59,12 @@ export type Avatar = {
     unityPackageUrl?: string;
     /** Object has unknown usage/fields */
     assetUrlObject?: unknown;
-    created_at: Date;
-    updated_at: Date;
+    created_at: string;
+    updated_at: string;
 
     /** Most likely deprecated */
     unityPackageUrlObject?: {
-        unityPackageUrl: string;
+        unityPackageUrl?: string;
     };
     /** Most likely deprecated */
     assetUrl?: string;
@@ -81,6 +102,7 @@ export type AvatarStyle = {
     primary?: AvatarStyleTypes | null;
     /** The secondary style of the avatar. */
     secondary?: AvatarStyleTypes | null;
+    supplementary?: string[];
 };
 
 /**
@@ -175,6 +197,12 @@ export type createAvatarOption = {
     unityPackageUrl?: string;
     /** The Unity version. Example: "2022.3.6f1". Min 1 character */
     unityVersion?: string;
+    /** Thumbnail image URL. */
+    thumbnailImageUrl?: string;
+    /** Asset version string sent on create. */
+    assetVersion?: string;
+    /** Target platform (e.g. `standalonewindows`, `android`, `ios`). */
+    platform?: string;
 };
 
 /** Request options for getting an avatar. */

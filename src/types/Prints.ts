@@ -19,17 +19,22 @@ export type Prints = {
     id: PrintIdType;
     /** The note attached to the note. Sometime can be empty. */
     note?: string;
-    /** The User ID of the owner of the print right now
-     *
-     * Warning: This is not the original owner of the print, but the current owner of the print.
-     */
-    ownerId: UserIdType;
-    /** The User ID of the user who shared this print (didn't own it originally) */
-    sharedBy: UserIdType;
+    /** Current owner. Official list/get often omit this. */
+    ownerId?: UserIdType;
+    /** User who shared this print. Official list/get often omit this. */
+    sharedBy?: UserIdType;
     /** The timestamp at which the print was created */
     timestamp: string;
     /** The World ID of the world the print was taken in */
     worldId: WorldIdType;
     /** The name of the world the print was taken in */
     worldName: string;
+};
+
+export type getPrintRequest = {
+    printId: PrintIdType;
+};
+
+export type deletePrintRequest = {
+    printId: PrintIdType;
 };

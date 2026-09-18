@@ -7,6 +7,7 @@ export type BetaIOSInformation = {
     id: BaseId;
     betaGroupId: string;
     betaName: string;
+    betaAppId?: string;
     created_at: Date | string;
     lastSynchronizedAt: Date | string;
     type: string;
@@ -48,3 +49,29 @@ export type DiscordName = {
 export type IsCreator = {
     required: boolean;
 };
+
+export type BetaUserField = {
+    allowedValues?: string[];
+    excludeFromAnalytics?: boolean;
+    required?: boolean;
+};
+
+/** Generic beta program. `getIOSClosedBetaInformation` still returns `BetaIOSInformation`. */
+export type BetaProgram = {
+    active?: boolean;
+    betaAppId?: string;
+    betaGroupId?: string;
+    betaName?: string;
+    created_at?: string;
+    id?: string;
+    lastSynchronizedAt?: string;
+    type?: string;
+    updated_at?: string;
+    userFields?: Record<string, BetaUserField>;
+};
+
+export type getBetaRequest = {
+    betaName: string;
+};
+
+export type BetaRegistration = Record<string, unknown>;

@@ -28,7 +28,11 @@ export type Subscription = {
      */
     id: string;
     steamItemId: string;
-    oculusSku: string; // todo new - undocumented
+    oculusSku?: string;
+    appleProductId?: string;
+    googlePlanId?: string;
+    googleProductId?: string;
+    picoSku?: string;
     amount: number;
     description: string;
     period: SubscriptionPeriod;
@@ -241,8 +245,8 @@ export type Balance = {
     balance: number;
     /** The field is true if you haven't done any transaction yet */
     noTransactions?: boolean;
-    /** This field is true if you have interacted with the Tilia system */
-    tiliaResponse: boolean;
+    /** This field is true if you have interacted with the Tilia system. Omitted on `/economy/balance`. */
+    tiliaResponse?: boolean;
 };
 
 export enum TiliaTypes {
@@ -543,6 +547,7 @@ export type ProductListingUdon = ProductBase & {
 export enum ProductType {
     Role = 'role',
     Udon = 'udon',
+    Inventory = 'inventory',
 }
 
 export type BalanceResult = {
@@ -561,7 +566,9 @@ export type TokenBundle = {
     /** The Steam Item ID */
     steamItemId: string;
     /** The Oculus SKU */
-    oculusSku: string;
+    oculusSku?: string;
+    appleProductId?: string;
+    googleProductId?: string;
     /** The amount of the Token Bundle */
     amount: number;
     /** The description of the Token Bundle */
@@ -609,6 +616,8 @@ export type GetOwnPurchasesRequest = {
     getAll?: boolean;
     n?: number;
     offset?: number;
+    active?: boolean;
+    receiverId?: UserIdType;
 };
 
 /** Requirement to get all Transactions */
@@ -656,4 +665,30 @@ export type getUserProductListingsRequest = {
     groupId?: GroupIdType;
     /** Get only the active product listings */
     active?: boolean;
+};
+
+export type EconomyStatus = {
+    economyOnline?: boolean;
+    economyState?: number;
+};
+
+export type Product = ProductBase & {
+    groupAccess?: boolean;
+    groupAccessRemove?: boolean;
+    groupId?: GroupIdType;
+    groupRoleId?: GroupRoleIdType;
+    imageUrl?: string;
+    productType?: ProductType | string;
+    productTypeLabel?: string;
+    purchaseCount?: number;
+    purchaseCountQuantity?: number;
+    useForSubscriberList?: boolean;
+};
+
+export type getProductListingProductsRequest = {
+    productId: ProductListingIdType | string;
+};
+
+export type getEconomyBalanceRequest = {
+    userId: UserIdType;
 };
